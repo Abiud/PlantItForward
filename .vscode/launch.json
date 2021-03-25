@@ -1,0 +1,11 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+      {
+        "name": "Flutter Web (port 7357)",
+        "request": "launch",
+        "type": "dart",
+        "args": ["--web-port", "7357"]
+      }
+    ]
+  }

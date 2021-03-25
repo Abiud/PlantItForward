@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "349459047571",
+    "project_id": "plantitforward-d1d36",
+    "storage_bucket": "plantitforward-d1d36.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:349459047571:android:418c09d67a66e4cce65966",
+        "android_client_info": {
+          "package_name": "com.abiudcantu.plant_it_forward"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "349459047571-t37cutb6kg78cccu3iq8l2fnigol22b6.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDqIUzRancIUq16uPmOAcpnZO7TBlEY78o"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "349459047571-t37cutb6kg78cccu3iq8l2fnigol22b6.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
