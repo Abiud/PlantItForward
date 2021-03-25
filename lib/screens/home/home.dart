@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:plant_it_forward/customWidgets/drawerScreen.dart';
+import 'package:plant_it_forward/customWidgets/mainSection.dart';
 import 'package:plant_it_forward/screens/home/homeScreen.dart';
 import 'package:plant_it_forward/screens/home/price.dart';
 
@@ -25,16 +26,19 @@ class _HomeState extends State<Home> {
                   selectedIndex = index;
                 });
               }),
-          Builder(builder: (context) {
-            switch (selectedIndex) {
-              case 0:
-                return HomeScreen();
-              case 1:
-                return Price();
-              default:
-                return HomeScreen();
-            }
-          })
+          MainSection(
+            selectedIndex: selectedIndex,
+          )
+          // Builder(builder: (context) {
+          //   switch (selectedIndex) {
+          //     case 0:
+          //       return HomeScreen();
+          //     case 1:
+          //       return Price();
+          //     default:
+          //       return HomeScreen();
+          //   }
+          // })
         ],
       ),
     );

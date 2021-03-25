@@ -18,7 +18,11 @@ class _DrawerScreenState extends State<DrawerScreen> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      color: primaryGreen,
+      decoration: BoxDecoration(
+          gradient: LinearGradient(
+              colors: [primaryGreen, Color(0xff4FC91D)],
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter)),
       padding: EdgeInsets.only(top: 50, bottom: 50),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -63,7 +67,7 @@ class _DrawerScreenState extends State<DrawerScreen> {
                       child: Container(
                         color: index == widget.selectedIndex
                             ? Colors.green
-                            : primaryGreen,
+                            : Colors.transparent,
                         height: 52,
                         child: Row(
                           children: [

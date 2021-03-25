@@ -5,6 +5,6 @@ class Chat extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Text("chat");
+    return Center(child: Text("chat"));
   }
 }
