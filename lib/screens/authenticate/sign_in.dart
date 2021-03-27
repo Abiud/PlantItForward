@@ -1,6 +1,5 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:plant_it_forward/config.dart';
 import 'package:plant_it_forward/customWidgets/customInputBox.dart';
 import 'package:plant_it_forward/services/auth.dart';
@@ -32,6 +31,7 @@ class _SignInState extends State<SignIn> {
     return loading
         ? Loading()
         : Scaffold(
+            backgroundColor: Colors.white,
             body: SingleChildScrollView(
               physics: BouncingScrollPhysics(),
               child: Stack(

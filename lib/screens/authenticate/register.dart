@@ -30,6 +30,7 @@ class _RegisterState extends State<Register> {
     return loading
         ? Loading()
         : Scaffold(
+            backgroundColor: Colors.white,
             body: SingleChildScrollView(
               padding: EdgeInsets.only(top: 25),
               physics: BouncingScrollPhysics(),

@@ -1,6 +1,10 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:plant_it_forward/config.dart';
 import 'package:plant_it_forward/services/auth.dart';
+import 'package:plant_it_forward/shared/loading.dart';
+import 'package:provider/provider.dart';
 
 class DrawerScreen extends StatefulWidget {
   final int selectedIndex;
@@ -55,48 +59,218 @@ class _DrawerScreenState extends State<DrawerScreen> {
           Column(
             children: drawerItems.map((e) {
               int index = drawerItems.indexOf(e);
+              final uid = await Provider.of(context).auth.getCurrentUid();
               return Padding(
-                padding: const EdgeInsets.symmetric(vertical: 4),
-                child: Theme(
-                  data: ThemeData(splashColor: Colors.green),
-                  child: Material(
-                    child: InkWell(
-                      onTap: () {
-                        widget.onIndexChanged(index);
-                      },
-                      child: Container(
-                        color: index == widget.selectedIndex
-                            ? Colors.green
-                            : Colors.transparent,
-                        height: 52,
-                        child: Row(
-                          children: [
-                            SizedBox(
-                              width: 20,
+                  padding: const EdgeInsets.symmetric(vertical: 4),
+                  child: StreamBuilder<DocumentSnapshot>(
+                    stream: FirebaseFirestore.instance
+                        .collection("users")
+                        .doc(snapshot.data.uid)
+                        .snapshots(),
+                    builder: (BuildContext context,
+                        AsyncSnapshot<DocumentSnapshot> snapshot) {
+                      if (snapshot.hasData && snapshot.data != null) {
+                        final userDoc = snapshot.data;
+                        final user = userDoc.data();
+                        if (user['role'] == 'admin') {
+                          return Theme(
+                            data: ThemeData(splashColor: Colors.green),
+                            child: Material(
+                              child: InkWell(
+                                onTap: () {
+                                  widget.onIndexChanged(index);
+                                },
+                                child: Container(
+                                  color: index == widget.selectedIndex
+                                      ? Colors.green
+                                      : Colors.transparent,
+                                  height: 52,
+                                  child: Row(
+                                    children: [
+                                      SizedBox(
+                                        width: 20,
+                                      ),
+                                      Icon(
+                                        e['icon'],
+                                        color: Colors.white,
+                                        size: 30,
+                                      ),
+                                      SizedBox(
+                                        width: 10,
+                                      ),
+                                      Text(e['title'],
+                                          style: TextStyle(
+                                              color: Colors.white,
+                                              fontWeight: FontWeight.bold,
+                                              fontSize: 20))
+                                    ],
+                                  ),
+                                ),
+                              ),
+                              color: Colors.transparent,
                             ),
-                            Icon(
-                              e['icon'],
-                              color: Colors.white,
-                              size: 30,
-                            ),
-                            SizedBox(
-                              width: 10,
-                            ),
-                            Text(e['title'],
-                                style: TextStyle(
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 20))
-                          ],
-                        ),
-                      ),
-                    ),
-                    color: Colors.transparent,
-                  ),
-                ),
-              );
+                          );
+                        } else {
+                          if (e['admin'] == false) {
+                            return Theme(
+                              data: ThemeData(splashColor: Colors.green),
+                              child: Material(
+                                child: InkWell(
+                                  onTap: () {
+                                    widget.onIndexChanged(index);
+                                  },
+                                  child: Container(
+                                    color: index == widget.selectedIndex
+                                        ? Colors.green
+                                        : Colors.transparent,
+                                    height: 52,
+                                    child: Row(
+                                      children: [
+                                        SizedBox(
+                                          width: 20,
+                                        ),
+                                        Icon(
+                                          e['icon'],
+                                          color: Colors.white,
+                                          size: 30,
+                                        ),
+                                        SizedBox(
+                                          width: 10,
+                                        ),
+                                        Text(e['title'],
+                                            style: TextStyle(
+                                                color: Colors.white,
+                                                fontWeight: FontWeight.bold,
+                                                fontSize: 20))
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                                color: Colors.transparent,
+                              ),
+                            );
+                          }
+                          return SizedBox();
+                        }
+                      } else {
+                        return Loading();
+                      }
+                    },
+                  ));
             }).toList(),
           ),
+          // Column(
+          //   children: drawerItems.map((e) {
+          //     int index = drawerItems.indexOf(e);
+          //     return StreamBuilder<User>(
+          //         stream: FirebaseAuth.instance.authStateChanges(),
+          //         builder: (context, snapshot) {
+          //           if (snapshot.hasData && snapshot.data != null) {
+          //             return Padding(
+          //                 padding: const EdgeInsets.symmetric(vertical: 4),
+          //                 child: StreamBuilder<DocumentSnapshot>(
+          //                   stream: FirebaseFirestore.instance
+          //                       .collection("users")
+          //                       .doc(snapshot.data.uid)
+          //                       .snapshots(),
+          //                   builder: (BuildContext context,
+          //                       AsyncSnapshot<DocumentSnapshot> snapshot) {
+          //                     if (snapshot.hasData && snapshot.data != null) {
+          //                       final userDoc = snapshot.data;
+          //                       final user = userDoc.data();
+          //                       if (user['role'] == 'admin') {
+          //                         return Theme(
+          //                           data: ThemeData(splashColor: Colors.green),
+          //                           child: Material(
+          //                             child: InkWell(
+          //                               onTap: () {
+          //                                 widget.onIndexChanged(index);
+          //                               },
+          //                               child: Container(
+          //                                 color: index == widget.selectedIndex
+          //                                     ? Colors.green
+          //                                     : Colors.transparent,
+          //                                 height: 52,
+          //                                 child: Row(
+          //                                   children: [
+          //                                     SizedBox(
+          //                                       width: 20,
+          //                                     ),
+          //                                     Icon(
+          //                                       e['icon'],
+          //                                       color: Colors.white,
+          //                                       size: 30,
+          //                                     ),
+          //                                     SizedBox(
+          //                                       width: 10,
+          //                                     ),
+          //                                     Text(e['title'],
+          //                                         style: TextStyle(
+          //                                             color: Colors.white,
+          //                                             fontWeight:
+          //                                                 FontWeight.bold,
+          //                                             fontSize: 20))
+          //                                   ],
+          //                                 ),
+          //                               ),
+          //                             ),
+          //                             color: Colors.transparent,
+          //                           ),
+          //                         );
+          //                       } else {
+          //                         if (e['admin'] == false) {
+          //                           return Theme(
+          //                             data:
+          //                                 ThemeData(splashColor: Colors.green),
+          //                             child: Material(
+          //                               child: InkWell(
+          //                                 onTap: () {
+          //                                   widget.onIndexChanged(index);
+          //                                 },
+          //                                 child: Container(
+          //                                   color: index == widget.selectedIndex
+          //                                       ? Colors.green
+          //                                       : Colors.transparent,
+          //                                   height: 52,
+          //                                   child: Row(
+          //                                     children: [
+          //                                       SizedBox(
+          //                                         width: 20,
+          //                                       ),
+          //                                       Icon(
+          //                                         e['icon'],
+          //                                         color: Colors.white,
+          //                                         size: 30,
+          //                                       ),
+          //                                       SizedBox(
+          //                                         width: 10,
+          //                                       ),
+          //                                       Text(e['title'],
+          //                                           style: TextStyle(
+          //                                               color: Colors.white,
+          //                                               fontWeight:
+          //                                                   FontWeight.bold,
+          //                                               fontSize: 20))
+          //                                     ],
+          //                                   ),
+          //                                 ),
+          //                               ),
+          //                               color: Colors.transparent,
+          //                             ),
+          //                           );
+          //                         }
+          //                         return SizedBox();
+          //                       }
+          //                     } else {
+          //                       return Loading();
+          //                     }
+          //                   },
+          //                 ));
+          //           }
+          //           return Loading();
+          //         });
+          //   }).toList(),
+          // ),
           Padding(
             padding: const EdgeInsets.only(left: 20.0),
             child: Row(

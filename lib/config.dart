@@ -8,9 +8,21 @@ List<BoxShadow> shadowList = [
 ];
 
 List<Map> drawerItems = [
-  {'icon': CupertinoIcons.chart_bar_alt_fill, 'title': "Overview"},
-  {'icon': CupertinoIcons.money_dollar_circle_fill, 'title': "Prices"},
-  {'icon': CupertinoIcons.doc_checkmark_fill, 'title': "Available Produce"},
-  {'icon': CupertinoIcons.cube_box_fill, 'title': "Orders"},
-  {'icon': Icons.people, 'title': "Users"},
+  {
+    'icon': CupertinoIcons.chart_bar_alt_fill,
+    'title': "Overview",
+    'admin': false
+  },
+  {
+    'icon': CupertinoIcons.money_dollar_circle_fill,
+    'title': "Prices",
+    'admin': true
+  },
+  {
+    'icon': CupertinoIcons.doc_checkmark_fill,
+    'title': "Available Produce",
+    'admin': false
+  },
+  {'icon': CupertinoIcons.cube_box_fill, 'title': "Orders", 'admin': false},
+  {'icon': Icons.people, 'title': "Users", 'admin': true},
 ];
