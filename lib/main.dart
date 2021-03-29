@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:plant_it_forward/Models/UserData.dart';
 import 'package:plant_it_forward/customWidgets/provider_widget.dart';
 import 'package:plant_it_forward/screens/authenticate/authenticate.dart';
 import 'package:plant_it_forward/screens/authenticate/register.dart';
@@ -27,7 +28,9 @@ class MyApp extends StatelessWidget {
       db: FirebaseFirestore.instance,
       child: MaterialApp(
         title: "Plant It Forward",
-        theme: ThemeData.light(),
+        theme: new ThemeData(
+            scaffoldBackgroundColor: Colors.white,
+            backgroundColor: Colors.white),
         home: Wrapper(),
       ),
     );
@@ -44,6 +47,7 @@ class Wrapper extends StatelessWidget {
       stream: auth.onAuthStateChanged,
       builder: (context, AsyncSnapshot<String> snapshot) {
         if (snapshot.connectionState == ConnectionState.active) {
+          Provider.of(context).auth.setCurrentUser(snapshot.data);
           final bool signedIn = snapshot.hasData;
           return signedIn ? Home() : Authenticate();
         }

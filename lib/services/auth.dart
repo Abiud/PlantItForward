@@ -4,9 +4,11 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:device_info/device_info.dart';
 import 'package:package_info/package_info.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:plant_it_forward/Models/UserData.dart';
 
 class AuthService {
   final FirebaseAuth _auth = FirebaseAuth.instance;
+  UserData currentUser = UserData("");
 
   Stream<String> get onAuthStateChanged =>
       _auth.authStateChanges().map((User user) => user?.uid);
@@ -18,7 +20,24 @@ class AuthService {
 
   // GET CURRENT USER
   Future getCurrentUser() async {
+    print("getting user");
     return _auth.currentUser;
+  }
+
+  Future setCurrentUser(String uid) async {
+    if (uid != null) {
+      await FirebaseFirestore.instance
+          .collection("users")
+          .doc(uid)
+          .get()
+          .then((res) {
+        currentUser.name = res.data()['name'];
+        currentUser.role = res.data()['role'];
+      });
+    } else {
+      currentUser = UserData("");
+    }
+    print("setting temporal user");
   }
 
   // sign in email

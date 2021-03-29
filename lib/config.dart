@@ -13,6 +13,7 @@ List<Map> drawerItems = [
     'title': "Overview",
     'admin': false
   },
+  {'icon': Icons.chat_bubble, 'title': "Chat", 'admin': false},
   {
     'icon': CupertinoIcons.money_dollar_circle_fill,
     'title': "Prices",

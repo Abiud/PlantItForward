@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:plant_it_forward/config.dart';
 import 'package:plant_it_forward/customWidgets/drawerScreen.dart';
-import 'package:plant_it_forward/screens/home/chat.dart';
+import 'package:plant_it_forward/customWidgets/provider_widget.dart';
+import 'package:plant_it_forward/screens/home/Chat/chat.dart';
 import 'package:plant_it_forward/screens/home/homeScreen.dart';
 import 'package:plant_it_forward/screens/home/price.dart';
 
@@ -19,6 +20,7 @@ class _HomeState extends State<Home> {
   double scaleFactor = 1;
 
   bool isDrawerOpen = false;
+
   @override
   Widget build(BuildContext context) {
     double scrWidth = MediaQuery.of(context).size.width;
@@ -64,7 +66,7 @@ class _HomeState extends State<Home> {
                 ..scale(scaleFactor),
               duration: Duration(milliseconds: 250),
               decoration: BoxDecoration(
-                  color: Colors.grey[200],
+                  color: Colors.white,
                   borderRadius: BorderRadius.circular(isDrawerOpen ? 40 : 0)),
               child: SafeArea(
                 child: Column(
@@ -123,6 +125,8 @@ class _HomeState extends State<Home> {
                             case 0:
                               return HomeScreen();
                             case 1:
+                              return Chat();
+                            case 2:
                               return Price();
                             default:
                               return HomeScreen();
