@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:plant_it_forward/Models/UserData.dart';
 import 'package:plant_it_forward/config.dart';
-import 'package:plant_it_forward/customWidgets/provider_widget.dart';
+import 'package:plant_it_forward/widgets/provider_widget.dart';
 import 'package:plant_it_forward/services/auth.dart';
 
 class DrawerScreen extends StatefulWidget {

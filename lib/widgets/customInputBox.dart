@@ -3,8 +3,8 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:plant_it_forward/config.dart';
 
 class MyCustomInputBox extends StatefulWidget {
-  String label;
-  String inputHint;
+  final String label;
+  final String inputHint;
   final Function validatorFn;
   final Function onChangedFn;
   MyCustomInputBox(

@@ -1,7 +1,7 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:plant_it_forward/config.dart';
-import 'package:plant_it_forward/customWidgets/customInputBox.dart';
+import 'package:plant_it_forward/widgets/customInputBox.dart';
 import 'package:plant_it_forward/services/auth.dart';
 import 'package:plant_it_forward/shared/loading.dart';
 

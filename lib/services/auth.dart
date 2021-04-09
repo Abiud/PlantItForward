@@ -20,7 +20,6 @@ class AuthService {
 
   // GET CURRENT USER
   Future getCurrentUser() async {
-    print("getting user");
     return _auth.currentUser;
   }
 

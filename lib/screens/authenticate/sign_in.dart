@@ -1,7 +1,7 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:plant_it_forward/config.dart';
-import 'package:plant_it_forward/customWidgets/customInputBox.dart';
+import 'package:plant_it_forward/widgets/customInputBox.dart';
 import 'package:plant_it_forward/services/auth.dart';
 import 'package:plant_it_forward/shared/loading.dart';
 
@@ -234,12 +234,12 @@ class _SignInState extends State<SignIn> {
   }
 }
 
-class btnStyle extends StatelessWidget {
-  String char;
-  double wdt;
-  Function onPressedFn;
+class BtnStyle extends StatelessWidget {
+  final String char;
+  final double wdt;
+  final Function onPressedFn;
 
-  btnStyle({this.char, this.wdt, this.onPressedFn});
+  BtnStyle({this.char, this.wdt, this.onPressedFn});
   @override
   Widget build(BuildContext context) {
     return Container(

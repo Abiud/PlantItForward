@@ -1,12 +1,10 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'package:plant_it_forward/Models/UserData.dart';
-import 'package:plant_it_forward/customWidgets/provider_widget.dart';
+import 'package:plant_it_forward/widgets/provider_widget.dart';
 import 'package:plant_it_forward/screens/authenticate/authenticate.dart';
-import 'package:plant_it_forward/screens/authenticate/register.dart';
-import 'package:plant_it_forward/screens/authenticate/sign_in.dart';
 import 'package:plant_it_forward/screens/home/home.dart';
 import 'package:plant_it_forward/services/auth.dart';
 import 'package:plant_it_forward/shared/loading.dart';
@@ -26,12 +24,16 @@ class MyApp extends StatelessWidget {
     return Provider(
       auth: AuthService(),
       db: FirebaseFirestore.instance,
-      child: MaterialApp(
+      child: CupertinoApp(
         title: "Plant It Forward",
-        theme: new ThemeData(
-            scaffoldBackgroundColor: Colors.white,
-            backgroundColor: Colors.white),
+        debugShowCheckedModeBanner: false,
+        theme: CupertinoThemeData(brightness: Brightness.light),
         home: Wrapper(),
+        localizationsDelegates: [
+          DefaultMaterialLocalizations.delegate,
+          DefaultCupertinoLocalizations.delegate,
+          DefaultWidgetsLocalizations.delegate,
+        ],
       ),
     );
   }
