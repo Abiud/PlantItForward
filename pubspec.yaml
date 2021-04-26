@@ -38,7 +38,10 @@ dependencies:
   table_calendar: ^2.3.3
   modal_bottom_sheet: ^2.0.0
   money2: ^2.0.2
-  another_flushbar: ^1.10.17
+  get_it: ^6.1.1
+  firebase_analytics: ^8.0.1
+  stacked: ^2.1.0
+  firebase_messaging: ^9.1.2
 
 dev_dependencies:
   flutter_test:

@@ -1,8 +1,8 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:plant_it_forward/config.dart';
+import 'package:plant_it_forward/services/authentication_service.dart';
 import 'package:plant_it_forward/widgets/customInputBox.dart';
-import 'package:plant_it_forward/services/auth.dart';
 import 'package:plant_it_forward/shared/loading.dart';
 
 class SignIn extends StatefulWidget {
@@ -14,7 +14,7 @@ class SignIn extends StatefulWidget {
 }
 
 class _SignInState extends State<SignIn> {
-  final AuthService _auth = AuthService();
+  final AuthenticationService _auth = AuthenticationService();
   final _formKey = GlobalKey<FormState>();
   bool loading = false;
 
@@ -148,8 +148,8 @@ class _SignInState extends State<SignIn> {
                                   FocusScope.of(context).unfocus();
                                   if (_formKey.currentState.validate()) {
                                     setState(() => {loading = true});
-                                    dynamic result = await _auth
-                                        .signInWithEmail(email, password);
+                                    dynamic result = await _auth.loginWithEmail(
+                                        email: email, password: password);
                                     if (result == null) {
                                       setState(() {
                                         error = 'Invalid Credentials';

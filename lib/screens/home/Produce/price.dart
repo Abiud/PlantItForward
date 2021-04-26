@@ -13,11 +13,13 @@ class Price extends StatefulWidget {
 
 class _PriceState extends State<Price> {
   TextEditingController _searchController = TextEditingController();
-
-  Future resultsLoaded;
-  List _allResults = [];
-  List _resultsList = [];
-  bool loading = true;
+  CollectionReference prices =
+      FirebaseFirestore.instance.collection("products");
+  String searchValue = "";
+  // Future resultsLoaded;
+  // List _allResults = [];
+  // List _resultsList = [];
+  // bool loading = true;
 
   @override
   void initState() {
@@ -32,78 +34,62 @@ class _PriceState extends State<Price> {
     super.dispose();
   }
 
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    resultsLoaded = getUsersPastTripsStreamSnapshots();
-  }
-
   _onSearchChanged() {
     searchResultsList();
   }
 
   searchResultsList() {
-    var showResults = [];
-
-    if (_searchController.text != "") {
-      for (var productSnapshot in _allResults) {
-        var title = Product.fromSnapshot(productSnapshot).name.toLowerCase();
-
-        if (title.contains(_searchController.text.toLowerCase())) {
-          showResults.add(productSnapshot);
-        }
-      }
-    } else {
-      showResults = List.from(_allResults);
-    }
     setState(() {
-      _resultsList = showResults;
+      searchValue = _searchController.text.toLowerCase();
     });
-  }
-
-  Future<void> getUsersPastTripsStreamSnapshots() async {
-    setState(() {
-      loading = true;
-    });
-    // final uid = await Provider.of(context).auth.getCurrentUID();
-    var data = await FirebaseFirestore.instance.collection('products').get();
-    setState(() {
-      _allResults = data.docs;
-    });
-    searchResultsList();
-    setState(() {
-      loading = false;
-    });
-    return "complete";
   }
 
   @override
   Widget build(BuildContext context) {
     return Material(
       color: Colors.transparent,
-      child: Container(
-        child: Column(
-          children: <Widget>[
-            Padding(
-              padding: const EdgeInsets.all(16),
-              child: CupertinoSearchTextField(
-                controller: _searchController,
-              ),
+      child: Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(16),
+            child: CupertinoSearchTextField(
+              controller: _searchController,
             ),
-            loading
-                ? CupertinoActivityIndicator()
-                : Expanded(
-                    child: RefreshIndicator(
-                      child: ListView.builder(
-                          padding: EdgeInsets.all(8),
-                          itemCount: _resultsList.length,
-                          itemBuilder: (BuildContext context, int index) =>
-                              buildProductCard(context, _resultsList[index])),
-                      onRefresh: getUsersPastTripsStreamSnapshots,
-                    ),
+          ),
+          StreamBuilder<QuerySnapshot>(
+            stream: (searchValue != "" && searchValue != null)
+                ? FirebaseFirestore.instance
+                    .collection('products')
+                    .where('searchKeywords', arrayContains: searchValue)
+                    .orderBy('name')
+                    .snapshots()
+                : FirebaseFirestore.instance
+                    .collection('products')
+                    .orderBy('name')
+                    .snapshots(),
+            builder:
+                (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
+              if (snapshot.hasError) {
+                return Text('Something went wrong');
+              }
+
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return CupertinoActivityIndicator();
+              }
+
+              return Container(
+                child: Expanded(
+                  child: ListView(
+                    children:
+                        snapshot.data.docs.map((DocumentSnapshot document) {
+                      return buildProductCard(context, document);
+                    }).toList(),
                   ),
-          ],
-        ),
+                ),
+              );
+            },
+          ),
+        ],
       ),
     );
   }

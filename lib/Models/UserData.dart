@@ -1,17 +1,23 @@
 class UserData {
-  String name;
-  String role;
+  final String id;
+  final String fullName;
+  final String email;
+  final String userRole;
 
-  UserData(
-    this.name,
-  );
+  UserData({this.id, this.fullName, this.email, this.userRole});
 
-  Map<String, dynamic> toJson() => {
-        'name': name,
-        'role': role,
-      };
+  UserData.fromData(Map<String, dynamic> data)
+      : id = data['id'],
+        fullName = data['fullName'],
+        email = data['email'],
+        userRole = data['userRole'];
 
-  bool isAdmin() {
-    return role == "admin";
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'fullName': fullName,
+      'email': email,
+      'userRole': userRole,
+    };
   }
 }

@@ -4,10 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:money2/money2.dart';
 import 'package:plant_it_forward/Models/Product.dart';
 import 'package:plant_it_forward/config.dart';
-import 'package:plant_it_forward/screens/home/Produce/price.dart';
-import 'package:plant_it_forward/screens/home/Produce/produce.dart';
-import 'package:plant_it_forward/widgets/provider_widget.dart';
-import 'package:another_flushbar/flushbar.dart';
 
 class ProductView extends StatefulWidget {
   final Product product;
@@ -23,140 +19,134 @@ class _ProductViewState extends State<ProductView> {
 
   @override
   Widget build(BuildContext context) {
-    String price = widget.product.price.toString();
-    String quantityValue = widget.product.quantity;
-    return CupertinoPageScaffold(
-      navigationBar: CupertinoNavigationBar(
-        heroTag: 'single_product', // a different string for each navigationBar
-        transitionBetweenRoutes: false,
-        middle: Text(widget.product.name),
-        trailing: Material(
-          child: PopupMenuButton(
-            shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.all(Radius.circular(15.0))),
-            padding: EdgeInsets.all(0),
-            onSelected: (res) {
-              if (res == 0) {
-                deleteTrip(context);
-                Navigator.pop(context);
-              }
-            },
-            itemBuilder: (BuildContext context) {
-              return [
-                PopupMenuItem(
-                  value: 0,
-                  child: ListTile(
-                    leading: Icon(
-                      CupertinoIcons.delete,
-                      size: 24,
-                    ),
-                    title: Text('Delete'),
-                  ),
-                ),
-              ];
-            },
-          ),
-        ),
-      ),
-      // trailing: CupertinoButton(
-      //   padding: EdgeInsets.zero,
-      //   child: Icon(
-      //     CupertinoIcons.ellipsis_vertical,
-      //   ),
-      //   onPressed: () {},
-      // )),
-      child: SafeArea(
-          child: SingleChildScrollView(
-              child: Material(
-        color: Colors.white,
-        child: Form(
-            key: _formKey,
-            child: Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Column(
-                children: [
-                  DropdownButtonFormField(
-                      decoration: InputDecoration(
-                          border: UnderlineInputBorder(),
-                          labelText: 'Quantity',
-                          hintText: "Per pound/Per bunch"),
-                      value: quantityValue,
-                      onChanged: (val) {
-                        widget.product.quantity = val;
-                        quantityValue = val;
-                      },
-                      items: <String>['per ounce', 'per bunch']
-                          .map<DropdownMenuItem<String>>((String e) {
-                        return DropdownMenuItem<String>(
-                          child: Text(e),
-                          value: e,
-                        );
-                      }).toList()),
-                  SizedBox(
-                    height: 16,
-                  ),
-                  TextFormField(
-                    decoration: InputDecoration(
-                        border: UnderlineInputBorder(),
-                        labelText: 'Price',
-                        hintText: "\$2.50"),
-                    initialValue: price,
-                    validator: (val) {
-                      // if (val.startsWith(RegExp('\$' + '[0-9]+[.][0-9]+'))) {
-                      try {
-                        widget.product.price = usdCurrency.parse(price);
-                        return null;
-                      } catch (e) {
-                        return r'The value needs to be in the format "$0.0"';
-                      }
-                    },
-                    onChanged: (val) {
-                      price = val;
-                    },
-                  ),
-                  SizedBox(
-                    height: 16,
-                  ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
-                      CupertinoButton(
-                          child: Text("Save"),
-                          color: primaryGreen,
-                          onPressed: () {
-                            if (_formKey.currentState.validate()) {
-                              updateTrip(context).then((_) async {
-                                await Flushbar(
-                                  title: 'Item updated!',
-                                  message: widget.product.name +
-                                      ' updated succefully',
-                                  duration: Duration(seconds: 3),
-                                ).show(context);
-                              });
-                            }
-                          }),
-                    ],
-                  ),
-                ],
-              ),
-            )),
-      ))),
-    );
+    return Container();
+    // String price = widget.product.price.toString();
+    // String quantityValue = widget.product.quantity;
+    // return CupertinoPageScaffold(
+    //   navigationBar: CupertinoNavigationBar(
+    //     heroTag: 'single_product', // a different string for each navigationBar
+    //     transitionBetweenRoutes: false,
+    //     middle: Text(widget.product.name),
+    //     trailing: Material(
+    //       child: PopupMenuButton(
+    //         shape: RoundedRectangleBorder(
+    //             borderRadius: BorderRadius.all(Radius.circular(15.0))),
+    //         padding: EdgeInsets.all(0),
+    //         onSelected: (res) {
+    //           if (res == 0) {
+    //             deleteTrip(context);
+    //             Navigator.pop(context);
+    //           }
+    //         },
+    //         itemBuilder: (BuildContext context) {
+    //           return [
+    //             PopupMenuItem(
+    //               value: 0,
+    //               child: ListTile(
+    //                 leading: Icon(
+    //                   CupertinoIcons.delete,
+    //                   size: 24,
+    //                 ),
+    //                 title: Text('Delete'),
+    //               ),
+    //             ),
+    //           ];
+    //         },
+    //       ),
+    //     ),
+    //   ),
+    //   // trailing: CupertinoButton(
+    //   //   padding: EdgeInsets.zero,
+    //   //   child: Icon(
+    //   //     CupertinoIcons.ellipsis_vertical,
+    //   //   ),
+    //   //   onPressed: () {},
+    //   // )),
+    //   child: SafeArea(
+    //       child: SingleChildScrollView(
+    //           child: Material(
+    //     color: Colors.white,
+    //     child: Form(
+    //         key: _formKey,
+    //         child: Padding(
+    //           padding: const EdgeInsets.all(16.0),
+    //           child: Column(
+    //             children: [
+    //               DropdownButtonFormField(
+    //                   decoration: InputDecoration(
+    //                       border: UnderlineInputBorder(),
+    //                       labelText: 'Quantity',
+    //                       hintText: "Per pound/Per bunch"),
+    //                   value: quantityValue,
+    //                   onChanged: (val) {
+    //                     widget.product.quantity = val;
+    //                     quantityValue = val;
+    //                   },
+    //                   items: <String>['per ounce', 'per bunch']
+    //                       .map<DropdownMenuItem<String>>((String e) {
+    //                     return DropdownMenuItem<String>(
+    //                       child: Text(e),
+    //                       value: e,
+    //                     );
+    //                   }).toList()),
+    //               SizedBox(
+    //                 height: 16,
+    //               ),
+    //               TextFormField(
+    //                 decoration: InputDecoration(
+    //                     border: UnderlineInputBorder(),
+    //                     labelText: 'Price',
+    //                     hintText: "\$2.50"),
+    //                 initialValue: price,
+    //                 validator: (val) {
+    //                   // if (val.startsWith(RegExp('\$' + '[0-9]+[.][0-9]+'))) {
+    //                   try {
+    //                     widget.product.price = usdCurrency.parse(price);
+    //                     return null;
+    //                   } catch (e) {
+    //                     return r'The value needs to be in the format "$0.0"';
+    //                   }
+    //                 },
+    //                 onChanged: (val) {
+    //                   price = val;
+    //                 },
+    //               ),
+    //               SizedBox(
+    //                 height: 16,
+    //               ),
+    //               Row(
+    //                 mainAxisAlignment: MainAxisAlignment.end,
+    //                 children: [
+    //                   CupertinoButton(
+    //                       child: Text("Save"),
+    //                       color: primaryGreen,
+    //                       onPressed: () {
+    //                         if (_formKey.currentState.validate()) {
+    //                           updateTrip(context);
+    //                         }
+    //                       }),
+    //                 ],
+    //               ),
+    //             ],
+    //           ),
+    //         )),
+    //   ))),
+    // );
   }
 
-  Future updateTrip(context) async {
-    final doc = FirebaseFirestore.instance
-        .collection('products')
-        .doc(widget.product.documentId);
+  // Future updateTrip(context) async {
+  //   final doc = FirebaseFirestore.instance
+  //       .collection('products')
+  //       .doc(widget.product.documentId);
 
-    return await doc.set(widget.product.toJson());
-  }
+  //   return await doc.set(widget.product.toJson());
+  // }
 
-  Future deleteTrip(context) async {
-    final doc = FirebaseFirestore.instance
-        .collection('products')
-        .doc(widget.product.documentId);
+  // Future deleteTrip(context) async {
+  //   final doc = FirebaseFirestore.instance
+  //       .collection('products')
+  //       .doc(widget.product.documentId);
 
-    return await doc.delete();
-  }
+  //   return await doc.delete();
+  // }
 }

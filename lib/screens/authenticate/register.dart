@@ -1,8 +1,9 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:plant_it_forward/config.dart';
+import 'package:plant_it_forward/constants/route_names.dart';
+import 'package:plant_it_forward/services/authentication_service.dart';
 import 'package:plant_it_forward/widgets/customInputBox.dart';
-import 'package:plant_it_forward/services/auth.dart';
 import 'package:plant_it_forward/shared/loading.dart';
 
 class Register extends StatefulWidget {
@@ -14,7 +15,7 @@ class Register extends StatefulWidget {
 }
 
 class _RegisterState extends State<Register> {
-  final AuthService _auth = AuthService();
+  final AuthenticationService _auth = AuthenticationService();
   final _formKey = GlobalKey<FormState>();
   bool loading = false;
   // text field state
@@ -145,9 +146,11 @@ class _RegisterState extends State<Register> {
                                   FocusScope.of(context).unfocus();
                                   if (_formKey.currentState.validate()) {
                                     setState(() => {loading = true});
-                                    dynamic result = await _auth
-                                        .registerWithEmailAndPassword(
-                                            email, password, name);
+                                    dynamic result =
+                                        await _auth.signUpWithEmail(
+                                            email: email,
+                                            password: password,
+                                            fullName: name);
                                     if (result == null) {
                                       setState(() {
                                         error =

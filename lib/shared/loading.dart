@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_spinkit/flutter_spinkit.dart';
-import 'package:plant_it_forward/config.dart';
 
 class Loading extends StatelessWidget {
   const Loading({Key key}) : super(key: key);
@@ -8,13 +6,24 @@ class Loading extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      color: Colors.white,
-      child: Center(
-        child: SpinKitChasingDots(
-          color: primaryGreen,
-          size: 50.0,
-        ),
-      ),
-    );
+        color: Colors.white,
+        child: Center(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: <Widget>[
+              SizedBox(
+                width: 300,
+                height: 100,
+                child: Image.asset('assets/PIF-Logo-removebg_10.png'),
+              ),
+              CircularProgressIndicator(
+                strokeWidth: 3,
+                valueColor: AlwaysStoppedAnimation(
+                  Theme.of(context).primaryColor,
+                ),
+              )
+            ],
+          ),
+        ));
   }
 }
