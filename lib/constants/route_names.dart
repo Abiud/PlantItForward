@@ -1,4 +1,3 @@
-const String LoginViewRoute = "LoginView";
-const String SignUpViewRoute = "SignUp";
+const String AuthViewRoute = "AuthView";
 const String HomeViewRoute = "HomeView";
 const String CreateProductViewRoute = "CreateProductView";

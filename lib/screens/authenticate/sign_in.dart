@@ -198,9 +198,7 @@ class _SignInState extends State<SignIn> {
                         TextSpan(
                             text: "Register",
                             recognizer: TapGestureRecognizer()
-                              ..onTap = () {
-                                widget.toggleView();
-                              },
+                              ..onTap = () => widget.toggleView(),
                             style: TextStyle(
                                 fontSize: 15,
                                 fontWeight: FontWeight.normal,

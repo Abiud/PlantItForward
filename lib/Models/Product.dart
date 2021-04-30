@@ -1,21 +1,15 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:money2/money2.dart';
 import 'package:plant_it_forward/extensions/CapExtension.dart';
 import 'package:flutter/foundation.dart';
 
 class Product {
   final String userId;
-  final String name;
-  final String quantity;
-  final String documentId;
-  final Money price;
+  String name;
+  String quantity;
+  String documentId;
+  Money price;
 
-  Product(
-      {@required this.userId,
-      @required this.name,
-      this.documentId,
-      this.quantity,
-      this.price});
+  Product({this.userId, this.name, this.documentId, this.quantity, this.price});
 
   Map<String, dynamic> toMap() {
     return {

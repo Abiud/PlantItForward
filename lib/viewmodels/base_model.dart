@@ -7,7 +7,9 @@ class BaseModel extends ChangeNotifier {
   final AuthenticationService _authenticationService =
       locator<AuthenticationService>();
 
-  UserData get currentUser => _authenticationService.currentUser;
+  // UserData get currentUser => _authenticationService.currentUser;
+  UserData _currentUser;
+  UserData get currentUser => _currentUser;
 
   bool _busy = false;
   bool get busy => _busy;
@@ -15,5 +17,12 @@ class BaseModel extends ChangeNotifier {
   void setBusy(bool value) {
     _busy = value;
     notifyListeners();
+  }
+
+  Future<void> getCurrentUser() async {
+    if (_currentUser == null) {
+      await _authenticationService.isUserLoggedIn();
+      _currentUser = _authenticationService.currentUser;
+    }
   }
 }

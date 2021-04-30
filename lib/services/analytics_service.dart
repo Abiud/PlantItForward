@@ -24,10 +24,9 @@ class AnalyticsService {
     await _analytics.logSignUp(signUpMethod: 'email');
   }
 
-  Future logPostCreated({bool hasImage}) async {
+  Future logProductCreated() async {
     await _analytics.logEvent(
-      name: 'create_post',
-      parameters: {'has_image': hasImage},
+      name: 'create_product',
     );
   }
 }

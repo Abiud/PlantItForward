@@ -14,6 +14,8 @@ class FirestoreService {
   final StreamController<List<Product>> _productsController =
       StreamController<List<Product>>.broadcast();
 
+  String sortProductsBy = "name";
+
   // #6: Create a list that will keep the paged results
   List<List<Product>> _allPagedResults = [<Product>[]];
 
@@ -51,7 +53,7 @@ class FirestoreService {
 
   Future addProduct(Product product) async {
     try {
-      await _productsCollectionReference.add(product.toMap());
+      return await _productsCollectionReference.add(product.toMap());
     } catch (e) {
       // TODO: Find or create a way to repeat error handling without so much repeated code
       if (e is PlatformException) {
@@ -88,11 +90,17 @@ class FirestoreService {
     return _productsController.stream;
   }
 
+  void resetStream() {
+    _lastDocument = null;
+    _hasMoreProducts = true;
+    _allPagedResults = [<Product>[]];
+  }
+
   // #1: Move the request products into it's own function
   void _requestProducts() {
     // #2: split the query from the actual subscription
     var pageProductsQuery = _productsCollectionReference
-        .orderBy('name')
+        .orderBy(sortProductsBy)
         // #3: Limit the amount of results
         .limit(ProductsLimit);
 

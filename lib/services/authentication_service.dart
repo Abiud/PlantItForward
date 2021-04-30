@@ -63,6 +63,7 @@ class AuthenticationService {
   // sign out
   Future signOut() async {
     try {
+      print("Sign out");
       _currentUser = new UserData();
       return await _firebaseAuth.signOut();
     } catch (e) {
@@ -77,8 +78,10 @@ class AuthenticationService {
     return user != null;
   }
 
-  Stream<String> get onAuthStateChanged =>
-      _firebaseAuth.authStateChanges().map((User user) => user?.uid);
+  Stream<String> get onAuthStateChanged {
+    _populateCurrentUser(_firebaseAuth.currentUser);
+    return _firebaseAuth.authStateChanges().map((User user) => user?.uid);
+  }
 
   Future _populateCurrentUser(User user) async {
     if (user != null) {
