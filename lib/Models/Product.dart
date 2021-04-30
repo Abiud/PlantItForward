@@ -1,3 +1,4 @@
+// import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:money2/money2.dart';
 import 'package:plant_it_forward/extensions/CapExtension.dart';
 import 'package:flutter/foundation.dart';
@@ -8,8 +9,17 @@ class Product {
   String quantity;
   String documentId;
   Money price;
+  dynamic createdAt;
+  dynamic updatedAt;
 
-  Product({this.userId, this.name, this.documentId, this.quantity, this.price});
+  Product(
+      {this.userId,
+      this.name,
+      this.documentId,
+      this.quantity,
+      this.price,
+      this.createdAt,
+      this.updatedAt});
 
   Map<String, dynamic> toMap() {
     return {
@@ -17,20 +27,24 @@ class Product {
       'name': name.inCaps,
       'quantity': quantity,
       'price': price.minorUnits.toInt(),
-      'searchKeywords': createKeywords()
-    };
+      'searchKeywords': createKeywords(),
+      'createdAt': createdAt,
+      'updated_at': updatedAt
+    }..removeWhere(
+        (dynamic key, dynamic value) => key == null || value == null);
   }
 
   static Product fromMap(Map<String, dynamic> map, String documentId) {
     if (map == null) return null;
 
     return Product(
-      name: map['name'],
-      quantity: map['quantity'],
-      userId: map['userId'],
-      price: Money.fromInt(map['price'], Currency.create('USD', 2)),
-      documentId: documentId,
-    );
+        name: map['name'],
+        quantity: map['quantity'],
+        userId: map['userId'],
+        price: Money.fromInt(map['price'], Currency.create('USD', 2)),
+        documentId: documentId,
+        createdAt: map['createdAt'],
+        updatedAt: map['updatedAt']);
   }
 
   List createKeywords() {

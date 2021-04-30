@@ -28,7 +28,9 @@ class CreateProductView extends StatelessWidget {
                   model.editting ? 'Edit Product' : 'Add Product',
                 ),
                 actions: [
-                  IconButton(icon: Icon(Icons.delete), onPressed: () => {}),
+                  IconButton(
+                      icon: Icon(Icons.delete),
+                      onPressed: () => model.deleteProduct()),
                   IconButton(
                       icon: Icon(CupertinoIcons.clock_solid),
                       onPressed: () => {}),
