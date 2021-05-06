@@ -28,12 +28,16 @@ class CreateProductView extends StatelessWidget {
                   model.editting ? 'Edit Product' : 'Add Product',
                 ),
                 actions: [
-                  IconButton(
-                      icon: Icon(Icons.delete),
-                      onPressed: () => model.deleteProduct()),
-                  IconButton(
-                      icon: Icon(CupertinoIcons.clock_solid),
-                      onPressed: () => {}),
+                  model.editting
+                      ? IconButton(
+                          icon: Icon(Icons.delete),
+                          onPressed: () => model.deleteProduct())
+                      : Text(''),
+                  model.editting
+                      ? IconButton(
+                          icon: Icon(CupertinoIcons.clock_solid),
+                          onPressed: () => model.goToHistory())
+                      : Text('')
                 ],
               ),
               floatingActionButton: FloatingActionButton(

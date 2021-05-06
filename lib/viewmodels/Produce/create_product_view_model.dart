@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:plant_it_forward/constants/route_names.dart';
 import 'package:plant_it_forward/locator.dart';
 import 'package:plant_it_forward/Models/Product.dart';
 import 'package:plant_it_forward/services/analytics_service.dart';
@@ -128,5 +129,10 @@ class CreateProductViewModel extends BaseModel {
     } catch (e) {
       return r'The value needs to be in the format "$0.0"';
     }
+  }
+
+  void goToHistory() {
+    _navigationService.navigateTo(PriceHistoryViewRoute,
+        arguments: _product.documentId);
   }
 }

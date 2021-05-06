@@ -3,6 +3,7 @@ import 'package:plant_it_forward/Models/Product.dart';
 import 'package:plant_it_forward/constants/route_names.dart';
 import 'package:plant_it_forward/screens/authenticate/authenticate.dart';
 import 'package:plant_it_forward/screens/home/Produce/create_product_view.dart';
+import 'package:plant_it_forward/screens/home/Produce/price_history_view.dart';
 import 'package:plant_it_forward/screens/home/home_view.dart';
 
 Route<dynamic> generateRoute(RouteSettings settings) {
@@ -23,6 +24,14 @@ Route<dynamic> generateRoute(RouteSettings settings) {
         routeName: settings.name,
         viewToShow: CreateProductView(
           edittingProduct: productToEdit,
+        ),
+      );
+    case PriceHistoryViewRoute:
+      var productToEdit = settings.arguments as String;
+      return _getPageRoute(
+        routeName: settings.name,
+        viewToShow: PriceHistoryView(
+          productId: productToEdit,
         ),
       );
     default:

@@ -44,44 +44,61 @@ class PricesView extends StatelessWidget {
                               }
                             },
                             child: index == 0
-                                ? Padding(
-                                    padding:
-                                        const EdgeInsets.symmetric(vertical: 4),
-                                    child: Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceBetween,
-                                      children: [
-                                        Row(
+                                ? Column(
+                                    children: [
+                                      Padding(
+                                        padding: const EdgeInsets.symmetric(
+                                            vertical: 4),
+                                        child: Row(
                                           mainAxisAlignment:
-                                              MainAxisAlignment.start,
+                                              MainAxisAlignment.spaceBetween,
                                           children: [
-                                            Text("Sort By"),
-                                            horizontalSpaceSmall,
-                                            DropdownButton(
-                                              value: model.sortBy,
-                                              items: <String>[
-                                                'name',
-                                                'price'
-                                              ].map<DropdownMenuItem<String>>(
-                                                  (String value) {
-                                                return DropdownMenuItem<String>(
-                                                  value: value,
-                                                  child: Text(value),
-                                                );
-                                              }).toList(),
-                                              onChanged: (String value) {
-                                                model.sortBy = value;
-                                                model.updateSort();
-                                              },
+                                            Row(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment.start,
+                                              children: [
+                                                Text("Sort By"),
+                                                horizontalSpaceSmall,
+                                                DropdownButton(
+                                                  value: model.sortBy,
+                                                  items: <String>[
+                                                    'name',
+                                                    'price'
+                                                  ].map<
+                                                          DropdownMenuItem<
+                                                              String>>(
+                                                      (String value) {
+                                                    return DropdownMenuItem<
+                                                        String>(
+                                                      value: value,
+                                                      child: Text(value),
+                                                    );
+                                                  }).toList(),
+                                                  onChanged: (String value) {
+                                                    model.sortBy = value;
+                                                    model.updateSort();
+                                                  },
+                                                ),
+                                              ],
                                             ),
+                                            IconButton(
+                                                padding: EdgeInsets.zero,
+                                                icon: Icon(Icons.search),
+                                                onPressed: () =>
+                                                    print("search")),
                                           ],
                                         ),
-                                        IconButton(
-                                            padding: EdgeInsets.zero,
-                                            icon: Icon(Icons.search),
-                                            onPressed: () => print("search")),
-                                      ],
-                                    ),
+                                      ),
+                                      verticalSpaceSmall,
+                                      GestureDetector(
+                                        onTap: () => model.editProduct(index),
+                                        child: ProductItem(
+                                          product: model.products[index],
+                                          onDeleteItem: () =>
+                                              model.deleteProduct(index),
+                                        ),
+                                      ),
+                                    ],
                                   )
                                 : GestureDetector(
                                     onTap: () => model.editProduct(index),

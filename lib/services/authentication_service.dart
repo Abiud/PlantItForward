@@ -50,7 +50,7 @@ class AuthenticationService {
       await _firestoreService.createUser(_currentUser);
       await _analyticsService.setUserProperties(
         userId: authResult.user.uid,
-        userRole: _currentUser.userRole,
+        userRole: _currentUser.role,
       );
 
       return authResult.user != null;
@@ -87,7 +87,7 @@ class AuthenticationService {
       _currentUser = await _firestoreService.getUser(user.uid);
       await _analyticsService.setUserProperties(
         userId: user.uid,
-        userRole: _currentUser.userRole,
+        userRole: _currentUser.role,
       );
     }
   }
