@@ -1,8 +1,9 @@
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:plant_it_forward/Models/Product.dart';
-import 'package:plant_it_forward/Models/UserData.dart';
+import 'package:plant_it_forward/Models/User.dart';
 import 'package:flutter/services.dart';
 
 class FirestoreService {
@@ -21,10 +22,10 @@ class FirestoreService {
 
   static const int ProductsLimit = 20;
 
-  DocumentSnapshot _lastDocument;
+  late dynamic _lastDocument;
   bool _hasMoreProducts = true;
 
-  Future createUser(UserData user) async {
+  Future createUser(User user) async {
     try {
       await _usersCollectionReference.doc(user.id).set(user.toJson());
     } catch (e) {
@@ -40,7 +41,7 @@ class FirestoreService {
   Future getUser(String uid) async {
     try {
       var userData = await _usersCollectionReference.doc(uid).get();
-      return UserData.fromData(userData.data());
+      return User.fromJson(jsonDecode(userData.data().toString())!);
     } catch (e) {
       // TODO: Find or create a way to repeat error handling without so much repeated code
       if (e is PlatformException) {
@@ -70,7 +71,8 @@ class FirestoreService {
           await _productsCollectionReference.limit(ProductsLimit).get();
       if (productDocumentSnapshot.docs.isNotEmpty) {
         return productDocumentSnapshot.docs
-            .map((snapshot) => Product.fromMap(snapshot.data(), snapshot.id))
+            .map((snapshot) => Product.fromMap(
+                jsonDecode(snapshot.data().toString()), snapshot.id))
             .where((mappedItem) => mappedItem.name != null)
             .toList();
       }
@@ -117,7 +119,9 @@ class FirestoreService {
     pageProductsQuery.snapshots().listen((productsSnapshot) {
       if (productsSnapshot.docs.isNotEmpty) {
         var products = productsSnapshot.docs
-            .map((snapshot) => Product.fromMap(snapshot.data(), snapshot.id))
+            .map((snapshot) => Product.fromMap(
+                jsonDecode(snapshot.data().toString())!, snapshot.id))
+            // ignore: unnecessary_null_comparison
             .where((mappedItem) => mappedItem.name != null)
             .toList();
 

@@ -7,7 +7,7 @@ import 'package:plant_it_forward/config.dart';
 
 class ProductView extends StatefulWidget {
   final Product product;
-  ProductView({Key key, @required this.product}) : super(key: key);
+  ProductView({Key? key, required this.product}) : super(key: key);
 
   @override
   _ProductViewState createState() => _ProductViewState();

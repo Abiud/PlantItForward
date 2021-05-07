@@ -1,10 +1,10 @@
 import 'dart:io';
 
 import 'package:firebase_core/firebase_core.dart';
+import 'package:plant_it_forward/app/app.locator.dart';
 import 'package:plant_it_forward/constants/route_names.dart';
-import 'package:plant_it_forward/locator.dart';
-import 'package:plant_it_forward/services/navigation_service.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:stacked_services/stacked_services.dart';
 
 class PushNotificationService {
   final FirebaseMessaging _fcm = FirebaseMessaging.instance;

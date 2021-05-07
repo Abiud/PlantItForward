@@ -7,8 +7,14 @@ class MyCustomInputBox extends StatefulWidget {
   final String inputHint;
   final Function validatorFn;
   final Function onChangedFn;
+  final Function onFieldSubmittedFn;
   MyCustomInputBox(
-      {Key key, this.label, this.inputHint, this.validatorFn, this.onChangedFn})
+      {required Key key,
+      required this.label,
+      required this.inputHint,
+      required this.validatorFn,
+      required this.onChangedFn,
+      required this.onFieldSubmittedFn})
       : super(key: key);
 
   @override
@@ -37,8 +43,9 @@ class _MyCustomInputBoxState extends State<MyCustomInputBox> {
           padding: const EdgeInsets.fromLTRB(40, 0, 40, 15),
           child: TextFormField(
             obscureText: widget.label == 'Password' ? true : false,
-            validator: widget.validatorFn,
-            onChanged: widget.onChangedFn,
+            // validator: widget.validatorFn,
+            // onChanged: widget.onChangedFn,
+            // onFieldSubmitted: widget.onFieldSubmittedFn,
             style: TextStyle(
                 fontSize: 19,
                 color: secondaryBlue,
@@ -57,7 +64,7 @@ class _MyCustomInputBoxState extends State<MyCustomInputBox> {
                     borderSide: BorderSide(color: secondaryBlue)),
                 enabledBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(27),
-                    borderSide: BorderSide(color: Colors.grey[350])),
+                    borderSide: BorderSide(color: Colors.grey.shade300)),
                 errorBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(27),
                     borderSide: BorderSide(color: Colors.red)),

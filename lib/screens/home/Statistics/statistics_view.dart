@@ -4,12 +4,11 @@ import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 import 'package:plant_it_forward/config.dart';
 import 'package:plant_it_forward/screens/home/Profile/profile.dart';
 import 'package:plant_it_forward/screens/home/Settings/settings.dart';
-import 'package:plant_it_forward/services/authentication_service.dart';
 import 'package:plant_it_forward/viewmodels/statistics_view_model.dart';
 import 'package:stacked/stacked.dart';
 
 class StatisticsView extends StatefulWidget {
-  StatisticsView({Key key}) : super(key: key);
+  StatisticsView({Key? key}) : super(key: key);
 
   @override
   _StatisticsViewState createState() => _StatisticsViewState();
@@ -45,7 +44,7 @@ class _StatisticsViewState extends State<StatisticsView> {
 }
 
 class ModalFit extends StatelessWidget {
-  const ModalFit({Key key}) : super(key: key);
+  const ModalFit({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -76,7 +75,7 @@ class ModalFit extends StatelessWidget {
             leading: Icon(CupertinoIcons.power),
             onTap: () {
               Navigator.pop(context);
-              AuthenticationService().signOut();
+              // AuthenticationService().signOut();
             },
           ),
         ],

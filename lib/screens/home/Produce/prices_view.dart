@@ -8,7 +8,7 @@ import 'package:plant_it_forward/widgets/product_item.dart';
 import 'package:stacked/stacked.dart';
 
 class PricesView extends StatelessWidget {
-  const PricesView({Key key}) : super(key: key);
+  const PricesView({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -74,8 +74,9 @@ class PricesView extends StatelessWidget {
                                                       child: Text(value),
                                                     );
                                                   }).toList(),
-                                                  onChanged: (String value) {
-                                                    model.sortBy = value;
+                                                  onChanged: (value) {
+                                                    model.sortBy =
+                                                        value.toString();
                                                     model.updateSort();
                                                   },
                                                 ),
@@ -122,7 +123,7 @@ class PricesView extends StatelessWidget {
 }
 
 // class PricesView extends StatefulWidget {
-//   PricesView({Key key}) : super(key: key);
+//   PricesView({key? key}) : super(key: key);
 
 //   @override
 //   _PricesViewState createState() => _PricesViewState();

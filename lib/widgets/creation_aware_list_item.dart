@@ -4,9 +4,9 @@ class CreationAwareListItem extends StatefulWidget {
   final Function itemCreated;
   final Widget child;
   const CreationAwareListItem({
-    Key key,
-    this.itemCreated,
-    this.child,
+    Key? key,
+    required this.itemCreated,
+    required this.child,
   }) : super(key: key);
 
   @override
@@ -17,9 +17,7 @@ class _CreationAwareListItemState extends State<CreationAwareListItem> {
   @override
   void initState() {
     super.initState();
-    if (widget.itemCreated != null) {
-      widget.itemCreated();
-    }
+    widget.itemCreated();
   }
 
   @override

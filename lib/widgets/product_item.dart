@@ -3,10 +3,10 @@ import 'package:plant_it_forward/Models/Product.dart';
 
 class ProductItem extends StatelessWidget {
   final Product product;
-  final Function onDeleteItem;
+  final Function? onDeleteItem;
   const ProductItem({
-    Key key,
-    this.product,
+    Key? key,
+    required this.product,
     this.onDeleteItem,
   }) : super(key: key);
 

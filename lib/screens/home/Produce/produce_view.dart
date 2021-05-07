@@ -1,12 +1,12 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:plant_it_forward/locator.dart';
+import 'package:plant_it_forward/app/app.locator.dart';
 import 'package:plant_it_forward/screens/home/Produce/prices_view.dart';
 import 'package:plant_it_forward/viewmodels/produce_view_model.dart';
 import 'package:stacked/stacked.dart';
 
 class ProduceView extends StatelessWidget {
-  const ProduceView({Key key}) : super(key: key);
+  const ProduceView({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {

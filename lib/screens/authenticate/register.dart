@@ -2,20 +2,20 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:plant_it_forward/config.dart';
 import 'package:plant_it_forward/constants/route_names.dart';
-import 'package:plant_it_forward/services/authentication_service.dart';
+// import 'package:plant_it_forward/services/authentication_service.dart';
 import 'package:plant_it_forward/widgets/customInputBox.dart';
 import 'package:plant_it_forward/shared/loading.dart';
 
 class Register extends StatefulWidget {
   final Function toggleView;
-  Register({Key key, this.toggleView}) : super(key: key);
+  Register({Key? key, required this.toggleView}) : super(key: key);
 
   @override
   _RegisterState createState() => _RegisterState();
 }
 
 class _RegisterState extends State<Register> {
-  final AuthenticationService _auth = AuthenticationService();
+  // final AuthenticationService _auth = AuthenticationService();
   final _formKey = GlobalKey<FormState>();
   bool loading = false;
   // text field state
@@ -73,39 +73,39 @@ class _RegisterState extends State<Register> {
                         key: _formKey,
                         child: Column(
                           children: [
-                            MyCustomInputBox(
-                              label: 'Name',
-                              inputHint: 'Joe Doe',
-                              validatorFn: (val) => val.isEmpty
-                                  ? "The Name can't be empty"
-                                  : null,
-                              onChangedFn: (val) =>
-                                  {setState(() => name = val)},
-                            ),
+                            // MyCustomInputBox(
+                            //   label: 'Name',
+                            //   inputHint: 'Joe Doe',
+                            //   validatorFn: (val) => val.isEmpty
+                            //       ? "The Name can't be empty"
+                            //       : null,
+                            //   onChangedFn: (val) =>
+                            //       {setState(() => name = val)},
+                            // ),
                             SizedBox(
                               height: 30,
                             ),
-                            MyCustomInputBox(
-                              label: 'Email',
-                              inputHint: 'joedoe@gmail.com',
-                              validatorFn: (val) => val.isEmpty
-                                  ? "The Email can't be empty"
-                                  : null,
-                              onChangedFn: (val) =>
-                                  {setState(() => email = val)},
-                            ),
+                            // MyCustomInputBox(
+                            //   label: 'Email',
+                            //   inputHint: 'joedoe@gmail.com',
+                            //   validatorFn: (val) => val.isEmpty
+                            //       ? "The Email can't be empty"
+                            //       : null,
+                            //   onChangedFn: (val) =>
+                            //       {setState(() => email = val)},
+                            // ),
                             SizedBox(
                               height: 30,
                             ),
-                            MyCustomInputBox(
-                              label: 'Password',
-                              inputHint: '6+ Characters',
-                              validatorFn: (val) => val.length < 6
-                                  ? "The Password must have 6 or more characters"
-                                  : null,
-                              onChangedFn: (val) =>
-                                  {setState(() => password = val)},
-                            ),
+                            // MyCustomInputBox(
+                            //   label: 'Password',
+                            //   inputHint: '6+ Characters',
+                            //   validatorFn: (val) => val.length < 6
+                            //       ? "The Password must have 6 or more characters"
+                            //       : null,
+                            //   onChangedFn: (val) =>
+                            //       {setState(() => password = val)},
+                            // ),
                           ],
                         ),
                       ),
@@ -125,7 +125,7 @@ class _RegisterState extends State<Register> {
                         height: 75,
                         child: Material(
                           // <----------------------------- Outer Material
-                          shadowColor: Colors.grey[50],
+                          shadowColor: Colors.grey.shade50,
                           shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(20.0)),
                           elevation: 6.0,
@@ -138,26 +138,26 @@ class _RegisterState extends State<Register> {
                               type: MaterialType.transparency,
                               elevation: 6.0,
                               color: Colors.transparent,
-                              shadowColor: Colors.grey[50],
+                              shadowColor: Colors.grey.shade50,
                               child: InkWell(
                                 //<------------------------- InkWell
                                 splashColor: Colors.white30,
                                 onTap: () async {
                                   FocusScope.of(context).unfocus();
-                                  if (_formKey.currentState.validate()) {
+                                  if (_formKey.currentState!.validate()) {
                                     setState(() => {loading = true});
-                                    dynamic result =
-                                        await _auth.signUpWithEmail(
-                                            email: email,
-                                            password: password,
-                                            fullName: name);
-                                    if (result == null) {
-                                      setState(() {
-                                        error =
-                                            'Sorry we couldn\'t register your account\nPlease try again';
-                                        loading = false;
-                                      });
-                                    }
+                                    // dynamic result =
+                                    //     await _auth.signUpWithEmail(
+                                    //         email: email,
+                                    //         password: password,
+                                    //         fullName: name);
+                                    // if (result == null) {
+                                    //   setState(() {
+                                    //     error =
+                                    //         'Sorry we couldn\'t register your account\nPlease try again';
+                                    //     loading = false;
+                                    //   });
+                                    // }
                                   }
                                 },
                                 //   child: Center(

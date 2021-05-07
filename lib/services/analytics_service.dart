@@ -9,7 +9,8 @@ class AnalyticsService {
       FirebaseAnalyticsObserver(analytics: _analytics);
 
   // User properties tells us what the user is
-  Future setUserProperties({@required String userId, String userRole}) async {
+  Future setUserProperties(
+      {required String userId, required String userRole}) async {
     await _analytics.setUserId(userId);
     await _analytics.setUserProperty(name: 'user_role', value: userRole);
     // property to indicate if it's a pro paying member

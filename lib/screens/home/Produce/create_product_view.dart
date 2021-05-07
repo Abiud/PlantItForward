@@ -9,16 +9,17 @@ import 'package:stacked/stacked.dart';
 
 class CreateProductView extends StatelessWidget {
   final Product edittingProduct;
-  CreateProductView({Key key, this.edittingProduct}) : super(key: key);
+  CreateProductView({Key? key, required this.edittingProduct})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    String price;
+    String price = "0";
     return ViewModelBuilder<CreateProductViewModel>.reactive(
         viewModelBuilder: () => CreateProductViewModel(),
         onModelReady: (model) {
           model.setEdittingProduct(edittingProduct);
-          price = model.product?.price.toString();
+          price = model.product.price.toString();
         },
         builder: (context, model, child) => Scaffold(
               backgroundColor: Colors.white,
@@ -50,7 +51,7 @@ class CreateProductView extends StatelessWidget {
                       ),
                 onPressed: () {
                   if (!model.busy) {
-                    if (model.formKey.currentState.validate()) {
+                    if (model.formKey.currentState!.validate()) {
                       model.addProduct();
                       FocusScope.of(context).unfocus();
                     }
@@ -72,13 +73,14 @@ class CreateProductView extends StatelessWidget {
                           border: InputBorder.none,
                           hintText: "Lettuce",
                           filled: true,
-                          fillColor: Colors.grey[200],
+                          fillColor: Colors.grey.shade200,
                           contentPadding:
                               EdgeInsets.only(left: 14, bottom: 6, top: 8),
                           focusedBorder: OutlineInputBorder(
                               borderSide: BorderSide(color: secondaryBlue)),
                           enabledBorder: UnderlineInputBorder(
-                              borderSide: BorderSide(color: Colors.grey[200]),
+                              borderSide:
+                                  BorderSide(color: Colors.grey.shade200),
                               borderRadius: BorderRadius.circular(10)),
                           errorBorder: OutlineInputBorder(
                             borderSide: BorderSide(color: Colors.red),
@@ -104,13 +106,14 @@ class CreateProductView extends StatelessWidget {
                             border: InputBorder.none,
                             hintText: "Per pound/Per bunch",
                             filled: true,
-                            fillColor: Colors.grey[200],
+                            fillColor: Colors.grey.shade200,
                             contentPadding:
                                 EdgeInsets.only(left: 14, bottom: 6, top: 8),
                             focusedBorder: OutlineInputBorder(
                                 borderSide: BorderSide(color: secondaryBlue)),
                             enabledBorder: UnderlineInputBorder(
-                                borderSide: BorderSide(color: Colors.grey[200]),
+                                borderSide:
+                                    BorderSide(color: Colors.grey.shade200),
                                 borderRadius: BorderRadius.circular(10)),
                             errorBorder: OutlineInputBorder(
                               borderSide: BorderSide(color: Colors.red),
@@ -120,7 +123,7 @@ class CreateProductView extends StatelessWidget {
                           ),
                           value: model.product.quantity,
                           onChanged: (val) {
-                            model.product.quantity = val;
+                            model.product.quantity = val.toString();
                           },
                           items: <String>['per ounce', 'per bunch']
                               .map<DropdownMenuItem<String>>((String e) {
@@ -141,13 +144,13 @@ class CreateProductView extends StatelessWidget {
                           border: InputBorder.none,
                           hintText: "\$2.00",
                           filled: true,
-                          fillColor: Colors.grey[200],
+                          fillColor: Colors.grey.shade200,
                           contentPadding:
                               EdgeInsets.only(left: 14, bottom: 6, top: 8),
                           focusedBorder: OutlineInputBorder(
                               borderSide: BorderSide(color: secondaryBlue)),
                           enabledBorder: UnderlineInputBorder(
-                            borderSide: BorderSide(color: Colors.grey[200]),
+                            borderSide: BorderSide(color: Colors.grey.shade200),
                             borderRadius: BorderRadius.circular(10),
                           ),
                           errorBorder: OutlineInputBorder(
@@ -157,7 +160,7 @@ class CreateProductView extends StatelessWidget {
                               borderSide: BorderSide(color: Colors.red)),
                         ),
                         initialValue: price,
-                        validator: (val) => model.validatePrice(val),
+                        validator: (val) => model.validatePrice(val.toString()),
                         onChanged: (val) {
                           price = val;
                         },

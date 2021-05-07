@@ -13,11 +13,11 @@ class Product {
   dynamic updatedAt;
 
   Product(
-      {this.userId,
-      this.name,
-      this.documentId,
-      this.quantity,
-      this.price,
+      {this.userId = "",
+      required this.name,
+      this.documentId = "",
+      required this.quantity,
+      required this.price,
       this.createdAt,
       this.updatedAt});
 
@@ -35,8 +35,6 @@ class Product {
   }
 
   static Product fromMap(Map<String, dynamic> map, String documentId) {
-    if (map == null) return null;
-
     return Product(
         name: map['name'],
         quantity: map['quantity'],
