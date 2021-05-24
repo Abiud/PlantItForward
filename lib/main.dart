@@ -1,21 +1,19 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'package:plant_it_forward/app/app.locator.dart';
-import 'package:plant_it_forward/app/app.router.dart';
-import 'package:plant_it_forward/screens/startup_view.dart';
-import 'package:stacked_services/stacked_services.dart';
-
-import 'app/app.locator.dart';
-import 'app/app.router.dart';
+import 'package:plant_it_forward/widgets/provider_widget.dart';
+import 'package:plant_it_forward/screens/authenticate/authenticate.dart';
+import 'package:plant_it_forward/screens/home/home.dart';
+import 'package:plant_it_forward/services/auth.dart';
+import 'package:plant_it_forward/shared/loading.dart';
 
 void main() async {
   SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
       statusBarColor: Colors.transparent,
       statusBarBrightness: Brightness.light));
   WidgetsFlutterBinding.ensureInitialized();
-  setupLocator();
   await Firebase.initializeApp();
   runApp(MyApp());
 }
@@ -23,19 +21,40 @@ void main() async {
 class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return CupertinoApp(
-      title: 'Plant It Forward',
-      navigatorKey: StackedService.navigatorKey,
-      navigatorObservers: [StackedService.routeObserver],
-      debugShowCheckedModeBanner: false,
-      localizationsDelegates: [
-        DefaultMaterialLocalizations.delegate,
-        DefaultCupertinoLocalizations.delegate,
-        DefaultWidgetsLocalizations.delegate,
-      ],
-      home: StartUpView(),
-      theme: CupertinoThemeData(brightness: Brightness.light),
-      onGenerateRoute: StackedRouter().onGenerateRoute,
+    return Provider(
+      auth: AuthService(),
+      db: FirebaseFirestore.instance,
+      child: CupertinoApp(
+        title: "Plant It Forward",
+        debugShowCheckedModeBanner: false,
+        theme: CupertinoThemeData(brightness: Brightness.light),
+        home: Wrapper(),
+        localizationsDelegates: [
+          DefaultMaterialLocalizations.delegate,
+          DefaultCupertinoLocalizations.delegate,
+          DefaultWidgetsLocalizations.delegate,
+        ],
+      ),
+    );
+  }
+}
+
+class Wrapper extends StatelessWidget {
+  const Wrapper({Key key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    final AuthService auth = Provider.of(context).auth;
+    return StreamBuilder<String>(
+      stream: auth.onAuthStateChanged,
+      builder: (context, AsyncSnapshot<String> snapshot) {
+        if (snapshot.connectionState == ConnectionState.active) {
+          Provider.of(context).auth.setCurrentUser(snapshot.data);
+          final bool signedIn = snapshot.hasData;
+          return signedIn ? Home() : Authenticate();
+        }
+        return Loading();
+      },
     );
   }
 }

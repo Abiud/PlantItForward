@@ -1,10 +1,12 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:plant_it_forward/Models/Product.dart';
 import 'package:plant_it_forward/config.dart';
+import 'package:plant_it_forward/screens/home/Produce/product_view.dart';
 
 Widget buildProductCard(BuildContext context, DocumentSnapshot document) {
-  //final product = Product.fromSnapshot(document);
+  final product = Product.fromSnapshot(document);
 
   return new Container(
     child: Card(
@@ -13,12 +15,12 @@ Widget buildProductCard(BuildContext context, DocumentSnapshot document) {
       child: InkWell(
         splashColor: primaryGreen.withAlpha(30),
         onTap: () {
-          // Navigator.push(
-          //     context,
-          //     CupertinoPageRoute(
-          //         builder: (context) => ProductView(
-          //               product: product,
-          //             )));
+          Navigator.push(
+              context,
+              CupertinoPageRoute(
+                  builder: (context) => ProductView(
+                        product: product,
+                      )));
         },
         child: Padding(
           padding:
@@ -30,22 +32,20 @@ Widget buildProductCard(BuildContext context, DocumentSnapshot document) {
                 child: Row(
                   children: [
                     Text(
-                      // product.name,
-                      "hi",
+                      product.name,
                       style: TextStyle(fontSize: 20),
                     ),
                     SizedBox(
                       width: 8,
                     ),
                     Text(
-                      // product.quantity,
-                      "hi",
+                      product.quantity,
                       style: TextStyle(color: Colors.grey, fontSize: 14),
                     ),
                     Spacer(),
-                    // Column(
-                    //   children: [Text(product.price.toString())],
-                    // ),
+                    Column(
+                      children: [Text(product.price.toString())],
+                    ),
                   ],
                 ),
               ),

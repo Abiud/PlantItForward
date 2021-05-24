@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 Color primaryGreen = Color(0xff3CC404);
 Color secondaryBlue = Color(0xff0646FC);
 List<BoxShadow> shadowList = [
-  BoxShadow(color: Colors.grey.shade300, blurRadius: 30, offset: Offset(0, 10))
+  BoxShadow(color: Colors.grey[300], blurRadius: 30, offset: Offset(0, 10))
 ];
 
 List<Map> drawerItems = [

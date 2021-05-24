@@ -1,20 +1,20 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:plant_it_forward/config.dart';
-// import 'package:plant_it_forward/services/authentication_service.dart';
 import 'package:plant_it_forward/widgets/customInputBox.dart';
+import 'package:plant_it_forward/services/auth.dart';
 import 'package:plant_it_forward/shared/loading.dart';
 
 class SignIn extends StatefulWidget {
   final Function toggleView;
-  SignIn({Key? key, required this.toggleView}) : super(key: key);
+  SignIn({Key key, this.toggleView}) : super(key: key);
 
   @override
   _SignInState createState() => _SignInState();
 }
 
 class _SignInState extends State<SignIn> {
-  // final AuthenticationService _auth = AuthenticationService();
+  final AuthService _auth = AuthService();
   final _formKey = GlobalKey<FormState>();
   bool loading = false;
 
@@ -84,27 +84,27 @@ class _SignInState extends State<SignIn> {
                         key: _formKey,
                         child: Column(
                           children: [
-                            // MyCustomInputBox(
-                            //   label: 'Email',
-                            //   inputHint: 'joedoe@gmail.com',
-                            //   validatorFn: (val) => val.isEmpty
-                            //       ? "The Email can't be empty"
-                            //       : null,
-                            //   onChangedFn: (val) =>
-                            //       {setState(() => email = val)},
-                            // ),
-                            // SizedBox(
-                            //   height: 30,
-                            // ),
-                            // MyCustomInputBox(
-                            //   label: 'Password',
-                            //   inputHint: '6+ Characters',
-                            //   validatorFn: (val) => val.length < 6
-                            //       ? "The Password must have 6 or more characters"
-                            //       : null,
-                            //   onChangedFn: (val) =>
-                            //       {setState(() => password = val)},
-                            // ),
+                            MyCustomInputBox(
+                              label: 'Email',
+                              inputHint: 'joedoe@gmail.com',
+                              validatorFn: (val) => val.isEmpty
+                                  ? "The Email can't be empty"
+                                  : null,
+                              onChangedFn: (val) =>
+                                  {setState(() => email = val)},
+                            ),
+                            SizedBox(
+                              height: 30,
+                            ),
+                            MyCustomInputBox(
+                              label: 'Password',
+                              inputHint: '6+ Characters',
+                              validatorFn: (val) => val.length < 6
+                                  ? "The Password must have 6 or more characters"
+                                  : null,
+                              onChangedFn: (val) =>
+                                  {setState(() => password = val)},
+                            ),
                           ],
                         ),
                       ),
@@ -127,7 +127,7 @@ class _SignInState extends State<SignIn> {
                         height: 75,
                         child: Material(
                           // <----------------------------- Outer Material
-                          shadowColor: Colors.grey.shade50,
+                          shadowColor: Colors.grey[50],
                           shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(20.0)),
                           elevation: 6.0,
@@ -140,23 +140,23 @@ class _SignInState extends State<SignIn> {
                               type: MaterialType.transparency,
                               elevation: 6.0,
                               color: Colors.transparent,
-                              shadowColor: Colors.grey.shade50,
+                              shadowColor: Colors.grey[50],
                               child: InkWell(
                                 //<------------------------- InkWell
                                 splashColor: Colors.white30,
                                 onTap: () async {
                                   FocusScope.of(context).unfocus();
-                                  // if (_formKey.currentState!.validate()) {
-                                  //   setState(() => {loading = true});
-                                  //   dynamic result = await _auth.loginWithEmail(
-                                  //       email: email, password: password);
-                                  //   if (result == null) {
-                                  //     setState(() {
-                                  //       error = 'Invalid Credentials';
-                                  //       loading = false;
-                                  //     });
-                                  //   }
-                                  // }
+                                  if (_formKey.currentState.validate()) {
+                                    setState(() => {loading = true});
+                                    dynamic result = await _auth
+                                        .signInWithEmail(email, password);
+                                    if (result == null) {
+                                      setState(() {
+                                        error = 'Invalid Credentials';
+                                        loading = false;
+                                      });
+                                    }
+                                  }
                                 },
                                 //   child: Center(
                                 child: Center(
@@ -198,7 +198,9 @@ class _SignInState extends State<SignIn> {
                         TextSpan(
                             text: "Register",
                             recognizer: TapGestureRecognizer()
-                              ..onTap = () => widget.toggleView(),
+                              ..onTap = () {
+                                widget.toggleView();
+                              },
                             style: TextStyle(
                                 fontSize: 15,
                                 fontWeight: FontWeight.normal,
@@ -237,7 +239,7 @@ class BtnStyle extends StatelessWidget {
   final double wdt;
   final Function onPressedFn;
 
-  BtnStyle({required this.char, required this.wdt, required this.onPressedFn});
+  BtnStyle({this.char, this.wdt, this.onPressedFn});
   @override
   Widget build(BuildContext context) {
     return Container(
