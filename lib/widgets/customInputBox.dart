@@ -2,25 +2,24 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:plant_it_forward/config.dart';
 
-class MyCustomInputBox extends StatefulWidget {
-  final String label;
-  final String inputHint;
-  final Function validatorFn;
-  final Function onChangedFn;
-  MyCustomInputBox(
-      {Key key, this.label, this.inputHint, this.validatorFn, this.onChangedFn})
+class MyCustomInputBox extends StatelessWidget {
+  final label;
+  final inputHint;
+  final validatorFn;
+  final onChangedFn;
+  final checkBoxIcon = 'assets/checkbox.svg';
+
+  const MyCustomInputBox(
+      {Key? key,
+      this.label,
+      this.inputHint,
+      this.validatorFn,
+      this.onChangedFn})
       : super(key: key);
 
   @override
-  _MyCustomInputBoxState createState() => _MyCustomInputBoxState();
-}
-
-class _MyCustomInputBoxState extends State<MyCustomInputBox> {
-  bool isSubmitted = false;
-  final checkBoxIcon = 'assets/checkbox.svg';
-
-  @override
   Widget build(BuildContext context) {
+    bool isSubmitted = false;
     return Column(
       children: [
         Align(
@@ -28,7 +27,7 @@ class _MyCustomInputBoxState extends State<MyCustomInputBox> {
           child: Padding(
             padding: const EdgeInsets.only(left: 50.0, bottom: 8),
             child: Text(
-              widget.label,
+              label!,
               style: TextStyle(fontSize: 15, color: Colors.grey),
             ),
           ),
@@ -36,15 +35,15 @@ class _MyCustomInputBoxState extends State<MyCustomInputBox> {
         Padding(
           padding: const EdgeInsets.fromLTRB(40, 0, 40, 15),
           child: TextFormField(
-            obscureText: widget.label == 'Password' ? true : false,
-            validator: widget.validatorFn,
-            onChanged: widget.onChangedFn,
+            obscureText: label == 'Password' ? true : false,
+            validator: validatorFn,
+            onChanged: onChangedFn,
             style: TextStyle(
                 fontSize: 19,
                 color: secondaryBlue,
                 fontWeight: FontWeight.bold),
             decoration: InputDecoration(
-                hintText: widget.inputHint,
+                hintText: inputHint,
                 hintStyle: TextStyle(
                     fontSize: 19,
                     color: Colors.grey[350],
@@ -57,7 +56,7 @@ class _MyCustomInputBoxState extends State<MyCustomInputBox> {
                     borderSide: BorderSide(color: secondaryBlue)),
                 enabledBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(27),
-                    borderSide: BorderSide(color: Colors.grey[350])),
+                    borderSide: BorderSide(color: Colors.grey.shade300)),
                 errorBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(27),
                     borderSide: BorderSide(color: Colors.red)),

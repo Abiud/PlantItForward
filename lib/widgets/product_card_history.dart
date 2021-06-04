@@ -5,8 +5,10 @@ import 'package:plant_it_forward/Models/Product.dart';
 import 'package:plant_it_forward/config.dart';
 import 'package:plant_it_forward/screens/home/Produce/product_view.dart';
 import 'package:plant_it_forward/shared/ui_helpers.dart';
+import 'package:plant_it_forward/utils.dart';
 
-Widget buildProductCard(BuildContext context, DocumentSnapshot document) {
+Widget buildProductCardHistory(
+    BuildContext context, DocumentSnapshot document) {
   final product = Product.fromSnapshot(document);
 
   return new Container(
@@ -28,8 +30,16 @@ Widget buildProductCard(BuildContext context, DocumentSnapshot document) {
               const EdgeInsets.only(top: 12, bottom: 12, left: 16, right: 16),
           child: Column(
             children: <Widget>[
+              Row(
+                children: [
+                  Text(
+                      "Last update on " +
+                          dateF.format(product.updatedAt!.toDate()),
+                      style: TextStyle(color: Colors.grey))
+                ],
+              ),
               Padding(
-                padding: const EdgeInsets.fromLTRB(4, 4, 2, 4),
+                padding: const EdgeInsets.fromLTRB(0, 4, 0, 4),
                 child: Row(
                   mainAxisSize: MainAxisSize.max,
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,

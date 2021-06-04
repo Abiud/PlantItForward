@@ -1,8 +1,8 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:plant_it_forward/services/database.dart';
 import 'package:plant_it_forward/widgets/provider_widget.dart';
 import 'package:plant_it_forward/screens/authenticate/authenticate.dart';
 import 'package:plant_it_forward/screens/home/home.dart';
@@ -23,11 +23,10 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return Provider(
       auth: AuthService(),
-      db: FirebaseFirestore.instance,
-      child: CupertinoApp(
+      db: DatabaseService(uid: ""),
+      child: MaterialApp(
         title: "Plant It Forward",
         debugShowCheckedModeBanner: false,
-        theme: CupertinoThemeData(brightness: Brightness.light),
         home: Wrapper(),
         localizationsDelegates: [
           DefaultMaterialLocalizations.delegate,
@@ -40,18 +39,28 @@ class MyApp extends StatelessWidget {
 }
 
 class Wrapper extends StatelessWidget {
-  const Wrapper({Key key}) : super(key: key);
+  const Wrapper({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    final AuthService auth = Provider.of(context).auth;
-    return StreamBuilder<String>(
+    final AuthService auth = Provider.of(context)!.auth;
+    return StreamBuilder<String?>(
       stream: auth.onAuthStateChanged,
-      builder: (context, AsyncSnapshot<String> snapshot) {
+      builder: (context, AsyncSnapshot<String?> snapshot) {
         if (snapshot.connectionState == ConnectionState.active) {
-          Provider.of(context).auth.setCurrentUser(snapshot.data);
           final bool signedIn = snapshot.hasData;
-          return signedIn ? Home() : Authenticate();
+          if (signedIn) {
+            return FutureBuilder(
+                future: auth.setCurrentUser(snapshot.data!),
+                builder: (context, snapshot) {
+                  if (snapshot.hasData) {
+                    return Home();
+                  } else {
+                    return Loading();
+                  }
+                });
+          }
+          return Authenticate();
         }
         return Loading();
       },

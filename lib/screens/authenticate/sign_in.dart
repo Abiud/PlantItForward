@@ -6,8 +6,8 @@ import 'package:plant_it_forward/services/auth.dart';
 import 'package:plant_it_forward/shared/loading.dart';
 
 class SignIn extends StatefulWidget {
-  final Function toggleView;
-  SignIn({Key key, this.toggleView}) : super(key: key);
+  final Function? toggleView;
+  SignIn({Key? key, this.toggleView}) : super(key: key);
 
   @override
   _SignInState createState() => _SignInState();
@@ -146,7 +146,7 @@ class _SignInState extends State<SignIn> {
                                 splashColor: Colors.white30,
                                 onTap: () async {
                                   FocusScope.of(context).unfocus();
-                                  if (_formKey.currentState.validate()) {
+                                  if (_formKey.currentState!.validate()) {
                                     setState(() => {loading = true});
                                     dynamic result = await _auth
                                         .signInWithEmail(email, password);
@@ -199,7 +199,7 @@ class _SignInState extends State<SignIn> {
                             text: "Register",
                             recognizer: TapGestureRecognizer()
                               ..onTap = () {
-                                widget.toggleView();
+                                widget.toggleView!();
                               },
                             style: TextStyle(
                                 fontSize: 15,
@@ -235,9 +235,9 @@ class _SignInState extends State<SignIn> {
 }
 
 class BtnStyle extends StatelessWidget {
-  final String char;
-  final double wdt;
-  final Function onPressedFn;
+  final String? char;
+  final double? wdt;
+  final Function? onPressedFn;
 
   BtnStyle({this.char, this.wdt, this.onPressedFn});
   @override
@@ -256,7 +256,7 @@ class BtnStyle extends StatelessWidget {
           ]),
       child: Center(
         child: Text(
-          char,
+          char!,
           style: TextStyle(
               fontSize: 29,
               fontWeight: FontWeight.bold,

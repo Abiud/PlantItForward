@@ -6,8 +6,8 @@ import 'package:plant_it_forward/services/auth.dart';
 import 'package:plant_it_forward/shared/loading.dart';
 
 class Register extends StatefulWidget {
-  final Function toggleView;
-  Register({Key key, this.toggleView}) : super(key: key);
+  final Function? toggleView;
+  Register({Key? key, this.toggleView}) : super(key: key);
 
   @override
   _RegisterState createState() => _RegisterState();
@@ -143,7 +143,7 @@ class _RegisterState extends State<Register> {
                                 splashColor: Colors.white30,
                                 onTap: () async {
                                   FocusScope.of(context).unfocus();
-                                  if (_formKey.currentState.validate()) {
+                                  if (_formKey.currentState!.validate()) {
                                     setState(() => {loading = true});
                                     dynamic result = await _auth
                                         .registerWithEmailAndPassword(
@@ -198,7 +198,7 @@ class _RegisterState extends State<Register> {
                             text: "Log In",
                             recognizer: TapGestureRecognizer()
                               ..onTap = () {
-                                widget.toggleView();
+                                widget.toggleView!();
                               },
                             style: TextStyle(
                                 fontSize: 15,

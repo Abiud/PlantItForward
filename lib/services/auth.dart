@@ -8,14 +8,14 @@ import 'package:plant_it_forward/Models/UserData.dart';
 
 class AuthService {
   final FirebaseAuth _auth = FirebaseAuth.instance;
-  UserData currentUser = UserData("");
+  UserData currentUser = UserData(id: "");
 
-  Stream<String> get onAuthStateChanged =>
-      _auth.authStateChanges().map((User user) => user?.uid);
+  Stream<String?> get onAuthStateChanged =>
+      _auth.authStateChanges().map((User? user) => user?.uid);
 
   // GET UID
   Future<String> getCurrentUID() async {
-    return _auth.currentUser.uid;
+    return _auth.currentUser!.uid;
   }
 
   // GET CURRENT USER
@@ -30,13 +30,15 @@ class AuthService {
           .doc(uid)
           .get()
           .then((res) {
-        currentUser.name = res.data()['name'];
-        currentUser.role = res.data()['role'];
+        currentUser.name = res.data()!['name'];
+        currentUser.role = res.data()!['role'];
+        currentUser.id = res.data()!['id'];
       });
     } else {
-      currentUser = UserData("");
+      currentUser = UserData(id: "");
     }
     print("setting temporal user");
+    return 1;
   }
 
   // sign in email
@@ -44,7 +46,7 @@ class AuthService {
     try {
       UserCredential result = await _auth.signInWithEmailAndPassword(
           email: email, password: password);
-      User user = result.user;
+      User? user = result.user;
       return user;
     } catch (e) {
       print(e.toString());
@@ -58,13 +60,14 @@ class AuthService {
     try {
       UserCredential result = await _auth.createUserWithEmailAndPassword(
           email: email, password: password);
-      User user = result.user;
+      User? user = result.user;
 
       Map<String, dynamic> userData = {
         "name": name,
-        "email": user.email,
-        "created_at": user.metadata.creationTime.millisecondsSinceEpoch,
+        "email": user!.email,
+        "created_at": user.metadata.creationTime!.millisecondsSinceEpoch,
         "role": "user",
+        "id": user.uid
       };
 
       await FirebaseFirestore.instance
@@ -100,15 +103,15 @@ class UserHelper {
     Map<String, dynamic> userData = {
       "name": user.displayName,
       "email": user.email,
-      "last_login": user.metadata.lastSignInTime.millisecondsSinceEpoch,
-      "created_at": user.metadata.creationTime.millisecondsSinceEpoch,
+      "last_login": user.metadata.lastSignInTime!.millisecondsSinceEpoch,
+      "created_at": user.metadata.creationTime!.millisecondsSinceEpoch,
       "role": "user",
       "build_number": buildNumber,
     };
     final userRef = _db.collection("users").doc(user.uid);
     if ((await userRef.get()).exists) {
       await userRef.update({
-        "last_login": user.metadata.lastSignInTime.millisecondsSinceEpoch,
+        "last_login": user.metadata.lastSignInTime!.millisecondsSinceEpoch,
         "build_number": buildNumber,
       });
     } else {
@@ -119,8 +122,8 @@ class UserHelper {
 
   static _saveDevice(User user) async {
     DeviceInfoPlugin devicePlugin = DeviceInfoPlugin();
-    String deviceId;
-    Map<String, dynamic> deviceData;
+    String? deviceId;
+    Map<String, dynamic>? deviceData;
     if (Platform.isAndroid) {
       final deviceInfo = await devicePlugin.androidInfo;
       deviceId = deviceInfo.androidId;
