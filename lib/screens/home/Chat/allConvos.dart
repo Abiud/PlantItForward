@@ -1,11 +1,11 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:plant_it_forward/Models/Convo.dart';
 import 'package:plant_it_forward/Models/UserData.dart';
+import 'package:plant_it_forward/config.dart';
 import 'package:plant_it_forward/screens/home/Chat/addChat.dart';
 import 'package:plant_it_forward/screens/home/Chat/convScreen.dart';
-import 'package:plant_it_forward/services/auth.dart';
+import 'package:plant_it_forward/shared/ui_helpers.dart';
 import 'package:plant_it_forward/widgets/provider_widget.dart'
     as ProviderWidget;
 import 'package:provider/provider.dart';
@@ -19,13 +19,19 @@ class AllConvos extends StatelessWidget {
     final List<Convo> _convos = Provider.of<List<Convo>>(context);
     final List<UserData> _users = Provider.of<List<UserData>>(context);
 
-    return Scaffold(
-      body: ListView(
-        scrollDirection: Axis.vertical,
-        shrinkWrap: true,
-        children: getWidgets(context, user, _convos, _users),
-      ),
-    );
+    return _convos.length > 0
+        ? Scaffold(
+            body: ListView(
+              scrollDirection: Axis.vertical,
+              shrinkWrap: true,
+              children: getWidgets(context, user, _convos, _users),
+            ),
+          )
+        : Center(
+            child: Text(
+            "You don't have any conversation.",
+            style: TextStyle(color: Colors.grey.shade700),
+          ));
   }
 
   void createNewConvo(BuildContext context) {
@@ -48,6 +54,7 @@ class AllConvos extends StatelessWidget {
       final Map<String, UserData> userMap = getUserMap(_users);
       for (Convo c in _convos) {
         if (c.userIds[0] == user.id) {
+          print(c.userIds[1]);
           list.add(ConvoListItem(
               user: user,
               peer: userMap[c.userIds[1]]!,
@@ -92,8 +99,8 @@ class ConvoListItem extends StatelessWidget {
     groupId = getGroupChatId();
 
     return Container(
-        margin: const EdgeInsets.only(
-            left: 10.0, right: 10.0, top: 5.0, bottom: 5.0),
+        margin:
+            const EdgeInsets.only(left: 4.0, right: 4.0, top: 5.0, bottom: 5.0),
         child: Padding(
             padding: const EdgeInsets.all(10.0),
             child: Column(mainAxisSize: MainAxisSize.min, children: <Widget>[
@@ -128,55 +135,116 @@ class ConvoListItem extends StatelessWidget {
   }
 
   Widget buildConvoDetails(String title, BuildContext context) {
-    return Column(
-      children: <Widget>[
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
         Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: <Widget>[
-              Padding(
-                padding: const EdgeInsets.only(left: 16.0),
-                child: Text(
+          children: [
+            Container(
+              decoration: BoxDecoration(
+                  color: Colors.grey.shade400,
+                  borderRadius: BorderRadius.all(Radius.circular(20))),
+              width: 64,
+              height: 64,
+            ),
+            horizontalSpaceSmall,
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
                   title,
                   textAlign: TextAlign.left,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
+                  style: TextStyle(fontWeight: FontWeight.w500),
                 ),
-              ),
-              read
-                  ? Container()
-                  : Icon(Icons.brightness_1,
-                      color: Theme.of(context).accentColor, size: 15)
-            ]),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.start,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: <Widget>[
-            Expanded(
-              child: Padding(
-                padding: const EdgeInsets.only(left: 16.0, top: 8.0),
-                child: Text(lastMessage['content'],
+                verticalSpaceSmall,
+                Text(formatMessage(lastMessage['content']),
                     textAlign: TextAlign.left,
                     maxLines: 1,
                     overflow: TextOverflow.clip),
-              ),
-            ),
+              ],
+            )
           ],
         ),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.end,
-          children: <Widget>[
-            Padding(
-              padding: const EdgeInsets.only(top: 8.0),
-              child: Text(
-                getTime(lastMessage['timestamp']),
-                textAlign: TextAlign.right,
-              ),
-            )
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.end,
+          children: [
+            read
+                ? Container(
+                    width: 18,
+                    height: 18,
+                  )
+                : Container(
+                    decoration: BoxDecoration(
+                        color: secondaryBlue,
+                        borderRadius: BorderRadius.all(Radius.circular(20))),
+                    width: 18,
+                    height: 18,
+                  ),
+            verticalSpaceSmall,
+            Text(
+              getTime(lastMessage['timestamp']),
+              style: TextStyle(color: Colors.grey.shade700),
+            ),
           ],
         )
       ],
     );
+    // return Column(
+    //   children: <Widget>[
+    //     Row(
+    //         mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    //         crossAxisAlignment: CrossAxisAlignment.center,
+    //         children: <Widget>[
+    //           Padding(
+    //             padding: const EdgeInsets.only(left: 16.0),
+    //             child: Text(
+    //               title,
+    //               textAlign: TextAlign.left,
+    //               maxLines: 1,
+    //               overflow: TextOverflow.ellipsis,
+    //             ),
+    //           ),
+    //           read
+    //               ? Container()
+    //               : Icon(Icons.brightness_1,
+    //                   color: Theme.of(context).accentColor, size: 15)
+    //         ]),
+    //     Row(
+    //       mainAxisAlignment: MainAxisAlignment.start,
+    //       crossAxisAlignment: CrossAxisAlignment.center,
+    //       children: <Widget>[
+    //         Expanded(
+    //           child: Padding(
+    //             padding: const EdgeInsets.only(left: 16.0, top: 8.0),
+    //             child: Text(lastMessage['content'],
+    //                 textAlign: TextAlign.left,
+    //                 maxLines: 1,
+    //                 overflow: TextOverflow.clip),
+    //           ),
+    //         ),
+    //       ],
+    //     ),
+    //     Row(
+    //       mainAxisAlignment: MainAxisAlignment.end,
+    //       children: <Widget>[
+    //         Padding(
+    //           padding: const EdgeInsets.only(top: 8.0),
+    //           child: Text(
+    //             getTime(lastMessage['timestamp']),
+    //             textAlign: TextAlign.right,
+    //           ),
+    //         )
+    //       ],
+    //     )
+    //   ],
+    // );
+  }
+
+  String formatMessage(String message) {
+    int len = message.length;
+    return len > 15 ? message.substring(0, 20) + "..." : message;
   }
 
   String getTime(String timestamp) {
@@ -193,10 +261,10 @@ class ConvoListItem extends StatelessWidget {
   }
 
   String getGroupChatId() {
-    // if (user.uid.hashCode <= peer.id.hashCode) {
-    return user.id + '_' + peer.id;
-    // } else {
-    //   return peer.id + '_' + user.uid;
-    // }
+    if (user.id.hashCode <= peer.id.hashCode) {
+      return user.id + '_' + peer.id;
+    } else {
+      return peer.id + '_' + user.id;
+    }
   }
 }

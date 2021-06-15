@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:plant_it_forward/screens/home/Calendar/addEvent.dart';
 import 'package:plant_it_forward/utils.dart';
 import 'package:table_calendar/table_calendar.dart';
 
@@ -22,6 +23,12 @@ class _CalendarScreenState extends State<CalendarScreen> {
         heroTag: 'calendar', // a different string for each navigationBar
         transitionBetweenRoutes: false,
         middle: Text("Calendar"),
+        trailing: CupertinoButton(
+            child: Icon(CupertinoIcons.add),
+            onPressed: () {
+              Navigator.push(context,
+                  CupertinoPageRoute(builder: (context) => AddEvent()));
+            }),
       ),
       child: Scaffold(
         body: SafeArea(

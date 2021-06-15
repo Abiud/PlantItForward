@@ -118,6 +118,7 @@ class _ProductViewState extends State<ProductView> {
                 child: Padding(
                   padding: const EdgeInsets.all(16.0),
                   child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       TextFormField(
                         decoration: InputDecoration(
@@ -186,8 +187,51 @@ class _ProductViewState extends State<ProductView> {
                           price = val;
                         },
                       ),
-                      SizedBox(
-                        height: 16,
+                      verticalSpaceMedium,
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [
+                          Text("Farmer price (80/20)",
+                              style: TextStyle(color: Colors.grey.shade800)),
+                          verticalSpaceTiny,
+                          Text(getFarmerPrice().toString())
+                        ],
+                      ),
+                      verticalSpaceMedium,
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [
+                          Text("Farmer price (75/25) with adjustments",
+                              style: TextStyle(color: Colors.grey.shade800)),
+                          verticalSpaceTiny,
+                          Text("??")
+                        ],
+                      ),
+                      verticalSpaceMedium,
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [
+                          Text("Farmer price 2 - Lost adjustment (All)",
+                              style: TextStyle(color: Colors.grey.shade800)),
+                          verticalSpaceTiny,
+                          Text("??")
+                        ],
+                      ),
+                      verticalSpaceMedium,
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [
+                          Text(
+                            "Farmer price 3 - Discounts + Trade Basket Losses ONLY",
+                            style: TextStyle(color: Colors.grey.shade800),
+                          ),
+                          verticalSpaceTiny,
+                          Text("??")
+                        ],
                       ),
                     ],
                   ),
@@ -212,5 +256,9 @@ class _ProductViewState extends State<ProductView> {
         .doc(widget.product.documentId);
 
     return await doc.delete();
+  }
+
+  Money getFarmerPrice() {
+    return widget.product.price! * 0.8;
   }
 }

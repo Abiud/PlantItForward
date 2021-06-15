@@ -105,7 +105,7 @@ class _ChatScreenState extends State<ChatScreen> {
             Row(children: <Widget>[
               Container(
                 child: Bubble(
-                    color: Colors.white10,
+                    color: Colors.blue,
                     elevation: 0,
                     padding: const BubbleEdges.all(10.0),
                     nip: BubbleNip.leftTop,
@@ -152,37 +152,37 @@ class _ChatScreenState extends State<ChatScreen> {
 
   Widget buildInput() {
     return Container(
-        child: Padding(
-          padding: const EdgeInsets.all(15.0),
-          child: Row(
-            children: <Widget>[
-              // Edit text
-              Flexible(
-                child: Container(
-                  child: Padding(
-                      padding: const EdgeInsets.all(10.0),
-                      child: TextField(
-                        autofocus: false,
-                        maxLines: 5,
-                        controller: textEditingController,
-                        decoration: const InputDecoration.collapsed(
-                          hintText: 'Type your message...',
-                        ),
-                      )),
-                ),
+        decoration: BoxDecoration(
+            border:
+                Border(top: BorderSide(width: 1, color: Colors.grey.shade300))),
+        child: Row(
+          children: <Widget>[
+            // Edit text
+            Flexible(
+              child: Container(
+                child: Padding(
+                    padding: const EdgeInsets.all(10.0),
+                    child: TextField(
+                      autofocus: false,
+                      maxLines: 3,
+                      controller: textEditingController,
+                      decoration: const InputDecoration.collapsed(
+                        hintText: 'Type your message...',
+                      ),
+                    )),
               ),
-              Container(
-                margin: const EdgeInsets.symmetric(horizontal: 8.0),
-                child: IconButton(
-                  icon: Icon(Icons.send, size: 25),
-                  onPressed: () => onSendMessage(textEditingController.text),
-                ),
+            ),
+            Container(
+              margin: const EdgeInsets.symmetric(horizontal: 8.0),
+              child: IconButton(
+                icon: Icon(Icons.send, size: 25),
+                onPressed: () => onSendMessage(textEditingController.text),
               ),
-            ],
-          ),
+            ),
+          ],
         ),
         width: double.infinity,
-        height: 100.0);
+        height: 70.0);
   }
 
   void onSendMessage(String content) {
@@ -239,8 +239,9 @@ class _ChatScreenState extends State<ChatScreen> {
   }
 
   void updateMessageRead(DocumentSnapshot doc, String convoID) {
-    FirebaseFirestore.instance.collection('messages').doc(convoID).update({
-      'lastMessage': {'read': true}
-    });
+    FirebaseFirestore.instance
+        .collection('messages')
+        .doc(convoID)
+        .update({'lastMessage.read': true});
   }
 }

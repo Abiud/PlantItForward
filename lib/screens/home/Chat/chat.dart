@@ -37,7 +37,7 @@ class _ChatState extends State<Chat> {
                     CupertinoPageRoute(builder: (context) => AddChat()));
               }),
           backgroundColor: Colors.transparent,
-          border: Border(bottom: BorderSide(color: Colors.transparent)),
+          // border: Border(bottom: BorderSide(color: Colors.transparent)),
         ),
         child: SafeArea(
           child: StreamProvider<List<Convo>>.value(
@@ -68,7 +68,7 @@ class ConversationDetailsProvider extends StatelessWidget {
 
   List<String> getUserIds(List<Convo> _convos, AuthService auth) {
     final List<String> users = <String>[];
-    if (_convos != null) {
+    if (_convos.length > 0) {
       for (Convo c in _convos) {
         c.userIds[0] != auth.currentUser.id
             ? users.add(c.userIds[0])
