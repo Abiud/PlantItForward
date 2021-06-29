@@ -68,9 +68,6 @@ class _ProductHistoryViewState extends State<ProductHistoryView> {
               ],
             ),
       // ListView.builder(
-      //     itemCount: _allResults.length,
-      //     itemBuilder: (BuildContext context, int index) =>
-      //         buildProductCard(context, _allResults[index])),
     );
   }
 }

@@ -14,6 +14,9 @@ class DatabaseService {
   final CollectionReference messageCollection =
       FirebaseFirestore.instance.collection("messages");
 
+  final CollectionReference eventCollection =
+      FirebaseFirestore.instance.collection("events");
+
   final FirebaseFirestore _db = FirebaseFirestore.instance;
 
   Future updateUserData(String sugars, String name, int strength) async {

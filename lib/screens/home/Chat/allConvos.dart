@@ -19,7 +19,7 @@ class AllConvos extends StatelessWidget {
     final List<Convo> _convos = Provider.of<List<Convo>>(context);
     final List<UserData> _users = Provider.of<List<UserData>>(context);
 
-    return _convos.length > 0
+    return _convos.length > 0 && _users.length > 0
         ? Scaffold(
             body: ListView(
               scrollDirection: Axis.vertical,

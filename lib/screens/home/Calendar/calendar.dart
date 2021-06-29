@@ -1,7 +1,20 @@
+// import 'package:cloud_firestore/cloud_firestore.dart';
+import 'dart:collection';
+
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
+import 'package:plant_it_forward/Models/CalEvent.dart';
+import 'package:plant_it_forward/config.dart';
 import 'package:plant_it_forward/screens/home/Calendar/addEvent.dart';
+import 'package:plant_it_forward/screens/home/Calendar/viewEvent.dart';
+import 'package:plant_it_forward/services/database.dart';
+import 'package:plant_it_forward/shared/loading.dart';
+// import 'package:plant_it_forward/shared/loading.dart';
+import 'package:plant_it_forward/shared/ui_helpers.dart';
 import 'package:plant_it_forward/utils.dart';
+import 'package:plant_it_forward/widgets/provider_widget.dart';
 import 'package:table_calendar/table_calendar.dart';
 
 class CalendarScreen extends StatefulWidget {
@@ -12,12 +25,49 @@ class CalendarScreen extends StatefulWidget {
 }
 
 class _CalendarScreenState extends State<CalendarScreen> {
+  late final PageController _pageController;
   CalendarFormat _calendarFormat = CalendarFormat.month;
   DateTime _focusedDay = DateTime.now();
-  DateTime? _selectedDay;
+  DateTime _selectedDay = DateTime.now();
+  bool loadingEvents = true;
+  List<CalEvent> todayEvents = [];
+  LinkedHashMap<DateTime, List<CalEvent>> _groupedEvents =
+      LinkedHashMap(equals: isSameDay, hashCode: getHashCode);
+
+  TextStyle dayStyle(FontWeight fontWeight) {
+    return TextStyle(color: Color(0xff30384c), fontWeight: fontWeight);
+  }
+
+  late DateTime today;
+  late DateTime firstDate;
+  late DateTime lastDate;
+
+  @override
+  void initState() {
+    super.initState();
+    today = DateTime.now();
+    firstDate = beginingOfDay(DateTime(today.year, today.month, 1));
+    lastDate = endOfDay(lastDayOfMonth(today));
+  }
+
+  _groupEvents(List<CalEvent> events) {
+    _groupedEvents = LinkedHashMap(equals: isSameDay, hashCode: getHashCode);
+    events.forEach((event) {
+      DateTime date = DateTime.utc(
+          event.startDate.year, event.startDate.month, event.startDate.day, 12);
+      if (_groupedEvents[date] == null) _groupedEvents[date] = [];
+      _groupedEvents[date]!.add(event);
+    });
+  }
+
+  _getEventsForDay(DateTime date) {
+    return _groupedEvents[date] ?? [];
+  }
 
   @override
   Widget build(BuildContext context) {
+    final DatabaseService db = Provider.of(context)!.db;
+
     return CupertinoPageScaffold(
       navigationBar: CupertinoNavigationBar(
         heroTag: 'calendar', // a different string for each navigationBar
@@ -33,49 +83,192 @@ class _CalendarScreenState extends State<CalendarScreen> {
       child: Scaffold(
         body: SafeArea(
           child: SingleChildScrollView(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: <Widget>[
-                TableCalendar(
-                  firstDay: kFirstDay,
-                  lastDay: kLastDay,
-                  focusedDay: _focusedDay,
-                  calendarFormat: _calendarFormat,
-                  selectedDayPredicate: (day) {
-                    // Use `selectedDayPredicate` to determine which day is currently selected.
-                    // If this returns true, then `day` will be marked as selected.
-
-                    // Using `isSameDay` is recommended to disregard
-                    // the time-part of compared DateTime objects.
-                    return isSameDay(_selectedDay, day);
-                  },
-                  onDaySelected: (selectedDay, focusedDay) {
-                    if (!isSameDay(_selectedDay, selectedDay)) {
-                      // Call `setState()` when updating the selected day
-                      setState(() {
-                        _selectedDay = selectedDay;
-                        _focusedDay = focusedDay;
-                      });
-                    }
-                  },
-                  onFormatChanged: (format) {
-                    if (_calendarFormat != format) {
-                      // Call `setState()` when updating calendar format
-                      setState(() {
-                        _calendarFormat = format;
-                      });
-                    }
-                  },
-                  onPageChanged: (focusedDay) {
-                    // No need to call `setState()` here
-                    _focusedDay = focusedDay;
-                  },
-                )
-              ],
+            child: StreamBuilder(
+              stream: db.eventCollection
+                  .where("userId",
+                      isEqualTo: Provider.of(context)!.auth.currentUser.id)
+                  .where("startDate", isGreaterThanOrEqualTo: firstDate)
+                  .where("startDate", isLessThanOrEqualTo: lastDate)
+                  .snapshots(),
+              builder: (BuildContext context,
+                  AsyncSnapshot<QuerySnapshot> snapshot) {
+                if (snapshot.hasData) {
+                  final events = snapshot.data!.docs
+                      .map((e) => CalEvent.fromSnapshot(
+                          e.id, e.data() as Map<String, dynamic>))
+                      .toList();
+                  _groupEvents(events);
+                  DateTime selectedDate = _selectedDay;
+                  final _selectedEvents = _groupedEvents[selectedDate] ?? [];
+                  return Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      TableCalendar(
+                          firstDay: kFirstDay,
+                          startingDayOfWeek: StartingDayOfWeek.monday,
+                          lastDay: kLastDay,
+                          focusedDay: _focusedDay,
+                          calendarFormat: _calendarFormat,
+                          calendarStyle: CalendarStyle(
+                            weekendTextStyle: dayStyle(FontWeight.normal),
+                            defaultTextStyle: dayStyle(FontWeight.normal),
+                            markersMaxCount: 3,
+                          ),
+                          daysOfWeekStyle: DaysOfWeekStyle(
+                            weekdayStyle: TextStyle(
+                                color: Color(0xff30384c),
+                                fontWeight: FontWeight.bold,
+                                fontSize: 16),
+                            weekendStyle: TextStyle(
+                                color: Color(0xffcd5c5c),
+                                fontWeight: FontWeight.bold,
+                                fontSize: 16),
+                          ),
+                          headerStyle: HeaderStyle(
+                              titleCentered: true,
+                              headerPadding:
+                                  EdgeInsets.symmetric(vertical: 12.0),
+                              formatButtonVisible: false,
+                              titleTextStyle: TextStyle(
+                                  color: Color(0xff30384c),
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.bold),
+                              leftChevronIcon: Icon(Icons.chevron_left,
+                                  color: Color(0xff30384c)),
+                              rightChevronIcon: Icon(Icons.chevron_right,
+                                  color: Color(0xff30384c))),
+                          onCalendarCreated: (controller) =>
+                              _pageController = controller,
+                          onHeaderTapped: (day) {
+                            _selectDate(context);
+                          },
+                          eventLoader: (day) {
+                            return _getEventsForDay(day);
+                          },
+                          selectedDayPredicate: (day) {
+                            return isSameDay(_selectedDay, day);
+                          },
+                          onDaySelected: (selectedDay, focusedDay) {
+                            if (!isSameDay(_selectedDay, selectedDay)) {
+                              // Call `setState()` when updating the selected day
+                              setState(() {
+                                _selectedDay = selectedDay;
+                                _focusedDay = focusedDay;
+                              });
+                            }
+                          },
+                          onFormatChanged: (format) {
+                            if (_calendarFormat != format) {
+                              // Call `setState()` when updating calendar format
+                              setState(() {
+                                _calendarFormat = format;
+                              });
+                            }
+                          },
+                          onPageChanged: (focusedDay) {
+                            // No need to call `setState()` here
+                            _focusedDay = focusedDay;
+                            setState(() {
+                              firstDate = beginingOfDay(DateTime(
+                                  _focusedDay.year, _focusedDay.month, 1));
+                              lastDate = endOfDay(lastDayOfMonth(_focusedDay));
+                            });
+                          },
+                          calendarBuilders: CalendarBuilders()),
+                      verticalSpaceSmall,
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Padding(
+                              padding:
+                                  const EdgeInsets.only(left: 12.0, top: 24),
+                              child: Text(
+                                DateFormat('EEEE, dd MMMM, yyyy')
+                                    .format(selectedDate),
+                                style: TextStyle(
+                                    fontWeight: FontWeight.w500, fontSize: 20),
+                              )),
+                          verticalSpaceSmall,
+                          ListView.builder(
+                            shrinkWrap: true,
+                            physics: NeverScrollableScrollPhysics(),
+                            itemCount: _selectedEvents.length,
+                            itemBuilder: (BuildContext context, int index) {
+                              return Card(
+                                child: InkWell(
+                                  splashColor: primaryGreen.withAlpha(30),
+                                  onTap: () {
+                                    Navigator.push(
+                                        context,
+                                        CupertinoPageRoute(
+                                            builder: (context) => ViewEvent(
+                                                calEvent:
+                                                    _selectedEvents[index])));
+                                  },
+                                  child: ListTile(
+                                    title: Text(_selectedEvents[index].title,
+                                        style: TextStyle(
+                                            fontSize: 18,
+                                            fontWeight: FontWeight.w500)),
+                                    subtitle:
+                                        Text(_selectedEvents[index].userId),
+                                    leading: Column(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      children: [
+                                        Text(
+                                          DateFormat("hh:mm a").format(
+                                              _selectedEvents[index]
+                                                  .startDateTime),
+                                          style: TextStyle(fontSize: 12),
+                                        ),
+                                        if (_selectedEvents[index].endDate !=
+                                            null) ...[
+                                          Text(
+                                            "-",
+                                            style: TextStyle(fontSize: 12),
+                                          ),
+                                          Text(
+                                            DateFormat("hh:mm a").format(
+                                                _selectedEvents[index]
+                                                    .endDateTime!),
+                                            style: TextStyle(fontSize: 12),
+                                          ),
+                                        ],
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              );
+                            },
+                          ),
+                        ],
+                      ),
+                    ],
+                  );
+                }
+                return Loading();
+              },
             ),
           ),
         ),
       ),
     );
+  }
+
+  Future<Null> _selectDate(BuildContext context) async {
+    final DateTime? picked = await showDatePicker(
+        context: context,
+        initialDate: _focusedDay,
+        initialDatePickerMode: DatePickerMode.day,
+        firstDate: kFirstDay,
+        lastDate: kLastDay);
+    if (picked != null) {
+      int yearDiff = picked.year - kFirstDay.year;
+      _pageController.jumpToPage(12 * yearDiff + picked.month - 1);
+      setState(() {
+        _selectedDay = picked;
+      });
+    }
   }
 }

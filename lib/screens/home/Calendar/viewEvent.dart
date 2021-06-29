@@ -3,23 +3,23 @@ import 'package:date_format/date_format.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:plant_it_forward/Models/CalEvent.dart';
 import 'package:plant_it_forward/services/auth.dart';
 import 'package:plant_it_forward/shared/shared_styles.dart';
 import 'package:plant_it_forward/shared/ui_helpers.dart';
 import 'package:plant_it_forward/widgets/provider_widget.dart';
 
-class AddEvent extends StatefulWidget {
-  const AddEvent({Key? key}) : super(key: key);
+class ViewEvent extends StatefulWidget {
+  final CalEvent calEvent;
+  const ViewEvent({Key? key, required this.calEvent}) : super(key: key);
 
   @override
-  _AddEventState createState() => _AddEventState();
+  _ViewEventState createState() => _ViewEventState();
 }
 
-class _AddEventState extends State<AddEvent> {
+class _ViewEventState extends State<ViewEvent> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   bool loading = false;
-  String title = "";
-  String description = "";
 
   late String _setTimeStart, _setDateStart, _setTimeEnd, _setDateEnd;
 
@@ -34,12 +34,39 @@ class _AddEventState extends State<AddEvent> {
   TimeOfDay selectedTimeEnd = TimeOfDay(hour: 00, minute: 00);
 
   @override
+  void initState() {
+    super.initState();
+    setDateTimeInputs();
+  }
+
+  void setDateTimeInputs() {
+    DateTime sDate = widget.calEvent.startDateTime;
+    DateTime? eDate = widget.calEvent.endDateTime;
+
+    _startDateController.text = DateFormat.yMd().format(sDate);
+    _startTimeController.text = formatDate(
+        DateTime(2019, 08, 1, sDate.hour, sDate.minute),
+        [hh, ':', nn, " ", am]).toString();
+    selectedDateStart = sDate;
+    selectedTimeStart = TimeOfDay.fromDateTime(sDate);
+
+    if (eDate != null) {
+      _endDateController.text = DateFormat.yMd().format(eDate);
+      _endTimeController.text = formatDate(
+          DateTime(2019, 08, 1, eDate.hour, eDate.minute),
+          [hh, ':', nn, " ", am]).toString();
+      selectedDateEnd = eDate;
+      selectedTimeEnd = TimeOfDay.fromDateTime(eDate);
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
     return CupertinoPageScaffold(
         navigationBar: CupertinoNavigationBar(
-          heroTag: "AddEvent",
+          heroTag: "ViewEvent",
           transitionBetweenRoutes: false,
-          middle: Text("Add Event"),
+          middle: Text("View Event"),
         ),
         child: Scaffold(
           floatingActionButton: FloatingActionButton(
@@ -56,8 +83,7 @@ class _AddEventState extends State<AddEvent> {
                   setState(() {
                     loading = true;
                   });
-                  createEvent(context).then((val) async {
-                    print(val.id);
+                  editEvent(context).then((val) async {
                     setState(() {
                       loading = false;
                     });
@@ -219,15 +245,15 @@ class _AddEventState extends State<AddEvent> {
                             errorBorder: fieldErrorBorder,
                             labelText: 'Title',
                             hintText: "Title..."),
-                        initialValue: title,
+                        initialValue: widget.calEvent.title,
                         validator: (val) {
-                          if (title.length > 0) {
+                          if (widget.calEvent.title.length > 0) {
                             return null;
                           }
                           return "Title cannot be empty";
                         },
                         onChanged: (val) {
-                          title = val;
+                          widget.calEvent.title = val;
                         },
                       ),
                       verticalSpaceMedium,
@@ -239,7 +265,7 @@ class _AddEventState extends State<AddEvent> {
                             errorBorder: fieldErrorBorder,
                             labelText: 'Description',
                             hintText: "Description..."),
-                        initialValue: description,
+                        initialValue: widget.calEvent.description,
                         maxLines: null,
                         keyboardType: TextInputType.multiline,
                         validator: (val) {
@@ -250,7 +276,7 @@ class _AddEventState extends State<AddEvent> {
                           // return "Name cannot be empty";
                         },
                         onChanged: (val) {
-                          description = val;
+                          widget.calEvent.description = val;
                         },
                       ),
                       verticalSpaceMedium,
@@ -313,11 +339,12 @@ class _AddEventState extends State<AddEvent> {
       });
   }
 
-  Future createEvent(context) async {
-    final collection = FirebaseFirestore.instance.collection('events');
+  Future editEvent(context) async {
+    final eventDoc =
+        FirebaseFirestore.instance.collection('events').doc(widget.calEvent.id);
     final AuthService auth = Provider.of(context)!.auth;
 
-    return await collection.add({
+    return await eventDoc.update({
       "startDateTime": DateTime(
           selectedDateStart.year,
           selectedDateStart.month,
@@ -328,8 +355,8 @@ class _AddEventState extends State<AddEvent> {
           selectedDateEnd.day, selectedTimeEnd.hour, selectedTimeEnd.minute),
       "endDate": selectedDateEnd,
       "startDate": selectedDateStart,
-      "title": title,
-      "description": description,
+      "title": widget.calEvent.title,
+      "description": widget.calEvent.description,
       "userId": auth.currentUser.id,
     });
   }
