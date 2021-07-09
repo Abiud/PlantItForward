@@ -9,6 +9,7 @@ import 'package:plant_it_forward/config.dart';
 import 'package:plant_it_forward/screens/home/Profile/profile.dart';
 import 'package:plant_it_forward/screens/home/Settings/settings.dart';
 import 'package:plant_it_forward/services/auth.dart';
+import 'package:plant_it_forward/widgets/provider_widget.dart';
 
 class HomeScreen extends StatefulWidget {
   HomeScreen({Key? key}) : super(key: key);
@@ -745,7 +746,11 @@ class ModalFit extends StatelessWidget {
             leading: Icon(CupertinoIcons.person),
             onTap: () {
               Navigator.push(
-                  context, CupertinoPageRoute(builder: (context) => Profile()));
+                  context,
+                  CupertinoPageRoute(
+                      builder: (context) => Profile(
+                            profile: Provider.of(context)!.auth.currentUser,
+                          )));
             },
           ),
           ListTile(

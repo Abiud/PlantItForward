@@ -7,12 +7,14 @@ class MyCustomInputBox extends StatelessWidget {
   final inputHint;
   final validatorFn;
   final onChangedFn;
+  final TextInputType keyboardType;
   final checkBoxIcon = 'assets/checkbox.svg';
 
   const MyCustomInputBox(
       {Key? key,
       this.label,
       this.inputHint,
+      this.keyboardType = TextInputType.text,
       this.validatorFn,
       this.onChangedFn})
       : super(key: key);
@@ -35,6 +37,7 @@ class MyCustomInputBox extends StatelessWidget {
         Padding(
           padding: const EdgeInsets.fromLTRB(40, 0, 40, 15),
           child: TextFormField(
+            keyboardType: keyboardType,
             obscureText: label == 'Password' ? true : false,
             validator: validatorFn,
             onChanged: onChangedFn,

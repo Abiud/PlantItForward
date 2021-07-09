@@ -75,6 +75,7 @@ class _RegisterState extends State<Register> {
                             MyCustomInputBox(
                               label: 'Name',
                               inputHint: 'Joe Doe',
+                              keyboardType: TextInputType.name,
                               validatorFn: (val) => val.isEmpty
                                   ? "The Name can't be empty"
                                   : null,
@@ -86,6 +87,7 @@ class _RegisterState extends State<Register> {
                             ),
                             MyCustomInputBox(
                               label: 'Email',
+                              keyboardType: TextInputType.emailAddress,
                               inputHint: 'joedoe@gmail.com',
                               validatorFn: (val) => val.isEmpty
                                   ? "The Email can't be empty"

@@ -63,7 +63,8 @@ class _ProductHistoryViewState extends State<ProductHistoryView> {
                       shrinkWrap: true,
                       itemCount: _allResults.length,
                       itemBuilder: (BuildContext context, int index) =>
-                          buildProductCardHistory(context, _allResults[index])),
+                          buildProductCardHistory(
+                              context, _allResults[index], widget.productId)),
                 )
               ],
             ),

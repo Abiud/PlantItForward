@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:plant_it_forward/screens/home/Produce/available.dart';
 import 'package:plant_it_forward/screens/home/Produce/price.dart';
 
 class Produce extends StatefulWidget {
@@ -41,9 +42,7 @@ class _ProduceState extends State<Produce> {
               Center(
                 child: Text("orders"),
               ),
-              Center(
-                child: Text("available"),
-              ),
+              Available(),
               Price()
             ],
           ),

@@ -5,6 +5,7 @@ import 'package:flutter/rendering.dart';
 import 'package:plant_it_forward/Models/Product.dart';
 import 'package:plant_it_forward/screens/home/Produce/new_product_view.dart';
 import 'package:plant_it_forward/shared/loading.dart';
+import 'package:plant_it_forward/widgets/produce_search.dart';
 import 'package:plant_it_forward/widgets/product_card.dart';
 
 class Price extends StatefulWidget {
@@ -143,10 +144,8 @@ class _PriceState extends State<Price> {
                           IconButton(
                             icon: Icon(Icons.search),
                             onPressed: () {
-                              Navigator.push(
-                                  context,
-                                  CupertinoPageRoute(
-                                      builder: (context) => NewProductView()));
+                              showSearch(
+                                  context: context, delegate: ProduceSearch());
                             },
                           ),
                           IconButton(

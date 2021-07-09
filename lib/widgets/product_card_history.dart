@@ -8,7 +8,7 @@ import 'package:plant_it_forward/shared/ui_helpers.dart';
 import 'package:plant_it_forward/utils.dart';
 
 Widget buildProductCardHistory(
-    BuildContext context, DocumentSnapshot document) {
+    BuildContext context, DocumentSnapshot document, String parentId) {
   final product = Product.fromSnapshot(document);
 
   return new Container(
@@ -21,9 +21,8 @@ Widget buildProductCardHistory(
           Navigator.push(
               context,
               CupertinoPageRoute(
-                  builder: (context) => ProductView(
-                        product: product,
-                      )));
+                  builder: (context) =>
+                      ProductView(product: product, parentId: parentId)));
         },
         child: Padding(
           padding:

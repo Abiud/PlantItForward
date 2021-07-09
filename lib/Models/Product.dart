@@ -41,15 +41,27 @@ class Product {
         createdAt = (snapshot.data() as Map)['createdAt'],
         updatedAt = (snapshot.data() as Map)['updatedAt'];
 
-  static Product fromMap(Map<String, dynamic> map, String documentId) {
+  static Product fromMap(Map<String, dynamic> map) {
     return Product(
         name: map['name'],
         quantity: map['quantity'],
         userId: map['userId'],
         price: Money.fromInt(map['price'], Currency.create('USD', 2)),
-        documentId: documentId,
+        documentId: map['documentId'],
         createdAt: map['createdAt'],
         updatedAt: map['updatedAt']);
+  }
+
+  Map<String, dynamic> toMap() {
+    return {
+      'userId': userId,
+      'name': name.inCaps,
+      'quantity': quantity,
+      'price': price?.minorUnits.toInt(),
+      'searchKeywords': createKeywords(),
+      'createdAt': createdAt,
+      'updatedAt': updatedAt
+    };
   }
 
   List createKeywords() {

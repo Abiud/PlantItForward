@@ -20,6 +20,7 @@ class _AddEventState extends State<AddEvent> {
   bool loading = false;
   String title = "";
   String description = "";
+  bool needVolunteers = false;
 
   late String _setTimeStart, _setDateStart, _setTimeEnd, _setDateEnd;
 
@@ -30,8 +31,8 @@ class _AddEventState extends State<AddEvent> {
 
   DateTime selectedDateStart = DateTime.now();
   TimeOfDay selectedTimeStart = TimeOfDay(hour: 00, minute: 00);
-  DateTime selectedDateEnd = DateTime.now();
-  TimeOfDay selectedTimeEnd = TimeOfDay(hour: 00, minute: 00);
+  DateTime? selectedDateEnd;
+  TimeOfDay? selectedTimeEnd;
 
   @override
   Widget build(BuildContext context) {
@@ -71,7 +72,7 @@ class _AddEventState extends State<AddEvent> {
               child: Form(
                 key: _formKey,
                 child: Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 12, vertical: 16),
+                  padding: EdgeInsets.symmetric(horizontal: 18, vertical: 18),
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.start,
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -254,6 +255,17 @@ class _AddEventState extends State<AddEvent> {
                         },
                       ),
                       verticalSpaceMedium,
+                      CheckboxListTile(
+                          contentPadding: EdgeInsets.symmetric(horizontal: 0),
+                          title: Text("Need volunteers?"),
+                          subtitle: Text(
+                              "If this box is checked volunteers will be able to sign up to help."),
+                          value: needVolunteers,
+                          onChanged: (val) {
+                            setState(() {
+                              needVolunteers = val!;
+                            });
+                          })
                     ],
                   ),
                 ),
@@ -266,7 +278,7 @@ class _AddEventState extends State<AddEvent> {
   Future<Null> _selectDate(BuildContext context, bool isStartDate) async {
     final DateTime? picked = await showDatePicker(
         context: context,
-        initialDate: isStartDate ? selectedDateStart : selectedDateEnd,
+        initialDate: isStartDate ? selectedDateStart : selectedDateEnd!,
         initialDatePickerMode: DatePickerMode.day,
         firstDate: DateTime(2015),
         lastDate: DateTime(2101));
@@ -280,7 +292,7 @@ class _AddEventState extends State<AddEvent> {
       else
         setState(() {
           selectedDateEnd = picked;
-          _endDateController.text = DateFormat.yMd().format(selectedDateEnd);
+          _endDateController.text = DateFormat.yMd().format(selectedDateEnd!);
         });
     }
   }
@@ -288,7 +300,7 @@ class _AddEventState extends State<AddEvent> {
   Future<Null> _selectTime(BuildContext context, bool isStartTime) async {
     final TimeOfDay? picked = await showTimePicker(
       context: context,
-      initialTime: isStartTime ? selectedTimeStart : selectedTimeEnd,
+      initialTime: isStartTime ? selectedTimeStart : selectedTimeEnd!,
     );
     if (picked != null) if (isStartTime)
       setState(() {
@@ -304,11 +316,12 @@ class _AddEventState extends State<AddEvent> {
     else
       setState(() {
         selectedTimeEnd = picked;
-        _endTimeController.text = selectedTimeEnd.hour.toString() +
+        _endTimeController.text = selectedTimeEnd!.hour.toString() +
             ' : ' +
-            selectedTimeEnd.minute.toString();
+            selectedTimeEnd!.minute.toString();
         _endTimeController.text = formatDate(
-            DateTime(2019, 08, 1, selectedTimeEnd.hour, selectedTimeEnd.minute),
+            DateTime(
+                2019, 08, 1, selectedTimeEnd!.hour, selectedTimeEnd!.minute),
             [hh, ':', nn, " ", am]).toString();
       });
   }
@@ -324,10 +337,17 @@ class _AddEventState extends State<AddEvent> {
           selectedDateStart.day,
           selectedTimeStart.hour,
           selectedTimeStart.minute),
-      "endDateTime": DateTime(selectedDateEnd.year, selectedDateEnd.month,
-          selectedDateEnd.day, selectedTimeEnd.hour, selectedTimeEnd.minute),
+      "endDateTime": selectedDateEnd != null
+          ? DateTime(
+              selectedDateEnd!.year,
+              selectedDateEnd!.month,
+              selectedDateEnd!.day,
+              selectedTimeEnd!.hour,
+              selectedTimeEnd!.minute)
+          : null,
       "endDate": selectedDateEnd,
       "startDate": selectedDateStart,
+      "needVolunteers": needVolunteers,
       "title": title,
       "description": description,
       "userId": auth.currentUser.id,

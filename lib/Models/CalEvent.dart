@@ -1,5 +1,9 @@
 import 'dart:convert';
 
+import 'package:flutter/foundation.dart';
+
+import 'package:plant_it_forward/Models/UserData.dart';
+
 class CalEvent {
   String title;
   String? description;
@@ -7,6 +11,8 @@ class CalEvent {
   DateTime startDate;
   DateTime? endDateTime;
   DateTime? endDate;
+  bool needVolunteers = false;
+  List<UserData>? volunteers;
   String userId;
   String id;
 
@@ -17,6 +23,8 @@ class CalEvent {
     required this.startDate,
     this.endDateTime,
     this.endDate,
+    required this.needVolunteers,
+    this.volunteers,
     required this.userId,
     required this.id,
   });
@@ -28,6 +36,8 @@ class CalEvent {
     DateTime? startDate,
     DateTime? endDateTime,
     DateTime? endDate,
+    bool? needVolunteers,
+    List<UserData>? volunteers,
     String? userId,
     String? id,
   }) {
@@ -38,6 +48,8 @@ class CalEvent {
       startDate: startDate ?? this.startDate,
       endDateTime: endDateTime ?? this.endDateTime,
       endDate: endDate ?? this.endDate,
+      needVolunteers: needVolunteers ?? this.needVolunteers,
+      volunteers: volunteers ?? this.volunteers,
       userId: userId ?? this.userId,
       id: id ?? this.id,
     );
@@ -51,6 +63,8 @@ class CalEvent {
       'startDate': startDate.millisecondsSinceEpoch,
       'endDateTime': endDateTime?.millisecondsSinceEpoch,
       'endDate': endDate?.millisecondsSinceEpoch,
+      'needVolunteers': needVolunteers,
+      'volunteers': volunteers?.map((x) => x.toMap()).toList(),
       'userId': userId,
       'id': id,
     };
@@ -64,6 +78,9 @@ class CalEvent {
       startDate: DateTime.fromMillisecondsSinceEpoch(map['startDate']),
       endDateTime: DateTime.fromMillisecondsSinceEpoch(map['endDateTime']),
       endDate: DateTime.fromMillisecondsSinceEpoch(map['endDate']),
+      needVolunteers: map['needVolunteers'],
+      volunteers: List<UserData>.from(
+          map['volunteers']?.map((x) => UserData.fromMap(x))),
       userId: map['userId'],
       id: map['id'],
     );
@@ -78,6 +95,11 @@ class CalEvent {
       endDateTime: (map['endDateTime'])?.toDate(),
       endDate: (map['endDate'])?.toDate(),
       userId: map['userId'],
+      needVolunteers: map['needVolunteers'],
+      volunteers: map['volunteers'] != null
+          ? List<UserData>.from(
+              map['volunteers']?.map((x) => UserData.fromMap(x)))
+          : map['volunteers'],
       id: id,
     );
   }
@@ -89,7 +111,7 @@ class CalEvent {
 
   @override
   String toString() {
-    return 'CalEvent(title: $title, description: $description, startDateTime: $startDateTime, startDate: $startDate, endDateTime: $endDateTime, endDate: $endDate, userId: $userId, id: $id)';
+    return 'CalEvent(title: $title, description: $description, startDateTime: $startDateTime, startDate: $startDate, endDateTime: $endDateTime, endDate: $endDate, needVolunteers: $needVolunteers, volunteers: $volunteers, userId: $userId, id: $id)';
   }
 
   @override
@@ -103,6 +125,8 @@ class CalEvent {
         other.startDate == startDate &&
         other.endDateTime == endDateTime &&
         other.endDate == endDate &&
+        other.needVolunteers == needVolunteers &&
+        listEquals(other.volunteers, volunteers) &&
         other.userId == userId &&
         other.id == id;
   }
@@ -115,6 +139,8 @@ class CalEvent {
         startDate.hashCode ^
         endDateTime.hashCode ^
         endDate.hashCode ^
+        needVolunteers.hashCode ^
+        volunteers.hashCode ^
         userId.hashCode ^
         id.hashCode;
   }

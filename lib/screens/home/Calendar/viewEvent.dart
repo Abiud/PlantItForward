@@ -4,6 +4,8 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:plant_it_forward/Models/CalEvent.dart';
+import 'package:plant_it_forward/Models/UserData.dart';
+import 'package:plant_it_forward/config.dart';
 import 'package:plant_it_forward/services/auth.dart';
 import 'package:plant_it_forward/shared/shared_styles.dart';
 import 'package:plant_it_forward/shared/ui_helpers.dart';
@@ -279,7 +281,41 @@ class _ViewEventState extends State<ViewEvent> {
                           widget.calEvent.description = val;
                         },
                       ),
-                      verticalSpaceMedium,
+                      if (widget.calEvent.needVolunteers == true) ...[
+                        verticalSpaceMedium,
+                        Text("This event was marked as accepting volunteers")
+                      ],
+                      if (widget.calEvent.volunteers != null) ...[
+                        verticalSpaceMedium,
+                        ListView.builder(
+                          shrinkWrap: true,
+                          physics: NeverScrollableScrollPhysics(),
+                          itemCount: widget.calEvent.volunteers!.length,
+                          itemBuilder: (BuildContext context, int index) {
+                            UserData volunteer =
+                                widget.calEvent.volunteers![index];
+                            return Card(
+                              child: InkWell(
+                                splashColor: primaryGreen.withAlpha(30),
+                                // onTap: () {
+                                //   Navigator.push(
+                                //       context,
+                                //       CupertinoPageRoute(
+                                //           builder: (context) => ViewEvent(
+                                //               calEvent: _selectedEvents[index])));
+                                // },
+                                child: ListTile(
+                                  title: Text(volunteer.name!,
+                                      style: TextStyle(
+                                          fontSize: 18,
+                                          fontWeight: FontWeight.w500)),
+                                  subtitle: Text(volunteer.id),
+                                ),
+                              ),
+                            );
+                          },
+                        ),
+                      ]
                     ],
                   ),
                 ),

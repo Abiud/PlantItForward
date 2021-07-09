@@ -54,7 +54,6 @@ class AllConvos extends StatelessWidget {
       final Map<String, UserData> userMap = getUserMap(_users);
       for (Convo c in _convos) {
         if (c.userIds[0] == user.id) {
-          print(c.userIds[1]);
           list.add(ConvoListItem(
               user: user,
               peer: userMap[c.userIds[1]]!,
