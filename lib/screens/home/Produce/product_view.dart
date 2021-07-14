@@ -8,8 +8,6 @@ import 'package:plant_it_forward/screens/home/Produce/product_history.dart';
 import 'package:plant_it_forward/shared/loading.dart';
 import 'package:plant_it_forward/shared/shared_styles.dart';
 import 'package:plant_it_forward/shared/ui_helpers.dart';
-import 'package:another_flushbar/flushbar.dart';
-import 'package:plant_it_forward/widgets/provider_widget.dart';
 
 class ProductView extends StatefulWidget {
   final Product? product;
@@ -91,6 +89,7 @@ class _ProductViewState extends State<ProductView> {
                   trailing: Material(
                     color: Colors.transparent,
                     child: PopupMenuButton(
+                      icon: Icon(Icons.more_vert),
                       shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.all(Radius.circular(4.0))),
                       elevation: 2,
@@ -158,11 +157,6 @@ class _ProductViewState extends State<ProductView> {
                                   setState(() {
                                     loading = false;
                                   });
-                                  await Flushbar(
-                                    title: 'Item updated!',
-                                    message: item.name + ' updated succefully',
-                                    duration: Duration(seconds: 1),
-                                  ).show(context);
                                 });
                               }
                             }

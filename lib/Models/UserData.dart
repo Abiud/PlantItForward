@@ -7,38 +7,36 @@ class UserData {
   String id;
   String? email;
   String? role;
+  String? photoUrl;
 
-  UserData({
-    this.name,
-    required this.id,
-    this.email,
-    this.role,
-  });
+  UserData({this.name, required this.id, this.email, this.role, this.photoUrl});
 
   UserData.fromData(Map<String, dynamic> data)
       : id = data['id'],
         name = data['name'],
         email = data['email'],
-        role = data['role'];
+        role = data['role'],
+        photoUrl = data['photoUrl'];
 
   UserData.fromSnapshot(DocumentSnapshot snapshot)
       : id = (snapshot.data() as Map)["id"],
         name = (snapshot.data() as Map)["name"],
         email = (snapshot.data() as Map)["email"],
-        role = (snapshot.data() as Map)["role"];
+        role = (snapshot.data() as Map)["role"],
+        photoUrl = (snapshot.data() as Map)["photoUrl"];
 
-  UserData copyWith({
-    String? name,
-    String? id,
-    String? email,
-    String? role,
-  }) {
+  UserData copyWith(
+      {String? name,
+      String? id,
+      String? email,
+      String? role,
+      String? photoUrl}) {
     return UserData(
-      name: name ?? this.name,
-      id: id ?? this.id,
-      email: email ?? this.email,
-      role: role ?? this.role,
-    );
+        name: name ?? this.name,
+        id: id ?? this.id,
+        email: email ?? this.email,
+        role: role ?? this.role,
+        photoUrl: photoUrl ?? this.photoUrl);
   }
 
   Map<String, dynamic> toMap() {
@@ -47,16 +45,17 @@ class UserData {
       'id': id,
       'email': email,
       'role': role,
+      'photoUrl': photoUrl
     };
   }
 
   factory UserData.fromMap(Map<String, dynamic> map) {
     return UserData(
-      name: map['name'],
-      id: map['id'],
-      email: map['email'],
-      role: map['role'],
-    );
+        name: map['name'],
+        id: map['id'],
+        email: map['email'],
+        role: map['role'],
+        photoUrl: map['photoUrl']);
   }
 
   String toJson() => json.encode(toMap());
@@ -66,7 +65,7 @@ class UserData {
 
   @override
   String toString() {
-    return 'UserData(name: $name, id: $id, email: $email, role: $role)';
+    return 'UserData(name: $name, id: $id, email: $email, role: $role, photoUrl: $photoUrl)';
   }
 
   @override
@@ -77,11 +76,16 @@ class UserData {
         other.name == name &&
         other.id == id &&
         other.email == email &&
-        other.role == role;
+        other.role == role &&
+        other.photoUrl == photoUrl;
   }
 
   @override
   int get hashCode {
-    return name.hashCode ^ id.hashCode ^ email.hashCode ^ role.hashCode;
+    return name.hashCode ^
+        id.hashCode ^
+        email.hashCode ^
+        role.hashCode ^
+        photoUrl.hashCode;
   }
 }

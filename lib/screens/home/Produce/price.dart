@@ -3,8 +3,10 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:plant_it_forward/Models/Product.dart';
+import 'package:plant_it_forward/config.dart';
 import 'package:plant_it_forward/screens/home/Produce/new_product_view.dart';
 import 'package:plant_it_forward/shared/loading.dart';
+import 'package:plant_it_forward/shared/ui_helpers.dart';
 import 'package:plant_it_forward/widgets/produce_search.dart';
 import 'package:plant_it_forward/widgets/product_card.dart';
 
@@ -128,35 +130,38 @@ class _PriceState extends State<Price> {
                   physics: AlwaysScrollableScrollPhysics(),
                   children: [
                     Padding(
-                      padding: const EdgeInsets.only(left: 8, right: 8, top: 8),
+                      padding:
+                          const EdgeInsets.only(left: 12, right: 12, top: 8),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.end,
                         children: [
-                          // Padding(
-                          //   padding: const EdgeInsets.symmetric(horizontal: 2),
-                          //   child: Container(
-                          //     width: screenWidthFraction(context, dividedBy: 2),
-                          //     child: CupertinoSearchTextField(
-                          //       controller: _searchController,
-                          //     ),
-                          //   ),
-                          // ),
-                          IconButton(
-                            icon: Icon(Icons.search),
-                            onPressed: () {
-                              showSearch(
-                                  context: context, delegate: ProduceSearch());
-                            },
-                          ),
-                          IconButton(
-                            icon: Icon(Icons.add),
-                            onPressed: () {
-                              Navigator.push(
+                          TextButton.icon(
+                              style: TextButton.styleFrom(
+                                  primary: secondaryBlue,
+                                  elevation: 1,
+                                  backgroundColor: Colors.white,
+                                  onSurface: Colors.white,
+                                  padding: EdgeInsets.symmetric(
+                                      horizontal: 12, vertical: 8)),
+                              onPressed: () => showSearch(
+                                  context: context, delegate: ProduceSearch()),
+                              label: Text("Search"),
+                              icon: Icon(Icons.search)),
+                          horizontalSpaceSmall,
+                          TextButton.icon(
+                              style: TextButton.styleFrom(
+                                  primary: secondaryBlue,
+                                  elevation: 1,
+                                  backgroundColor: Colors.white,
+                                  onSurface: Colors.white,
+                                  padding: EdgeInsets.symmetric(
+                                      horizontal: 12, vertical: 8)),
+                              onPressed: () => Navigator.push(
                                   context,
                                   CupertinoPageRoute(
-                                      builder: (context) => NewProductView()));
-                            },
-                          )
+                                      builder: (context) => NewProductView())),
+                              label: Text("Add"),
+                              icon: Icon(Icons.add)),
                         ],
                       ),
                     ),

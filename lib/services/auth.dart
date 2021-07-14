@@ -33,6 +33,7 @@ class AuthService {
         currentUser.name = res.data()!['name'];
         currentUser.role = res.data()!['role'];
         currentUser.id = res.data()!['id'];
+        currentUser.photoUrl = res.data()!['photoUrl'];
       });
     } else {
       currentUser = UserData(id: "");

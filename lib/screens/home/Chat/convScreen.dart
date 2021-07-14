@@ -2,6 +2,8 @@ import 'package:bubble/bubble.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:plant_it_forward/Models/UserData.dart';
+import 'package:plant_it_forward/config.dart';
+import 'package:plant_it_forward/shared/ui_helpers.dart';
 
 class ConvScreen extends StatelessWidget {
   const ConvScreen(
@@ -13,7 +15,48 @@ class ConvScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(contact.name!),
+        backgroundColor: secondaryBlue,
+        leadingWidth: 90,
+        centerTitle: false,
+        titleSpacing: 0,
+        leading: InkWell(
+          onTap: () => Navigator.pop(context),
+          borderRadius: BorderRadius.circular(30),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Icon(Icons.arrow_back),
+              horizontalSpaceSmall,
+              contact.photoUrl != null
+                  ? CircleAvatar(
+                      radius: 20,
+                      backgroundImage: NetworkImage(contact.photoUrl!))
+                  : Container(
+                      height: 40,
+                      width: 40,
+                      decoration: BoxDecoration(
+                          color: Colors.grey.shade300,
+                          shape: BoxShape.circle,
+                          image: DecorationImage(
+                              image: AssetImage("assets/PIF-Logo_3_5.webp"),
+                              fit: BoxFit.cover)),
+                    ),
+            ],
+          ),
+        ),
+        title: InkWell(
+          borderRadius: BorderRadius.circular(5),
+          onTap: () => {},
+          child: Padding(
+            padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 4),
+            child: Text(
+              contact.name!,
+              textAlign: TextAlign.left,
+            ),
+          ),
+        ),
+        actions: [IconButton(onPressed: () => {}, icon: Icon(Icons.more_vert))],
       ),
       body: ChatScreen(
         userID: userID,
@@ -80,37 +123,29 @@ class _ChatScreenState extends State<ChatScreen> {
 
     if (document['idFrom'] == userID) {
       // Right (my message)
-      return Row(
-        children: <Widget>[
-          // Text
-          Bubble(
-              color: Colors.blueGrey,
-              elevation: 1,
-              padding: const BubbleEdges.all(10.0),
-              nip: BubbleNip.rightTop,
-              child: Text(document['content'],
-                  style: TextStyle(color: Colors.white)))
-        ],
-        mainAxisAlignment: MainAxisAlignment.end,
+      return Container(
+        margin: EdgeInsets.symmetric(vertical: 5),
+        child: Bubble(
+            color: Colors.blueGrey,
+            elevation: 1,
+            padding: const BubbleEdges.all(10.0),
+            alignment: Alignment.topRight,
+            nip: BubbleNip.rightTop,
+            child: SelectableText(document['content'],
+                style: TextStyle(color: Colors.white))),
       );
     } else {
       // Left (peer message)
       return Container(
         margin: EdgeInsets.symmetric(vertical: 5),
-        child: Column(
-          children: <Widget>[
-            Row(children: <Widget>[
-              Bubble(
-                  color: Colors.blue,
-                  elevation: 1,
-                  padding: const BubbleEdges.all(10.0),
-                  nip: BubbleNip.leftTop,
-                  child: Text(document['content'],
-                      style: TextStyle(color: Colors.white)))
-            ])
-          ],
-          crossAxisAlignment: CrossAxisAlignment.start,
-        ),
+        child: Bubble(
+            color: secondaryBlue,
+            elevation: 1,
+            padding: const BubbleEdges.all(10.0),
+            alignment: Alignment.topLeft,
+            nip: BubbleNip.leftTop,
+            child: SelectableText(document['content'],
+                style: TextStyle(color: Colors.white))),
       );
     }
   }
@@ -145,37 +180,70 @@ class _ChatScreenState extends State<ChatScreen> {
 
   Widget buildInput() {
     return Container(
-        decoration: BoxDecoration(
-            border:
-                Border(top: BorderSide(width: 1, color: Colors.grey.shade300))),
-        child: Row(
-          children: <Widget>[
-            // Edit text
-            Flexible(
-              child: Container(
-                child: Padding(
-                    padding: const EdgeInsets.all(10.0),
-                    child: TextField(
-                      autofocus: false,
-                      maxLines: 3,
-                      controller: textEditingController,
-                      decoration: const InputDecoration.collapsed(
-                        hintText: 'Type your message...',
-                      ),
+      padding: EdgeInsets.symmetric(horizontal: 12, vertical: 18),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.end,
+        children: <Widget>[
+          // Edit text
+          Flexible(
+            child: Container(
+              constraints: BoxConstraints(
+                  maxHeight: screenHeightFraction(context, dividedBy: 3)),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(20),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.grey.withOpacity(0.5),
+                    spreadRadius: 1,
+                    blurRadius: 2,
+                    offset: Offset(0, 2), // changes position of shadow
+                  ),
+                ],
+              ),
+              child: Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: TextField(
+                    autofocus: false,
+                    maxLines: null,
+                    keyboardType: TextInputType.multiline,
+                    controller: textEditingController,
+                    decoration: const InputDecoration.collapsed(
+                      hintText: 'Type your message...',
+                    ),
+                  )),
+            ),
+          ),
+          horizontalSpaceSmall,
+          ClipOval(
+            child: Material(
+              color: secondaryBlue, // Button color
+              child: InkWell(
+                splashColor: primaryGreen, // Splash color
+                onTap: () => onSendMessage(textEditingController.text),
+                child: SizedBox(
+                    width: 50,
+                    height: 50,
+                    child: Icon(
+                      Icons.send,
+                      color: Colors.white,
                     )),
               ),
             ),
-            Container(
-              margin: const EdgeInsets.symmetric(horizontal: 8.0),
-              child: IconButton(
-                icon: Icon(Icons.send, size: 25),
-                onPressed: () => onSendMessage(textEditingController.text),
-              ),
-            ),
-          ],
-        ),
-        width: double.infinity,
-        height: 70.0);
+          )
+          // Ink(
+          //   decoration:
+          //       ShapeDecoration(color: secondaryBlue, shape: CircleBorder()),
+          //   child: IconButton(
+          //     icon: Icon(Icons.send, size: 40),
+          //     color: Colors.white,
+          //     onPressed: () => onSendMessage(textEditingController.text),
+          //   ),
+          // ),
+        ],
+      ),
+      width: double.infinity,
+    );
   }
 
   void onSendMessage(String content) {

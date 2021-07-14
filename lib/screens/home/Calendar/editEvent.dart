@@ -3,24 +3,25 @@ import 'package:date_format/date_format.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:plant_it_forward/Models/CalEvent.dart';
+import 'package:plant_it_forward/Models/UserData.dart';
+import 'package:plant_it_forward/config.dart';
 import 'package:plant_it_forward/services/auth.dart';
 import 'package:plant_it_forward/shared/shared_styles.dart';
 import 'package:plant_it_forward/shared/ui_helpers.dart';
 import 'package:plant_it_forward/widgets/provider_widget.dart';
 
-class AddEvent extends StatefulWidget {
-  const AddEvent({Key? key}) : super(key: key);
+class EditEvent extends StatefulWidget {
+  final CalEvent calEvent;
+  const EditEvent({Key? key, required this.calEvent}) : super(key: key);
 
   @override
-  _AddEventState createState() => _AddEventState();
+  _EditEventState createState() => _EditEventState();
 }
 
-class _AddEventState extends State<AddEvent> {
+class _EditEventState extends State<EditEvent> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   bool loading = false;
-  String title = "";
-  String description = "";
-  bool needVolunteers = false;
 
   late String _setTimeStart, _setDateStart, _setTimeEnd, _setDateEnd;
 
@@ -31,16 +32,43 @@ class _AddEventState extends State<AddEvent> {
 
   DateTime selectedDateStart = DateTime.now();
   TimeOfDay selectedTimeStart = TimeOfDay(hour: 00, minute: 00);
-  DateTime? selectedDateEnd;
-  TimeOfDay? selectedTimeEnd;
+  DateTime selectedDateEnd = DateTime.now();
+  TimeOfDay selectedTimeEnd = TimeOfDay(hour: 00, minute: 00);
+
+  @override
+  void initState() {
+    super.initState();
+    setDateTimeInputs();
+  }
+
+  void setDateTimeInputs() {
+    DateTime sDate = widget.calEvent.startDateTime;
+    DateTime? eDate = widget.calEvent.endDateTime;
+
+    _startDateController.text = DateFormat.yMd().format(sDate);
+    _startTimeController.text = formatDate(
+        DateTime(2019, 08, 1, sDate.hour, sDate.minute),
+        [hh, ':', nn, " ", am]).toString();
+    selectedDateStart = sDate;
+    selectedTimeStart = TimeOfDay.fromDateTime(sDate);
+
+    if (eDate != null) {
+      _endDateController.text = DateFormat.yMd().format(eDate);
+      _endTimeController.text = formatDate(
+          DateTime(2019, 08, 1, eDate.hour, eDate.minute),
+          [hh, ':', nn, " ", am]).toString();
+      selectedDateEnd = eDate;
+      selectedTimeEnd = TimeOfDay.fromDateTime(eDate);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return CupertinoPageScaffold(
         navigationBar: CupertinoNavigationBar(
-          heroTag: "AddEvent",
+          heroTag: "ViewEvent",
           transitionBetweenRoutes: false,
-          middle: Text("Add Event"),
+          middle: Text("View Event"),
         ),
         child: Scaffold(
           floatingActionButton: FloatingActionButton(
@@ -57,8 +85,7 @@ class _AddEventState extends State<AddEvent> {
                   setState(() {
                     loading = true;
                   });
-                  createEvent(context).then((val) async {
-                    print(val.id);
+                  editEvent(context).then((val) async {
                     setState(() {
                       loading = false;
                     });
@@ -72,7 +99,7 @@ class _AddEventState extends State<AddEvent> {
               child: Form(
                 key: _formKey,
                 child: Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 18, vertical: 18),
+                  padding: EdgeInsets.symmetric(horizontal: 12, vertical: 16),
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.start,
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -220,15 +247,15 @@ class _AddEventState extends State<AddEvent> {
                             errorBorder: fieldErrorBorder,
                             labelText: 'Title',
                             hintText: "Title..."),
-                        initialValue: title,
+                        initialValue: widget.calEvent.title,
                         validator: (val) {
-                          if (title.length > 0) {
+                          if (widget.calEvent.title.length > 0) {
                             return null;
                           }
                           return "Title cannot be empty";
                         },
                         onChanged: (val) {
-                          title = val;
+                          widget.calEvent.title = val;
                         },
                       ),
                       verticalSpaceMedium,
@@ -240,7 +267,7 @@ class _AddEventState extends State<AddEvent> {
                             errorBorder: fieldErrorBorder,
                             labelText: 'Description',
                             hintText: "Description..."),
-                        initialValue: description,
+                        initialValue: widget.calEvent.description,
                         maxLines: null,
                         keyboardType: TextInputType.multiline,
                         validator: (val) {
@@ -251,21 +278,44 @@ class _AddEventState extends State<AddEvent> {
                           // return "Name cannot be empty";
                         },
                         onChanged: (val) {
-                          description = val;
+                          widget.calEvent.description = val;
                         },
                       ),
-                      verticalSpaceMedium,
-                      CheckboxListTile(
-                          contentPadding: EdgeInsets.symmetric(horizontal: 0),
-                          title: Text("Need volunteers?"),
-                          subtitle: Text(
-                              "If this box is checked volunteers will be able to sign up to help."),
-                          value: needVolunteers,
-                          onChanged: (val) {
-                            setState(() {
-                              needVolunteers = val!;
-                            });
-                          })
+                      if (widget.calEvent.needVolunteers == true) ...[
+                        verticalSpaceMedium,
+                        Text("This event was marked as accepting volunteers")
+                      ],
+                      if (widget.calEvent.volunteers != null) ...[
+                        verticalSpaceMedium,
+                        ListView.builder(
+                          shrinkWrap: true,
+                          physics: NeverScrollableScrollPhysics(),
+                          itemCount: widget.calEvent.volunteers!.length,
+                          itemBuilder: (BuildContext context, int index) {
+                            UserData volunteer =
+                                widget.calEvent.volunteers![index];
+                            return Card(
+                              child: InkWell(
+                                splashColor: primaryGreen.withAlpha(30),
+                                // onTap: () {
+                                //   Navigator.push(
+                                //       context,
+                                //       CupertinoPageRoute(
+                                //           builder: (context) => ViewEvent(
+                                //               calEvent: _selectedEvents[index])));
+                                // },
+                                child: ListTile(
+                                  title: Text(volunteer.name!,
+                                      style: TextStyle(
+                                          fontSize: 18,
+                                          fontWeight: FontWeight.w500)),
+                                  subtitle: Text(volunteer.id),
+                                ),
+                              ),
+                            );
+                          },
+                        ),
+                      ]
                     ],
                   ),
                 ),
@@ -278,7 +328,7 @@ class _AddEventState extends State<AddEvent> {
   Future<Null> _selectDate(BuildContext context, bool isStartDate) async {
     final DateTime? picked = await showDatePicker(
         context: context,
-        initialDate: isStartDate ? selectedDateStart : selectedDateEnd!,
+        initialDate: isStartDate ? selectedDateStart : selectedDateEnd,
         initialDatePickerMode: DatePickerMode.day,
         firstDate: DateTime(2015),
         lastDate: DateTime(2101));
@@ -292,7 +342,7 @@ class _AddEventState extends State<AddEvent> {
       else
         setState(() {
           selectedDateEnd = picked;
-          _endDateController.text = DateFormat.yMd().format(selectedDateEnd!);
+          _endDateController.text = DateFormat.yMd().format(selectedDateEnd);
         });
     }
   }
@@ -300,7 +350,7 @@ class _AddEventState extends State<AddEvent> {
   Future<Null> _selectTime(BuildContext context, bool isStartTime) async {
     final TimeOfDay? picked = await showTimePicker(
       context: context,
-      initialTime: isStartTime ? selectedTimeStart : selectedTimeEnd!,
+      initialTime: isStartTime ? selectedTimeStart : selectedTimeEnd,
     );
     if (picked != null) if (isStartTime)
       setState(() {
@@ -316,40 +366,34 @@ class _AddEventState extends State<AddEvent> {
     else
       setState(() {
         selectedTimeEnd = picked;
-        _endTimeController.text = selectedTimeEnd!.hour.toString() +
+        _endTimeController.text = selectedTimeEnd.hour.toString() +
             ' : ' +
-            selectedTimeEnd!.minute.toString();
+            selectedTimeEnd.minute.toString();
         _endTimeController.text = formatDate(
-            DateTime(
-                2019, 08, 1, selectedTimeEnd!.hour, selectedTimeEnd!.minute),
+            DateTime(2019, 08, 1, selectedTimeEnd.hour, selectedTimeEnd.minute),
             [hh, ':', nn, " ", am]).toString();
       });
   }
 
-  Future createEvent(context) async {
-    final collection = FirebaseFirestore.instance.collection('events');
+  Future editEvent(context) async {
+    final eventDoc =
+        FirebaseFirestore.instance.collection('events').doc(widget.calEvent.id);
     final AuthService auth = Provider.of(context)!.auth;
 
-    return await collection.add({
+    return await eventDoc.update({
       "startDateTime": DateTime(
           selectedDateStart.year,
           selectedDateStart.month,
           selectedDateStart.day,
           selectedTimeStart.hour,
           selectedTimeStart.minute),
-      "endDateTime": selectedDateEnd != null
-          ? DateTime(
-              selectedDateEnd!.year,
-              selectedDateEnd!.month,
-              selectedDateEnd!.day,
-              selectedTimeEnd!.hour,
-              selectedTimeEnd!.minute)
-          : null,
+      "endDateTime": DateTime(selectedDateEnd.year, selectedDateEnd.month,
+          selectedDateEnd.day, selectedTimeEnd.hour, selectedTimeEnd.minute),
       "endDate": selectedDateEnd,
-      "startDate": selectedDateStart,
-      "needVolunteers": needVolunteers,
-      "title": title,
-      "description": description == "" ? null : description,
+      "startDate": DateTime(selectedDateStart.year, selectedDateStart.month,
+          selectedDateStart.day),
+      "title": widget.calEvent.title,
+      "description": widget.calEvent.description,
       "userId": auth.currentUser.id,
     });
   }

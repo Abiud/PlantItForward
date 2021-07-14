@@ -1,4 +1,3 @@
-import 'package:another_flushbar/flushbar.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:currency_text_input_formatter/currency_text_input_formatter.dart';
 import 'package:flutter/cupertino.dart';
@@ -59,11 +58,7 @@ class _NewProductViewState extends State<NewProductView> {
                       loading = false;
                     });
                     Product newProd = Product.fromSnapshot(doc);
-                    await Flushbar(
-                      title: 'Item created!',
-                      message: name + ' created succefully',
-                      duration: Duration(seconds: 1),
-                    ).show(context);
+
                     Navigator.pushReplacement(
                         context,
                         CupertinoPageRoute(

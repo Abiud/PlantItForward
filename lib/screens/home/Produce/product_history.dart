@@ -49,12 +49,12 @@ class _ProductHistoryViewState extends State<ProductHistoryView> {
           : ListView(
               children: [
                 Padding(
-                  padding: EdgeInsets.fromLTRB(10, 16, 10, 6),
+                  padding: EdgeInsets.fromLTRB(16, 16, 16, 6),
                   child: Text("Changes",
                       style: TextStyle(
-                          fontSize: 14,
+                          fontSize: 18,
                           fontWeight: FontWeight.w500,
-                          color: Colors.grey.shade700)),
+                          color: Colors.grey.shade800)),
                 ),
                 Padding(
                   padding: EdgeInsets.fromLTRB(8, 6, 8, 12),

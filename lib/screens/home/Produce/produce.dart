@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:plant_it_forward/config.dart';
 import 'package:plant_it_forward/screens/home/Produce/available.dart';
 import 'package:plant_it_forward/screens/home/Produce/price.dart';
 
@@ -17,20 +18,37 @@ class _ProduceState extends State<Produce> {
         length: 3,
         child: Scaffold(
           appBar: AppBar(
-            // backgroundColor: Colors.white,
+            backgroundColor: secondaryBlue,
             flexibleSpace: Column(
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
                 TabBar(
+                  labelColor: secondaryBlue,
+                  unselectedLabelColor: Colors.white,
+                  indicatorSize: TabBarIndicatorSize.label,
+                  indicator: BoxDecoration(
+                      borderRadius: BorderRadius.only(
+                          topLeft: Radius.circular(10),
+                          topRight: Radius.circular(10)),
+                      color: Colors.white),
                   tabs: [
                     Tab(
-                      text: "Orders",
+                      child: Align(
+                        alignment: Alignment.center,
+                        child: Text("Orders"),
+                      ),
                     ),
                     Tab(
-                      text: "Available",
+                      child: Align(
+                        alignment: Alignment.center,
+                        child: Text("Available"),
+                      ),
                     ),
                     Tab(
-                      text: "Prices",
+                      child: Align(
+                        alignment: Alignment.center,
+                        child: Text("Prices"),
+                      ),
                     ),
                   ],
                 ),

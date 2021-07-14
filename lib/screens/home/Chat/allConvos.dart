@@ -139,13 +139,20 @@ class ConvoListItem extends StatelessWidget {
       children: [
         Row(
           children: [
-            Container(
-              decoration: BoxDecoration(
-                  color: Colors.grey.shade400,
-                  borderRadius: BorderRadius.all(Radius.circular(20))),
-              width: 64,
-              height: 64,
-            ),
+            if (peer.photoUrl != null)
+              CircleAvatar(
+                  radius: 32, backgroundImage: NetworkImage(peer.photoUrl!))
+            else
+              Container(
+                height: 64,
+                width: 64,
+                decoration: BoxDecoration(
+                    color: Colors.grey.shade300,
+                    shape: BoxShape.circle,
+                    image: DecorationImage(
+                        image: AssetImage("assets/PIF-Logo_3_5.webp"),
+                        fit: BoxFit.cover)),
+              ),
             horizontalSpaceSmall,
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,

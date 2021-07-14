@@ -43,10 +43,23 @@ class _ProfileState extends State<Profile> {
         .ref()
         .child("users")
         .child(Provider.of(context)!.auth.currentUser.id)
+        .child("avatar")
         .child(fileName);
-    TaskSnapshot taskSnapshot = await firebaseStorageRef.putFile(_imageFile!);
+    await firebaseStorageRef.putFile(_imageFile!);
     String? downloadUrl;
-    taskSnapshot.ref.getDownloadURL().then((value) => downloadUrl = value);
+    // await taskSnapshot.ref
+    //     .getDownloadURL()
+    //     .then((value) => downloadUrl = value);
+    String? resImg = fileName.substring(0, fileName.indexOf("."));
+    Reference resizeImg = FirebaseStorage.instance
+        .ref()
+        .child("users")
+        .child(Provider.of(context)!.auth.currentUser.id)
+        .child("avatar")
+        .child(resImg + "_200x200.webp");
+    await Future.delayed(const Duration(seconds: 5), () {});
+    await resizeImg.getDownloadURL().then((value) => downloadUrl = value);
+    Provider.of(context)!.auth.currentUser.photoUrl = downloadUrl;
     return downloadUrl;
   }
 
@@ -74,10 +87,22 @@ class _ProfileState extends State<Profile> {
                 setState(() {
                   loading = true;
                 });
-                editProfile(context).then((val) async {
+                editProfile(context).then((val) {
                   setState(() {
                     loading = false;
                   });
+                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                      content: Text("Successfully updated!"),
+                      duration: Duration(
+                        seconds: 2,
+                      )));
+                }).catchError((e) {
+                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                      content: Text(
+                          "We couldn't update the data, please try again later."),
+                      duration: Duration(
+                        seconds: 3,
+                      )));
                 });
               }
             }
@@ -100,25 +125,37 @@ class _ProfileState extends State<Profile> {
                         children: <Widget>[
                           Stack(
                             children: <Widget>[
-                              Container(
-                                height: 300,
-                                width: 300,
-                                decoration: BoxDecoration(
-                                    color: Colors.grey.shade300,
-                                    shape: BoxShape.circle),
-                                child: ClipRRect(
-                                  borderRadius: BorderRadius.circular(30.0),
-                                  child: _imageFile != null
-                                      ? Image.file(_imageFile!)
-                                      : IconButton(
-                                          icon: Icon(
-                                            Icons.add_a_photo,
-                                            size: 50,
-                                          ),
-                                          onPressed: pickImage,
-                                        ),
+                              if (widget.profile.photoUrl != null)
+                                CircleAvatar(
+                                    radius: 80,
+                                    backgroundImage:
+                                        NetworkImage(widget.profile.photoUrl!))
+                              else
+                                Container(
+                                  height: 160,
+                                  width: 160,
+                                  decoration: BoxDecoration(
+                                      color: Colors.grey.shade300,
+                                      shape: BoxShape.circle,
+                                      image: DecorationImage(
+                                          image: _imageFile == null
+                                              ? AssetImage(
+                                                  "assets/PIF-Logo_3_5.webp")
+                                              : Image.file(_imageFile!).image,
+                                          fit: BoxFit.cover)),
+                                  child: ClipRRect(
+                                    borderRadius: BorderRadius.circular(30.0),
+                                    child: _imageFile == null
+                                        ? IconButton(
+                                            icon: Icon(Icons.add_a_photo,
+                                                size: 50,
+                                                color: Colors.black
+                                                    .withAlpha(100)),
+                                            onPressed: pickImage,
+                                          )
+                                        : null,
+                                  ),
                                 ),
-                              ),
                             ],
                           ),
                         ],
@@ -159,6 +196,11 @@ class _ProfileState extends State<Profile> {
 
     String? url = await uploadImageToFirebase(context);
 
-    return await userDoc.update({"name": widget.profile.name, "photoUrl": url});
+    if (url != null) {
+      return await userDoc
+          .update({"name": widget.profile.name, "photoUrl": url});
+    }
+
+    return await userDoc.update({"name": widget.profile.name});
   }
 }

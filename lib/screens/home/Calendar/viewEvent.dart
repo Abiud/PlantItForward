@@ -1,399 +1,245 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:date_format/date_format.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:intl/intl.dart';
 import 'package:plant_it_forward/Models/CalEvent.dart';
 import 'package:plant_it_forward/Models/UserData.dart';
 import 'package:plant_it_forward/config.dart';
-import 'package:plant_it_forward/services/auth.dart';
-import 'package:plant_it_forward/shared/shared_styles.dart';
+import 'package:plant_it_forward/screens/home/Calendar/calendar.dart';
+import 'package:plant_it_forward/screens/home/Calendar/editEvent.dart';
 import 'package:plant_it_forward/shared/ui_helpers.dart';
+import 'package:plant_it_forward/theme/colors.dart';
 import 'package:plant_it_forward/widgets/provider_widget.dart';
+import 'package:plant_it_forward/widgets/task_column.dart';
+import 'package:plant_it_forward/widgets/top_container.dart';
 
-class ViewEvent extends StatefulWidget {
+class ViewEvent extends StatelessWidget {
   final CalEvent calEvent;
   const ViewEvent({Key? key, required this.calEvent}) : super(key: key);
 
-  @override
-  _ViewEventState createState() => _ViewEventState();
-}
-
-class _ViewEventState extends State<ViewEvent> {
-  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
-  bool loading = false;
-
-  late String _setTimeStart, _setDateStart, _setTimeEnd, _setDateEnd;
-
-  TextEditingController _startDateController = TextEditingController();
-  TextEditingController _startTimeController = TextEditingController();
-  TextEditingController _endDateController = TextEditingController();
-  TextEditingController _endTimeController = TextEditingController();
-
-  DateTime selectedDateStart = DateTime.now();
-  TimeOfDay selectedTimeStart = TimeOfDay(hour: 00, minute: 00);
-  DateTime selectedDateEnd = DateTime.now();
-  TimeOfDay selectedTimeEnd = TimeOfDay(hour: 00, minute: 00);
-
-  @override
-  void initState() {
-    super.initState();
-    setDateTimeInputs();
+  Text subheading(String title) {
+    return Text(
+      title,
+      style: TextStyle(
+          color: LightColors.kDarkBlue,
+          fontSize: 20.0,
+          fontWeight: FontWeight.w700,
+          letterSpacing: 1.2),
+    );
   }
 
-  void setDateTimeInputs() {
-    DateTime sDate = widget.calEvent.startDateTime;
-    DateTime? eDate = widget.calEvent.endDateTime;
-
-    _startDateController.text = DateFormat.yMd().format(sDate);
-    _startTimeController.text = formatDate(
-        DateTime(2019, 08, 1, sDate.hour, sDate.minute),
-        [hh, ':', nn, " ", am]).toString();
-    selectedDateStart = sDate;
-    selectedTimeStart = TimeOfDay.fromDateTime(sDate);
-
-    if (eDate != null) {
-      _endDateController.text = DateFormat.yMd().format(eDate);
-      _endTimeController.text = formatDate(
-          DateTime(2019, 08, 1, eDate.hour, eDate.minute),
-          [hh, ':', nn, " ", am]).toString();
-      selectedDateEnd = eDate;
-      selectedTimeEnd = TimeOfDay.fromDateTime(eDate);
+  String getFormattedDate() {
+    // format start date and time as Month Day, Year Hours:Minutes AM/PM
+    // Ex. July 10, 2021 5:00pm
+    String start = DateFormat.yMMMMd().add_jm().format(calEvent.startDateTime);
+    if (calEvent.startDate == calEvent.endDate) {
+      return start + " - " + DateFormat.jm().format(calEvent.endDateTime!);
     }
+    if (calEvent.endDate != null) {
+      return start +
+          " - " +
+          DateFormat.yMMMMd().add_jm().format(calEvent.endDateTime!);
+    }
+    return start;
+  }
+
+  static CircleAvatar alertIcon() {
+    return CircleAvatar(
+      radius: 25.0,
+      backgroundColor: LightColors.kGreen,
+      child: Icon(
+        Icons.notifications,
+        size: 20.0,
+        color: Colors.white,
+      ),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
-    return CupertinoPageScaffold(
-        navigationBar: CupertinoNavigationBar(
-          heroTag: "ViewEvent",
-          transitionBetweenRoutes: false,
-          middle: Text("View Event"),
-        ),
-        child: Scaffold(
-          floatingActionButton: FloatingActionButton(
-            elevation: 2,
-            child: !loading
-                ? Icon(Icons.save)
-                : CircularProgressIndicator(
-                    valueColor: AlwaysStoppedAnimation(Colors.white),
-                  ),
-            onPressed: () {
-              if (!loading) {
-                if (_formKey.currentState!.validate()) {
-                  FocusScope.of(context).unfocus();
-                  setState(() {
-                    loading = true;
-                  });
-                  editEvent(context).then((val) async {
-                    setState(() {
-                      loading = false;
-                    });
-                  });
-                }
-              }
-            },
-          ),
-          body: SafeArea(
-            child: SingleChildScrollView(
-              child: Form(
-                key: _formKey,
-                child: Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 12, vertical: 16),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        "From",
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                      verticalSpaceSmall,
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
+    double width = MediaQuery.of(context).size.width;
+    return Scaffold(
+      // backgroundColor: LightColors.kLightYellow,
+      body: SafeArea(
+        child: Column(
+          children: <Widget>[
+            TopContainer(
+              height: 180,
+              width: width,
+              child: Column(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: <Widget>[
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: <Widget>[
+                        IconButton(
+                            onPressed: () => Navigator.pop(context),
+                            icon: Icon(Icons.arrow_back,
+                                color: Colors.white, size: 30.0)),
+                        // Icon(Icons.search, color: Colors.white, size: 25.0),
+                        if (Provider.of(context)!.auth.currentUser.id ==
+                            calEvent.userId)
+                          TextButton(
+                            onPressed: () => Navigator.push(
+                                context,
+                                CupertinoPageRoute(
+                                    builder: (context) =>
+                                        EditEvent(calEvent: calEvent))),
+                            child: Text("Edit"),
+                            style: TextButton.styleFrom(
+                                primary: secondaryBlue,
+                                elevation: 1,
+                                backgroundColor: Colors.white,
+                                onSurface: Colors.white),
+                          )
+                      ],
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 0, vertical: 0.0),
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        children: <Widget>[
                           Flexible(
-                            child: InkWell(
-                              onTap: () {
-                                _selectDate(context, true);
-                              },
-                              child: TextFormField(
-                                  enabled: false,
-                                  controller: _startDateController,
-                                  decoration: InputDecoration(
-                                    contentPadding: fieldContentPadding,
-                                    enabledBorder: fieldEnabledBorder,
-                                    focusedBorder: fieldFocusedBorder,
-                                    errorBorder: fieldErrorBorder,
-                                    disabledBorder: fieldEnabledBorder,
-                                    labelText: 'Start date',
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: <Widget>[
+                                Container(
+                                  child: Text(
+                                    calEvent.title,
+                                    textAlign: TextAlign.center,
+                                    style: TextStyle(
+                                      fontSize: 22.0,
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.w800,
+                                    ),
                                   ),
-                                  // initialValue: strDate,
-                                  onSaved: (val) {
-                                    _setDateStart = val!;
-                                  },
-                                  validator: (val) {
-                                    if (val == "")
-                                      return "Start date is requierd";
-                                    return null;
-                                  }),
+                                ),
+                                verticalSpaceSmall,
+                                Container(
+                                  child: Text(
+                                    calEvent.userId,
+                                    textAlign: TextAlign.start,
+                                    style: TextStyle(
+                                      fontSize: 16.0,
+                                      color: Colors.black38,
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                  ),
+                                ),
+                              ],
                             ),
-                          ),
-                          horizontalSpaceSmall,
-                          Flexible(
-                            child: InkWell(
-                              onTap: () {
-                                _selectTime(context, true);
-                              },
-                              child: TextFormField(
-                                  enabled: false,
-                                  controller: _startTimeController,
-                                  decoration: InputDecoration(
-                                      contentPadding: fieldContentPadding,
-                                      enabledBorder: fieldEnabledBorder,
-                                      focusedBorder: fieldFocusedBorder,
-                                      errorBorder: fieldErrorBorder,
-                                      disabledBorder: fieldEnabledBorder,
-                                      labelText: 'Start time'),
-                                  // initialValue: strDate,
-                                  onSaved: (val) {
-                                    _setTimeStart = val!;
-                                  },
-                                  validator: (val) {
-                                    print(val);
-                                  }),
-                            ),
-                          ),
+                          )
                         ],
                       ),
-                      verticalSpaceSmall,
-                      Text(
-                        "To",
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                      verticalSpaceSmall,
-                      Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Flexible(
-                              child: InkWell(
+                    )
+                  ]),
+            ),
+            // verticalSpaceSmall,
+            Expanded(
+              child: SingleChildScrollView(
+                child: Column(
+                  children: <Widget>[
+                    Container(
+                      color: Colors.transparent,
+                      padding: EdgeInsets.symmetric(
+                          horizontal: 20.0, vertical: 10.0),
+                      child: Column(
+                        children: <Widget>[
+                          Row(
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: <Widget>[
+                              subheading('Details'),
+                              GestureDetector(
                                 onTap: () {
-                                  _selectDate(context, false);
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                        builder: (context) => CalendarScreen()),
+                                  );
                                 },
-                                child: TextFormField(
-                                  enabled: false,
-                                  controller: _endDateController,
-                                  decoration: InputDecoration(
-                                    contentPadding: fieldContentPadding,
-                                    enabledBorder: fieldEnabledBorder,
-                                    focusedBorder: fieldFocusedBorder,
-                                    errorBorder: fieldErrorBorder,
-                                    disabledBorder: fieldEnabledBorder,
-                                    labelText: 'End date',
-                                  ),
-                                  // initialValue: strDate,
-                                  onSaved: (val) {
-                                    _setDateEnd = val!;
-                                  },
-                                ),
+                                child: alertIcon(),
+                              ),
+                            ],
+                          ),
+                          // SizedBox(height: 15.0),
+                          verticalSpaceMedium,
+                          TaskColumn(
+                              icon: Icons.access_time,
+                              iconBackgroundColor: LightColors.kRed,
+                              title: 'Date',
+                              subtitle: getFormattedDate()),
+                          if (calEvent.description != null) ...[
+                            verticalSpaceMedium,
+                            TaskColumn(
+                              icon: Icons.blur_circular,
+                              iconBackgroundColor: LightColors.kDarkYellow,
+                              title: 'Description',
+                              subtitle: calEvent.description,
+                            ),
+                          ],
+                          verticalSpaceMedium,
+                          TaskColumn(
+                            icon: Icons.people,
+                            iconBackgroundColor: LightColors.kBlue,
+                            title: 'Volunteers',
+                            subtitle:
+                                'This event was marked as in need of volunteers.',
+                          ),
+                          if (calEvent.volunteers != null) ...[
+                            verticalSpaceSmall,
+                            Padding(
+                              padding: const EdgeInsets.fromLTRB(40, 0, 10, 0),
+                              child: GridView.builder(
+                                shrinkWrap: true,
+                                physics: NeverScrollableScrollPhysics(),
+                                gridDelegate:
+                                    SliverGridDelegateWithMaxCrossAxisExtent(
+                                        maxCrossAxisExtent: 240,
+                                        childAspectRatio: 3.4,
+                                        crossAxisSpacing: 10,
+                                        mainAxisSpacing: 1),
+                                itemCount: calEvent.volunteers!.length,
+                                itemBuilder: (BuildContext context, int index) {
+                                  UserData volunteer =
+                                      calEvent.volunteers![index];
+                                  return Align(
+                                    alignment: Alignment.centerLeft,
+                                    child: Chip(
+                                        labelPadding:
+                                            EdgeInsets.symmetric(horizontal: 8),
+                                        avatar: CircleAvatar(
+                                          backgroundColor: Colors.white70,
+                                          child: Text(
+                                              volunteer.name![0].toUpperCase()),
+                                        ),
+                                        label: Text(
+                                          volunteer.name!,
+                                          style: TextStyle(
+                                            color: Colors.white,
+                                          ),
+                                        ),
+                                        backgroundColor: Colors.indigo,
+                                        elevation: 2,
+                                        padding: EdgeInsets.symmetric(
+                                            horizontal: 12.0, vertical: 8)),
+                                  );
+                                },
                               ),
                             ),
-                            horizontalSpaceSmall,
-                            Flexible(
-                              child: InkWell(
-                                onTap: () {
-                                  _selectTime(context, false);
-                                },
-                                child: TextFormField(
-                                  enabled: false,
-                                  controller: _endTimeController,
-                                  decoration: InputDecoration(
-                                      contentPadding: fieldContentPadding,
-                                      enabledBorder: fieldEnabledBorder,
-                                      focusedBorder: fieldFocusedBorder,
-                                      errorBorder: fieldErrorBorder,
-                                      disabledBorder: fieldEnabledBorder,
-                                      labelText: 'End time'),
-                                  // initialValue: strDate,
-                                  onSaved: (val) {
-                                    _setTimeEnd = val!;
-                                  },
-                                ),
-                              ),
-                            ),
-                          ]),
-                      verticalSpaceMedium,
-                      Text(
-                        "Details",
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w500,
-                        ),
+                          ]
+                        ],
                       ),
-                      verticalSpaceSmall,
-                      TextFormField(
-                        decoration: InputDecoration(
-                            contentPadding: fieldContentPadding,
-                            enabledBorder: fieldEnabledBorder,
-                            focusedBorder: fieldFocusedBorder,
-                            errorBorder: fieldErrorBorder,
-                            labelText: 'Title',
-                            hintText: "Title..."),
-                        initialValue: widget.calEvent.title,
-                        validator: (val) {
-                          if (widget.calEvent.title.length > 0) {
-                            return null;
-                          }
-                          return "Title cannot be empty";
-                        },
-                        onChanged: (val) {
-                          widget.calEvent.title = val;
-                        },
-                      ),
-                      verticalSpaceMedium,
-                      TextFormField(
-                        decoration: InputDecoration(
-                            contentPadding: fieldContentPadding,
-                            enabledBorder: fieldEnabledBorder,
-                            focusedBorder: fieldFocusedBorder,
-                            errorBorder: fieldErrorBorder,
-                            labelText: 'Description',
-                            hintText: "Description..."),
-                        initialValue: widget.calEvent.description,
-                        maxLines: null,
-                        keyboardType: TextInputType.multiline,
-                        validator: (val) {
-                          // if (description.length > 0) {
-                          //   return null;
-                          // }
-                          return null;
-                          // return "Name cannot be empty";
-                        },
-                        onChanged: (val) {
-                          widget.calEvent.description = val;
-                        },
-                      ),
-                      if (widget.calEvent.needVolunteers == true) ...[
-                        verticalSpaceMedium,
-                        Text("This event was marked as accepting volunteers")
-                      ],
-                      if (widget.calEvent.volunteers != null) ...[
-                        verticalSpaceMedium,
-                        ListView.builder(
-                          shrinkWrap: true,
-                          physics: NeverScrollableScrollPhysics(),
-                          itemCount: widget.calEvent.volunteers!.length,
-                          itemBuilder: (BuildContext context, int index) {
-                            UserData volunteer =
-                                widget.calEvent.volunteers![index];
-                            return Card(
-                              child: InkWell(
-                                splashColor: primaryGreen.withAlpha(30),
-                                // onTap: () {
-                                //   Navigator.push(
-                                //       context,
-                                //       CupertinoPageRoute(
-                                //           builder: (context) => ViewEvent(
-                                //               calEvent: _selectedEvents[index])));
-                                // },
-                                child: ListTile(
-                                  title: Text(volunteer.name!,
-                                      style: TextStyle(
-                                          fontSize: 18,
-                                          fontWeight: FontWeight.w500)),
-                                  subtitle: Text(volunteer.id),
-                                ),
-                              ),
-                            );
-                          },
-                        ),
-                      ]
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
               ),
             ),
-          ),
-        ));
-  }
-
-  Future<Null> _selectDate(BuildContext context, bool isStartDate) async {
-    final DateTime? picked = await showDatePicker(
-        context: context,
-        initialDate: isStartDate ? selectedDateStart : selectedDateEnd,
-        initialDatePickerMode: DatePickerMode.day,
-        firstDate: DateTime(2015),
-        lastDate: DateTime(2101));
-    if (picked != null) {
-      if (isStartDate)
-        setState(() {
-          selectedDateStart = picked;
-          _startDateController.text =
-              DateFormat.yMd().format(selectedDateStart);
-        });
-      else
-        setState(() {
-          selectedDateEnd = picked;
-          _endDateController.text = DateFormat.yMd().format(selectedDateEnd);
-        });
-    }
-  }
-
-  Future<Null> _selectTime(BuildContext context, bool isStartTime) async {
-    final TimeOfDay? picked = await showTimePicker(
-      context: context,
-      initialTime: isStartTime ? selectedTimeStart : selectedTimeEnd,
+          ],
+        ),
+      ),
     );
-    if (picked != null) if (isStartTime)
-      setState(() {
-        selectedTimeStart = picked;
-        _startTimeController.text = selectedTimeStart.hour.toString() +
-            ' : ' +
-            selectedTimeStart.minute.toString();
-        _startTimeController.text = formatDate(
-            DateTime(
-                2019, 08, 1, selectedTimeStart.hour, selectedTimeStart.minute),
-            [hh, ':', nn, " ", am]).toString();
-      });
-    else
-      setState(() {
-        selectedTimeEnd = picked;
-        _endTimeController.text = selectedTimeEnd.hour.toString() +
-            ' : ' +
-            selectedTimeEnd.minute.toString();
-        _endTimeController.text = formatDate(
-            DateTime(2019, 08, 1, selectedTimeEnd.hour, selectedTimeEnd.minute),
-            [hh, ':', nn, " ", am]).toString();
-      });
-  }
-
-  Future editEvent(context) async {
-    final eventDoc =
-        FirebaseFirestore.instance.collection('events').doc(widget.calEvent.id);
-    final AuthService auth = Provider.of(context)!.auth;
-
-    return await eventDoc.update({
-      "startDateTime": DateTime(
-          selectedDateStart.year,
-          selectedDateStart.month,
-          selectedDateStart.day,
-          selectedTimeStart.hour,
-          selectedTimeStart.minute),
-      "endDateTime": DateTime(selectedDateEnd.year, selectedDateEnd.month,
-          selectedDateEnd.day, selectedTimeEnd.hour, selectedTimeEnd.minute),
-      "endDate": selectedDateEnd,
-      "startDate": selectedDateStart,
-      "title": widget.calEvent.title,
-      "description": widget.calEvent.description,
-      "userId": auth.currentUser.id,
-    });
   }
 }
