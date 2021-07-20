@@ -206,18 +206,21 @@ class _CalendarScreenState extends State<CalendarScreen> {
                                       ),
                                     ),
                                     TextButton.icon(
-                                        style: TextButton.styleFrom(
-                                            primary: secondaryBlue,
-                                            elevation: 1,
-                                            backgroundColor: Colors.white,
-                                            onSurface: Colors.white),
-                                        onPressed: () => Navigator.push(
-                                            context,
-                                            CupertinoPageRoute(
-                                                builder: (context) =>
-                                                    AddEvent())),
-                                        label: Text("Add"),
-                                        icon: Icon(Icons.add)),
+                                      style: TextButton.styleFrom(
+                                          primary: secondaryBlue,
+                                          elevation: 1,
+                                          backgroundColor: Colors.white,
+                                          onSurface: Colors.white,
+                                          padding: EdgeInsets.symmetric(
+                                              horizontal: 12, vertical: 8)),
+                                      onPressed: () => Navigator.push(
+                                          context,
+                                          CupertinoPageRoute(
+                                              builder: (context) =>
+                                                  AddEvent())),
+                                      label: Text("Add"),
+                                      icon: Icon(Icons.add),
+                                    ),
                                   ],
                                 )),
                             verticalSpaceSmall,

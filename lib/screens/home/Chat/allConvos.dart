@@ -3,6 +3,7 @@ import 'package:intl/intl.dart';
 import 'package:plant_it_forward/Models/Convo.dart';
 import 'package:plant_it_forward/Models/UserData.dart';
 import 'package:plant_it_forward/config.dart';
+import 'package:plant_it_forward/helperFunctions.dart';
 import 'package:plant_it_forward/screens/home/Chat/addChat.dart';
 import 'package:plant_it_forward/screens/home/Chat/convScreen.dart';
 import 'package:plant_it_forward/shared/ui_helpers.dart';
@@ -95,7 +96,7 @@ class ConvoListItem extends StatelessWidget {
       read = lastMessage['read'] == null ? true : lastMessage['read'];
     }
     this.context = context;
-    groupId = getGroupChatId();
+    groupId = getGroupChatId(user.id, peer.id);
 
     return Container(
         margin:
@@ -113,7 +114,9 @@ class ConvoListItem extends StatelessWidget {
       onTap: () {
         Navigator.of(context).push(MaterialPageRoute(
             builder: (BuildContext context) => ConvScreen(
-                userID: user.id, contact: peer, convoID: getGroupChatId())));
+                userID: user.id,
+                contact: peer,
+                convoID: getGroupChatId(user.id, peer.id))));
       },
       child: Padding(
         padding: const EdgeInsets.only(bottom: 10.0),
@@ -266,11 +269,11 @@ class ConvoListItem extends StatelessWidget {
         .format(DateTime.fromMillisecondsSinceEpoch(int.parse(timestamp)));
   }
 
-  String getGroupChatId() {
-    if (user.id.hashCode <= peer.id.hashCode) {
-      return user.id + '_' + peer.id;
-    } else {
-      return peer.id + '_' + user.id;
-    }
-  }
+  // String getGroupChatId() {
+  //   if (user.id.hashCode <= peer.id.hashCode) {
+  //     return user.id + '_' + peer.id;
+  //   } else {
+  //     return peer.id + '_' + user.id;
+  //   }
+  // }
 }

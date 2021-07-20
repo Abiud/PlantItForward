@@ -1,15 +1,52 @@
 import 'package:bubble/bubble.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
+import 'package:plant_it_forward/Models/Message.dart';
 import 'package:plant_it_forward/Models/UserData.dart';
 import 'package:plant_it_forward/config.dart';
+import 'package:plant_it_forward/helperFunctions.dart';
+import 'package:plant_it_forward/screens/home/Profile/viewProfile.dart';
 import 'package:plant_it_forward/shared/ui_helpers.dart';
+import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 
-class ConvScreen extends StatelessWidget {
+class ConvScreen extends StatefulWidget {
   const ConvScreen(
       {required this.userID, required this.contact, required this.convoID});
   final String userID, convoID;
   final UserData contact;
+
+  @override
+  _ConvScreenState createState() => _ConvScreenState();
+}
+
+class _ConvScreenState extends State<ConvScreen> {
+  late String userID, convoID;
+  late UserData contact;
+  bool selectMode = false;
+  bool editMode = false;
+  List<Message> selectedDocs = [];
+  Message? msgToEdit;
+  String? tappedMessage;
+
+  @override
+  void initState() {
+    super.initState();
+    userID = widget.userID;
+    convoID = widget.convoID;
+    contact = widget.contact;
+  }
+
+  final TextEditingController textEditingController = TextEditingController();
+  final ItemScrollController itemScrollController = ItemScrollController();
+  final ItemPositionsListener itemPositionsListener =
+      ItemPositionsListener.create();
+
+  @override
+  void dispose() {
+    super.dispose();
+    textEditingController.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -28,10 +65,10 @@ class ConvScreen extends StatelessWidget {
             children: [
               Icon(Icons.arrow_back),
               horizontalSpaceSmall,
-              contact.photoUrl != null
+              widget.contact.photoUrl != null
                   ? CircleAvatar(
                       radius: 20,
-                      backgroundImage: NetworkImage(contact.photoUrl!))
+                      backgroundImage: NetworkImage(widget.contact.photoUrl!))
                   : Container(
                       height: 40,
                       width: 40,
@@ -47,105 +84,181 @@ class ConvScreen extends StatelessWidget {
         ),
         title: InkWell(
           borderRadius: BorderRadius.circular(5),
-          onTap: () => {},
+          onTap: () => Navigator.of(context).push(MaterialPageRoute(
+              builder: (BuildContext context) => ViewProfile(
+                    profile: contact,
+                  ))),
           child: Padding(
             padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 4),
             child: Text(
-              contact.name!,
+              widget.contact.name!,
               textAlign: TextAlign.left,
             ),
           ),
         ),
-        actions: [IconButton(onPressed: () => {}, icon: Icon(Icons.more_vert))],
+        actions: selectMode
+            ? [
+                selectedDocs.length == 1
+                    ? IconButton(
+                        onPressed: () => switchToEdit(), icon: Icon(Icons.edit))
+                    : Container(),
+                IconButton(
+                    onPressed: () {
+                      showDialog(
+                          context: context,
+                          builder: (BuildContext context) {
+                            return AlertDialog(
+                              title: Text(
+                                  "Do you want to delete the selected messages?"),
+                              content: Text(
+                                  "The selected messages will be permanently deleted for everyone in the conversation."),
+                              actions: [
+                                TextButton(
+                                    onPressed: () =>
+                                        Navigator.of(context).pop(),
+                                    child: Text("Cancel")),
+                                TextButton(
+                                    onPressed: () =>
+                                        batchDelete().then((value) {
+                                          selectedDocs = [];
+                                        }).whenComplete(
+                                            () => Navigator.of(context).pop()),
+                                    child: Text(
+                                      "Continue",
+                                      style: TextStyle(color: Colors.redAccent),
+                                    ))
+                              ],
+                            );
+                          });
+                    },
+                    icon: Icon(Icons.delete)),
+                IconButton(
+                    onPressed: () => cancelSelection(), icon: Icon(Icons.close))
+              ]
+            : [IconButton(onPressed: () => {}, icon: Icon(Icons.more_vert))],
       ),
-      body: ChatScreen(
-        userID: userID,
-        contact: contact,
-        convoID: convoID,
-      ),
-    );
-  }
-}
-
-class ChatScreen extends StatefulWidget {
-  ChatScreen(
-      {Key? key,
-      required this.userID,
-      required this.contact,
-      required this.convoID})
-      : super(key: key);
-  final String userID, convoID;
-  final UserData contact;
-
-  @override
-  _ChatScreenState createState() => _ChatScreenState();
-}
-
-class _ChatScreenState extends State<ChatScreen> {
-  late String userID, convoID;
-  late UserData contact;
-
-  @override
-  void initState() {
-    super.initState();
-    userID = widget.userID;
-    convoID = widget.convoID;
-    contact = widget.contact;
-  }
-
-  final TextEditingController textEditingController = TextEditingController();
-  final ScrollController listScrollController = ScrollController();
-
-  @override
-  void dispose() {
-    super.dispose();
-    textEditingController.dispose();
-    listScrollController.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      child: Stack(
-        children: [
-          Column(
-            children: [buildMessages(), buildInput()],
-          )
-        ],
+      body: SafeArea(
+        child: Container(
+          child: Stack(
+            children: [
+              Column(
+                children: [buildMessages(), buildInput()],
+              )
+            ],
+          ),
+        ),
       ),
     );
   }
 
-  Widget buildItem(int index, DocumentSnapshot document) {
-    if (!document['read'] && document['idTo'] == userID) {
-      updateMessageRead(document, convoID);
+  Widget buildItem(int index, Message msg) {
+    if (!msg.read && msg.idTo == userID) {
+      updateMessageRead(msg, convoID);
     }
 
-    if (document['idFrom'] == userID) {
+    if (msg.idFrom == userID) {
       // Right (my message)
-      return Container(
-        margin: EdgeInsets.symmetric(vertical: 5),
-        child: Bubble(
-            color: Colors.blueGrey,
-            elevation: 1,
-            padding: const BubbleEdges.all(10.0),
-            alignment: Alignment.topRight,
-            nip: BubbleNip.rightTop,
-            child: SelectableText(document['content'],
-                style: TextStyle(color: Colors.white))),
+      return GestureDetector(
+        onLongPress: () {
+          if (selectMode == false)
+            setState(() {
+              selectMode = true;
+              selectedDocs.add(msg);
+            });
+        },
+        onTap: () {
+          if (selectMode)
+            addMsgToRemove(msg);
+          else
+            setState(() {
+              if (tappedMessage != msg.id)
+                tappedMessage = msg.id;
+              else
+                tappedMessage = null;
+            });
+        },
+        child: Container(
+          color:
+              isEditingDoc(msg.id) ? Colors.teal.shade100 : Colors.transparent,
+          padding: EdgeInsets.symmetric(vertical: 5, horizontal: 8),
+          child: Column(
+            children: [
+              Row(
+                children: [
+                  Container(
+                      width: 60,
+                      height: 40,
+                      child: selectMode
+                          ? Checkbox(
+                              value: isEditingDoc(msg.id),
+                              onChanged: (val) => addMsgToRemove(msg),
+                              shape: CircleBorder(),
+                            )
+                          : null),
+                  Expanded(
+                    child: Bubble(
+                        color: Colors.blueGrey,
+                        elevation: 1,
+                        padding: const BubbleEdges.all(10.0),
+                        alignment: Alignment.topRight,
+                        nip: BubbleNip.rightTop,
+                        child: selectMode
+                            ? SelectableText(msg.content,
+                                style: TextStyle(color: Colors.white))
+                            : Text(msg.content,
+                                style: TextStyle(color: Colors.white))),
+                  ),
+                ],
+              ),
+              if (tappedMessage == msg.id)
+                Container(
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      Text(
+                        DateFormat('EEE h:mm a').format(msg.timestamp),
+                        style: TextStyle(
+                            color: Colors.grey.shade500, fontSize: 12),
+                      ),
+                      if (msg.edited != null)
+                        if (msg.edited == true) ...[
+                          horizontalSpaceTiny,
+                          Text(
+                            "Edited",
+                            style: TextStyle(
+                                color: Colors.grey.shade500,
+                                fontSize: 12,
+                                fontWeight: FontWeight.w600),
+                          ),
+                        ],
+                    ],
+                  ),
+                )
+            ],
+          ),
+        ),
       );
     } else {
       // Left (peer message)
       return Container(
-        margin: EdgeInsets.symmetric(vertical: 5),
-        child: Bubble(
-            color: secondaryBlue,
-            elevation: 1,
-            padding: const BubbleEdges.all(10.0),
-            alignment: Alignment.topLeft,
-            nip: BubbleNip.leftTop,
-            child: SelectableText(document['content'],
-                style: TextStyle(color: Colors.white))),
+        padding: EdgeInsets.symmetric(vertical: 5, horizontal: 10),
+        child: Row(
+          children: [
+            Expanded(
+              child: Bubble(
+                  color: secondaryBlue,
+                  elevation: 1,
+                  padding: const BubbleEdges.all(10.0),
+                  alignment: Alignment.topLeft,
+                  nip: BubbleNip.leftTop,
+                  child:
+                      Text(msg.content, style: TextStyle(color: Colors.white))),
+            ),
+            Container(
+              width: 60,
+            ),
+          ],
+        ),
       );
     }
   }
@@ -162,13 +275,20 @@ class _ChatScreenState extends State<ChatScreen> {
             .snapshots(),
         builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
           if (snapshot.hasData) {
-            return ListView.builder(
-              padding: const EdgeInsets.all(10.0),
-              itemBuilder: (BuildContext context, int index) =>
-                  buildItem(index, snapshot.data!.docs[index]),
+            return ScrollablePositionedList.builder(
+              padding: const EdgeInsets.symmetric(vertical: 10.0),
+              itemBuilder: (BuildContext context, int index) {
+                Message msg = Message.fromMap(
+                    snapshot.data!.docs[index].data() as Map<String, dynamic>,
+                    snapshot.data!.docs[index].id,
+                    snapshot.data!.docs[index].reference,
+                    index);
+                return buildItem(index, msg);
+              },
               itemCount: snapshot.data!.docs.length,
               reverse: true,
-              controller: listScrollController,
+              itemScrollController: itemScrollController,
+              itemPositionsListener: itemPositionsListener,
             );
           } else {
             return Container();
@@ -180,66 +300,103 @@ class _ChatScreenState extends State<ChatScreen> {
 
   Widget buildInput() {
     return Container(
-      padding: EdgeInsets.symmetric(horizontal: 12, vertical: 18),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.end,
-        children: <Widget>[
-          // Edit text
-          Flexible(
-            child: Container(
-              constraints: BoxConstraints(
-                  maxHeight: screenHeightFraction(context, dividedBy: 3)),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(20),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.grey.withOpacity(0.5),
-                    spreadRadius: 1,
-                    blurRadius: 2,
-                    offset: Offset(0, 2), // changes position of shadow
-                  ),
-                ],
-              ),
-              child: Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: TextField(
-                    autofocus: false,
-                    maxLines: null,
-                    keyboardType: TextInputType.multiline,
-                    controller: textEditingController,
-                    decoration: const InputDecoration.collapsed(
-                      hintText: 'Type your message...',
-                    ),
-                  )),
-            ),
+      margin: EdgeInsets.fromLTRB(8, 4, 8, 16),
+      padding: EdgeInsets.symmetric(vertical: 0),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(25),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.withOpacity(0.5),
+            spreadRadius: 1,
+            blurRadius: 2,
+            offset: Offset(0, 2), // changes position of shadow
           ),
-          horizontalSpaceSmall,
-          ClipOval(
-            child: Material(
-              color: secondaryBlue, // Button color
-              child: InkWell(
-                splashColor: primaryGreen, // Splash color
-                onTap: () => onSendMessage(textEditingController.text),
-                child: SizedBox(
-                    width: 50,
-                    height: 50,
-                    child: Icon(
-                      Icons.send,
-                      color: Colors.white,
-                    )),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          if (editMode == true) ...[
+            GestureDetector(
+              onTap: () => itemScrollController.scrollTo(
+                  index: msgToEdit!.listIndex!,
+                  duration: Duration(milliseconds: 300),
+                  curve: Curves.easeOut),
+              child: Container(
+                decoration: BoxDecoration(
+                  color: Colors.green.shade100,
+                  borderRadius: BorderRadius.circular(25),
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 12.0),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Icon(Icons.edit),
+                      horizontalSpaceSmall,
+                      Expanded(
+                          child: Text(
+                              "Editing: ${cutString(msgToEdit!.content, 30)}")),
+                      IconButton(
+                          onPressed: () => leaveEditMode(),
+                          icon: Icon(Icons.close))
+                    ],
+                  ),
+                ),
               ),
             ),
-          )
-          // Ink(
-          //   decoration:
-          //       ShapeDecoration(color: secondaryBlue, shape: CircleBorder()),
-          //   child: IconButton(
-          //     icon: Icon(Icons.send, size: 40),
-          //     color: Colors.white,
-          //     onPressed: () => onSendMessage(textEditingController.text),
-          //   ),
-          // ),
+            verticalSpaceTiny,
+          ],
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: <Widget>[
+              // Edit text
+              Flexible(
+                child: Container(
+                  constraints: BoxConstraints(
+                      maxHeight: screenHeightFraction(context, dividedBy: 3)),
+                  child: Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: TextField(
+                        autofocus: false,
+                        maxLines: null,
+                        keyboardType: TextInputType.multiline,
+                        controller: textEditingController,
+                        decoration: const InputDecoration.collapsed(
+                          hintText: 'Type your message...',
+                        ),
+                      )),
+                ),
+              ),
+              horizontalSpaceSmall,
+              ClipOval(
+                child: Material(
+                  color: secondaryBlue, // Button color
+                  child: InkWell(
+                    splashColor: primaryGreen, // Splash color
+                    onTap: () {
+                      if (editMode)
+                        onEditMessage().then((value) => leaveEditMode());
+                      onSendMessage(textEditingController.text);
+                    },
+                    child: SizedBox(
+                        width: 50,
+                        height: 50,
+                        child: editMode
+                            ? Icon(
+                                Icons.done,
+                                color: Colors.white,
+                              )
+                            : Icon(
+                                Icons.send,
+                                color: Colors.white,
+                              )),
+                  ),
+                ),
+              )
+            ],
+          ),
         ],
       ),
       width: double.infinity,
@@ -252,9 +409,28 @@ class _ChatScreenState extends State<ChatScreen> {
       content = content.trim();
       sendMessage(convoID, userID, contact.id, content,
           DateTime.now().millisecondsSinceEpoch.toString());
-      listScrollController.animateTo(0.0,
-          duration: Duration(milliseconds: 300), curve: Curves.easeOut);
+      itemScrollController.scrollTo(
+          index: 0,
+          duration: Duration(milliseconds: 300),
+          curve: Curves.easeOut);
     }
+  }
+
+  Future onEditMessage() {
+    String txt = textEditingController.text;
+    if (txt != '') {
+      textEditingController.clear();
+      msgToEdit!.content = txt.trim();
+      print(msgToEdit.toString());
+      print(getConversationID(userID, contact.id));
+      return FirebaseFirestore.instance
+          .collection('messages')
+          .doc(convoID)
+          .collection(getConversationID(userID, contact.id))
+          .doc(msgToEdit!.id)
+          .update({"content": msgToEdit!.content, "edited": true});
+    }
+    return Future.error("Message is empty");
   }
 
   static void sendMessage(
@@ -299,10 +475,59 @@ class _ChatScreenState extends State<ChatScreen> {
     });
   }
 
-  void updateMessageRead(DocumentSnapshot doc, String convoID) {
+  void updateMessageRead(Message msg, String convoID) {
     FirebaseFirestore.instance
         .collection('messages')
         .doc(convoID)
         .update({'lastMessage.read': true});
+  }
+
+  bool isEditingDoc(String docId) {
+    for (Message item in selectedDocs) {
+      if (item.id == docId) return true;
+    }
+    return false;
+  }
+
+  Future batchDelete() {
+    WriteBatch batch = FirebaseFirestore.instance.batch();
+    selectedDocs.forEach((element) {
+      batch.delete(element.reference!);
+    });
+    return batch.commit();
+  }
+
+  void addMsgToRemove(Message msg) {
+    if (selectMode == true && !isEditingDoc(msg.id))
+      setState(() {
+        selectedDocs.add(msg);
+      });
+    else if (selectMode == true)
+      setState(() {
+        selectedDocs.removeWhere((element) => element.id == msg.id);
+      });
+  }
+
+  void cancelSelection() {
+    setState(() {
+      selectMode = false;
+      selectedDocs = [];
+    });
+  }
+
+  void switchToEdit() {
+    textEditingController.text = selectedDocs[0].content;
+    setState(() {
+      msgToEdit = selectedDocs[0];
+      editMode = true;
+      cancelSelection();
+    });
+  }
+
+  void leaveEditMode() {
+    setState(() {
+      editMode = false;
+      msgToEdit = null;
+    });
   }
 }

@@ -6,7 +6,7 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 import 'package:plant_it_forward/config.dart';
-import 'package:plant_it_forward/screens/home/Profile/profile.dart';
+import 'package:plant_it_forward/screens/home/Profile/editProfile.dart';
 import 'package:plant_it_forward/screens/home/Settings/settings.dart';
 import 'package:plant_it_forward/services/auth.dart';
 import 'package:plant_it_forward/widgets/provider_widget.dart';
@@ -748,7 +748,7 @@ class ModalFit extends StatelessWidget {
               Navigator.push(
                   context,
                   CupertinoPageRoute(
-                      builder: (context) => Profile(
+                      builder: (context) => EditProfile(
                             profile: Provider.of(context)!.auth.currentUser,
                           )));
             },

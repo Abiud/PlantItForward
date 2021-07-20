@@ -42,6 +42,7 @@ class MyCustomInputBox extends StatelessWidget {
             validator: validatorFn,
             onChanged: onChangedFn,
             style: TextStyle(
+                backgroundColor: Colors.white,
                 fontSize: 19,
                 color: secondaryBlue,
                 fontWeight: FontWeight.bold),

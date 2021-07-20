@@ -311,7 +311,6 @@ class _ProductViewState extends State<ProductView> {
   }
 
   Future deleteTrip(context, Product item) async {
-    print("deleting");
     if (widget.parentId != null) {
       return await FirebaseFirestore.instance
           .collection("products")
