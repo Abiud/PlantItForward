@@ -1,0 +1,4 @@
+flutter_icons:
+  image_path: 'assets/PIF-icon.png'
+  android: true
+  ios: true

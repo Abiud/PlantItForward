@@ -127,40 +127,28 @@ class _EditProfileState extends State<EditProfile> {
                 Positioned(
                   bottom: -60.0,
                   child: Container(
-                    margin: const EdgeInsets.fromLTRB(0, 16, 0, 24),
-                    child: widget.profile.photoUrl != null
-                        ? CircleAvatar(
-                            radius: 85,
-                            backgroundColor: Colors.teal.shade100,
-                            child: CircleAvatar(
-                                radius: 80,
-                                backgroundImage:
-                                    NetworkImage(widget.profile.photoUrl!)),
-                          )
-                        : Container(
-                            height: 160,
-                            width: 160,
-                            decoration: BoxDecoration(
-                                color: Colors.grey.shade300,
-                                shape: BoxShape.circle,
-                                image: DecorationImage(
-                                    image: _imageFile == null
-                                        ? AssetImage("assets/PIF-Logo_3_5.webp")
-                                        : Image.file(_imageFile!).image,
-                                    fit: BoxFit.cover)),
-                            child: ClipRRect(
-                              borderRadius: BorderRadius.circular(30.0),
-                              child: _imageFile == null
-                                  ? IconButton(
-                                      icon: Icon(Icons.add_a_photo,
-                                          size: 50,
-                                          color: Colors.black.withAlpha(100)),
-                                      onPressed: pickImage,
-                                    )
-                                  : null,
+                      margin: const EdgeInsets.fromLTRB(0, 16, 0, 24),
+                      child: Stack(
+                        children: [
+                          displayProfilePic(),
+                          Positioned(
+                              child: ElevatedButton(
+                            style: ElevatedButton.styleFrom(
+                                shape: CircleBorder(), primary: Colors.white),
+                            child: Container(
+                              width: 32,
+                              height: 32,
+                              alignment: Alignment.center,
+                              decoration: BoxDecoration(shape: BoxShape.circle),
+                              child: Icon(
+                                Icons.add_a_photo,
+                                color: Colors.black,
+                              ),
                             ),
-                          ),
-                  ),
+                            onPressed: pickImage,
+                          )),
+                        ],
+                      )),
                 ),
               ],
             ),
@@ -228,5 +216,30 @@ class _EditProfileState extends State<EditProfile> {
     }
 
     return await userDoc.update({"name": widget.profile.name});
+  }
+
+  Widget displayProfilePic() {
+    if (widget.profile.photoUrl != null) {
+      if (_imageFile == null)
+        return CircleAvatar(
+          radius: 85,
+          backgroundColor: Colors.teal.shade100,
+          child: CircleAvatar(
+              radius: 80,
+              backgroundImage: NetworkImage(widget.profile.photoUrl!)),
+        );
+    }
+    return Container(
+      height: 160,
+      width: 160,
+      decoration: BoxDecoration(
+          color: Colors.grey.shade300,
+          shape: BoxShape.circle,
+          image: DecorationImage(
+              image: _imageFile == null
+                  ? AssetImage("assets/PIF-icon.png")
+                  : Image.file(_imageFile!).image,
+              fit: BoxFit.cover)),
+    );
   }
 }

@@ -210,7 +210,8 @@ class _ConvScreenState extends State<ConvScreen> {
                   ),
                 ],
               ),
-              if (tappedMessage == msg.id)
+              if (tappedMessage == msg.id) ...[
+                verticalSpaceTiny,
                 Container(
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.end,
@@ -234,30 +235,72 @@ class _ConvScreenState extends State<ConvScreen> {
                     ],
                   ),
                 )
+              ]
             ],
           ),
         ),
       );
     } else {
       // Left (peer message)
-      return Container(
-        padding: EdgeInsets.symmetric(vertical: 5, horizontal: 10),
-        child: Row(
-          children: [
-            Expanded(
-              child: Bubble(
-                  color: secondaryBlue,
-                  elevation: 1,
-                  padding: const BubbleEdges.all(10.0),
-                  alignment: Alignment.topLeft,
-                  nip: BubbleNip.leftTop,
-                  child:
-                      Text(msg.content, style: TextStyle(color: Colors.white))),
-            ),
-            Container(
-              width: 60,
-            ),
-          ],
+      return GestureDetector(
+        onTap: () {
+          if (!selectMode)
+            setState(() {
+              if (tappedMessage != msg.id)
+                tappedMessage = msg.id;
+              else
+                tappedMessage = null;
+            });
+        },
+        child: Container(
+          padding: EdgeInsets.symmetric(vertical: 5, horizontal: 10),
+          child: Column(
+            children: [
+              Row(
+                children: [
+                  Expanded(
+                    child: Bubble(
+                        color: secondaryBlue,
+                        elevation: 1,
+                        padding: const BubbleEdges.all(10.0),
+                        alignment: Alignment.topLeft,
+                        nip: BubbleNip.leftTop,
+                        child: Text(msg.content,
+                            style: TextStyle(color: Colors.white))),
+                  ),
+                  Container(
+                    width: 60,
+                  ),
+                ],
+              ),
+              if (tappedMessage == msg.id) ...[
+                verticalSpaceTiny,
+                Container(
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    children: [
+                      Text(
+                        DateFormat('EEE h:mm a').format(msg.timestamp),
+                        style: TextStyle(
+                            color: Colors.grey.shade500, fontSize: 12),
+                      ),
+                      if (msg.edited != null)
+                        if (msg.edited == true) ...[
+                          horizontalSpaceTiny,
+                          Text(
+                            "Edited",
+                            style: TextStyle(
+                                color: Colors.grey.shade500,
+                                fontSize: 12,
+                                fontWeight: FontWeight.w600),
+                          ),
+                        ],
+                    ],
+                  ),
+                )
+              ]
+            ],
+          ),
         ),
       );
     }
@@ -278,12 +321,13 @@ class _ConvScreenState extends State<ConvScreen> {
             return ScrollablePositionedList.builder(
               padding: const EdgeInsets.symmetric(vertical: 10.0),
               itemBuilder: (BuildContext context, int index) {
+                int idx = index >= 0 ? index : 0;
                 Message msg = Message.fromMap(
-                    snapshot.data!.docs[index].data() as Map<String, dynamic>,
-                    snapshot.data!.docs[index].id,
-                    snapshot.data!.docs[index].reference,
-                    index);
-                return buildItem(index, msg);
+                    snapshot.data!.docs[idx].data() as Map<String, dynamic>,
+                    snapshot.data!.docs[idx].id,
+                    snapshot.data!.docs[idx].reference,
+                    idx);
+                return buildItem(idx, msg);
               },
               itemCount: snapshot.data!.docs.length,
               reverse: true,
