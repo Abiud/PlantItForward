@@ -99,18 +99,13 @@ class ConvoListItem extends StatelessWidget {
     groupId = getGroupChatId(user.id, peer.id);
 
     return Container(
-        margin:
-            const EdgeInsets.only(left: 4.0, right: 4.0, top: 5.0, bottom: 5.0),
-        child: Padding(
-            padding: const EdgeInsets.all(10.0),
-            child: Column(mainAxisSize: MainAxisSize.min, children: <Widget>[
-              buildContent(context),
-            ])));
+        child: Column(mainAxisSize: MainAxisSize.min, children: <Widget>[
+      buildContent(context),
+    ]));
   }
 
   Widget buildContent(BuildContext context) {
-    return GestureDetector(
-      behavior: HitTestBehavior.translucent,
+    return InkWell(
       onTap: () {
         Navigator.of(context).push(MaterialPageRoute(
             builder: (BuildContext context) => ConvScreen(
@@ -118,20 +113,16 @@ class ConvoListItem extends StatelessWidget {
                 contact: peer,
                 convoID: getGroupChatId(user.id, peer.id))));
       },
-      child: Padding(
-        padding: const EdgeInsets.only(bottom: 10.0),
-        child: Row(children: <Widget>[
-          Padding(
-            padding: const EdgeInsets.only(top: 5.0),
-            child: Column(
-              children: <Widget>[
-                Container(
-                    width: MediaQuery.of(context).size.width * 0.85,
-                    child: buildConvoDetails(peer.name!, context)),
-              ],
-            ),
-          ),
-        ], crossAxisAlignment: CrossAxisAlignment.start),
+      child: Container(
+        decoration: BoxDecoration(
+            border: Border(
+                bottom: BorderSide(color: Colors.grey.shade400, width: 0.5))),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 12),
+          child: Container(
+              width: double.infinity,
+              child: buildConvoDetails(peer.name!, context)),
+        ),
       ),
     );
   }
@@ -165,10 +156,10 @@ class ConvoListItem extends StatelessWidget {
                   textAlign: TextAlign.left,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: TextStyle(fontWeight: FontWeight.w500),
+                  style: TextStyle(fontWeight: FontWeight.w500, fontSize: 18),
                 ),
                 verticalSpaceSmall,
-                Text(formatMessage(lastMessage['content']),
+                Text(cutString(lastMessage['content'], 20),
                     textAlign: TextAlign.left,
                     maxLines: 1,
                     overflow: TextOverflow.clip),
@@ -200,60 +191,6 @@ class ConvoListItem extends StatelessWidget {
         )
       ],
     );
-    // return Column(
-    //   children: <Widget>[
-    //     Row(
-    //         mainAxisAlignment: MainAxisAlignment.spaceBetween,
-    //         crossAxisAlignment: CrossAxisAlignment.center,
-    //         children: <Widget>[
-    //           Padding(
-    //             padding: const EdgeInsets.only(left: 16.0),
-    //             child: Text(
-    //               title,
-    //               textAlign: TextAlign.left,
-    //               maxLines: 1,
-    //               overflow: TextOverflow.ellipsis,
-    //             ),
-    //           ),
-    //           read
-    //               ? Container()
-    //               : Icon(Icons.brightness_1,
-    //                   color: Theme.of(context).accentColor, size: 15)
-    //         ]),
-    //     Row(
-    //       mainAxisAlignment: MainAxisAlignment.start,
-    //       crossAxisAlignment: CrossAxisAlignment.center,
-    //       children: <Widget>[
-    //         Expanded(
-    //           child: Padding(
-    //             padding: const EdgeInsets.only(left: 16.0, top: 8.0),
-    //             child: Text(lastMessage['content'],
-    //                 textAlign: TextAlign.left,
-    //                 maxLines: 1,
-    //                 overflow: TextOverflow.clip),
-    //           ),
-    //         ),
-    //       ],
-    //     ),
-    //     Row(
-    //       mainAxisAlignment: MainAxisAlignment.end,
-    //       children: <Widget>[
-    //         Padding(
-    //           padding: const EdgeInsets.only(top: 8.0),
-    //           child: Text(
-    //             getTime(lastMessage['timestamp']),
-    //             textAlign: TextAlign.right,
-    //           ),
-    //         )
-    //       ],
-    //     )
-    //   ],
-    // );
-  }
-
-  String formatMessage(String message) {
-    int len = message.length;
-    return len > 15 ? message.substring(0, 20) + "..." : message;
   }
 
   String getTime(String timestamp) {
@@ -268,12 +205,4 @@ class ConvoListItem extends StatelessWidget {
     return format
         .format(DateTime.fromMillisecondsSinceEpoch(int.parse(timestamp)));
   }
-
-  // String getGroupChatId() {
-  //   if (user.id.hashCode <= peer.id.hashCode) {
-  //     return user.id + '_' + peer.id;
-  //   } else {
-  //     return peer.id + '_' + user.id;
-  //   }
-  // }
 }

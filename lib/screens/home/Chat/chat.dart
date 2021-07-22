@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:plant_it_forward/Models/Convo.dart';
 import 'package:plant_it_forward/Models/UserData.dart';
+import 'package:plant_it_forward/config.dart';
 import 'package:plant_it_forward/screens/home/Chat/addChat.dart';
 import 'package:plant_it_forward/screens/home/Chat/allConvos.dart';
 import 'package:plant_it_forward/services/auth.dart';
@@ -25,26 +26,24 @@ class _ChatState extends State<Chat> {
     final AuthService auth = ProviderWidget.Provider.of(context)!.auth;
     // final DatabaseService db = ProviderWidget.Provider.of(context)!.db;
 
-    return CupertinoPageScaffold(
-        navigationBar: CupertinoNavigationBar(
-          heroTag: 'chat', // a different string for each navigationBar
-          transitionBetweenRoutes: false,
-          middle: Text("Chat"),
-          trailing: CupertinoButton(
-              child: Icon(CupertinoIcons.add),
-              onPressed: () {
-                Navigator.push(context,
-                    CupertinoPageRoute(builder: (context) => AddChat()));
-              }),
-          backgroundColor: Colors.transparent,
-          // border: Border(bottom: BorderSide(color: Colors.transparent)),
+    return Scaffold(
+        appBar: AppBar(
+          backgroundColor: secondaryBlue,
+          title: Text('Chat'),
+          actions: [
+            if (ProviderWidget.Provider.of(context)!.auth.currentUser.role ==
+                'admin')
+              IconButton(
+                onPressed: () => Navigator.push(context,
+                    CupertinoPageRoute(builder: (context) => AddChat())),
+                icon: Icon(Icons.add),
+              )
+          ],
         ),
-        child: SafeArea(
-          child: StreamProvider<List<Convo>>.value(
-              initialData: [],
-              value: chatService.streamConversations(auth.currentUser.id),
-              child: ConversationDetailsProvider()),
-        ));
+        body: StreamProvider<List<Convo>>.value(
+            initialData: [],
+            value: chatService.streamConversations(auth.currentUser.id),
+            child: ConversationDetailsProvider()));
   }
 }
 

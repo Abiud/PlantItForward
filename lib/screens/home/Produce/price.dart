@@ -25,48 +25,17 @@ class _PriceState extends State<Price> {
   List _resultsList = [];
   bool loading = true;
 
-  bool _showBackToTopButton = false;
-
-  late ScrollController _scrollController;
-
   @override
   void initState() {
     super.initState();
     _searchController.addListener(_onSearchChanged);
-    _scrollController = ScrollController()
-      ..addListener(() {
-        if (_scrollController.position.userScrollDirection ==
-                ScrollDirection.forward &&
-            _scrollController.offset >= 100) {
-          setState(() {
-            _showBackToTopButton = true;
-          });
-        } else {
-          setState(() {
-            _showBackToTopButton = false;
-          });
-        }
-        // setState(() {
-        //   if (_scrollController.offset >= 400) {
-        //     _showBackToTopButton = true; // show the back-to-top button
-        //   } else {
-        //     _showBackToTopButton = false; // hide the back-to-top button
-        //   }
-        // });
-      });
   }
 
   @override
   void dispose() {
     _searchController.removeListener(_onSearchChanged);
     _searchController.dispose();
-    _scrollController.dispose();
     super.dispose();
-  }
-
-  void _scrollToTop() {
-    _scrollController.animateTo(0,
-        duration: Duration(milliseconds: 500), curve: Curves.fastOutSlowIn);
   }
 
   @override
@@ -118,63 +87,54 @@ class _PriceState extends State<Price> {
     return loading
         ? Loading()
         : Scaffold(
-            floatingActionButton: _showBackToTopButton == false
-                ? null
-                : FloatingActionButton(
-                    onPressed: _scrollToTop,
-                    child: Icon(Icons.arrow_upward),
-                  ),
             body: RefreshIndicator(
-              child: ListView(
-                  controller: _scrollController,
-                  physics: AlwaysScrollableScrollPhysics(),
-                  children: [
-                    Padding(
-                      padding:
-                          const EdgeInsets.only(left: 12, right: 12, top: 8),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.end,
-                        children: [
-                          TextButton.icon(
-                              style: TextButton.styleFrom(
-                                  primary: secondaryBlue,
-                                  elevation: 1,
-                                  backgroundColor: Colors.white,
-                                  onSurface: Colors.white,
-                                  padding: EdgeInsets.symmetric(
-                                      horizontal: 12, vertical: 8)),
-                              onPressed: () => showSearch(
-                                  context: context, delegate: ProduceSearch()),
-                              label: Text("Search"),
-                              icon: Icon(Icons.search)),
-                          horizontalSpaceSmall,
-                          TextButton.icon(
-                              style: TextButton.styleFrom(
-                                  primary: secondaryBlue,
-                                  elevation: 1,
-                                  backgroundColor: Colors.white,
-                                  onSurface: Colors.white,
-                                  padding: EdgeInsets.symmetric(
-                                      horizontal: 12, vertical: 8)),
-                              onPressed: () => Navigator.push(
-                                  context,
-                                  CupertinoPageRoute(
-                                      builder: (context) => NewProductView())),
-                              label: Text("Add"),
-                              icon: Icon(Icons.add)),
-                        ],
-                      ),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.fromLTRB(8, 4, 8, 12),
-                      child: ListView.builder(
-                          physics: ScrollPhysics(),
-                          shrinkWrap: true,
-                          itemCount: _resultsList.length,
-                          itemBuilder: (BuildContext context, int index) =>
-                              buildProductCard(context, _resultsList[index])),
-                    ),
-                  ]),
+              child:
+                  ListView(physics: AlwaysScrollableScrollPhysics(), children: [
+                Padding(
+                  padding: const EdgeInsets.only(left: 12, right: 12, top: 8),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      TextButton.icon(
+                          style: TextButton.styleFrom(
+                              primary: secondaryBlue,
+                              elevation: 1,
+                              backgroundColor: Colors.white,
+                              onSurface: Colors.white,
+                              padding: EdgeInsets.symmetric(
+                                  horizontal: 12, vertical: 8)),
+                          onPressed: () => showSearch(
+                              context: context, delegate: ProduceSearch()),
+                          label: Text("Search"),
+                          icon: Icon(Icons.search)),
+                      horizontalSpaceSmall,
+                      TextButton.icon(
+                          style: TextButton.styleFrom(
+                              primary: secondaryBlue,
+                              elevation: 1,
+                              backgroundColor: Colors.white,
+                              onSurface: Colors.white,
+                              padding: EdgeInsets.symmetric(
+                                  horizontal: 12, vertical: 8)),
+                          onPressed: () => Navigator.push(
+                              context,
+                              CupertinoPageRoute(
+                                  builder: (context) => NewProductView())),
+                          label: Text("Add"),
+                          icon: Icon(Icons.add)),
+                    ],
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(8, 4, 8, 12),
+                  child: ListView.builder(
+                      physics: ScrollPhysics(),
+                      shrinkWrap: true,
+                      itemCount: _resultsList.length,
+                      itemBuilder: (BuildContext context, int index) =>
+                          buildProductCard(context, _resultsList[index])),
+                ),
+              ]),
               onRefresh: getUsersPastTripsStreamSnapshots,
             ),
           );

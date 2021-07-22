@@ -76,8 +76,6 @@ class ProduceSearch extends SearchDelegate<String> {
     final AlgoliaQuery searchQuery =
         _algoliaApp.instance.index("AppProduce").query(query);
 
-    print("ssss");
-
     if (query.length < 2) {
       return Container();
     }

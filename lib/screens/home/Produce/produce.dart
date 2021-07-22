@@ -1,7 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:plant_it_forward/config.dart';
-import 'package:plant_it_forward/screens/home/Produce/available.dart';
+import 'package:plant_it_forward/screens/home/Produce/orders.dart';
 import 'package:plant_it_forward/screens/home/Produce/price.dart';
 
 class Produce extends StatefulWidget {
@@ -15,7 +15,7 @@ class _ProduceState extends State<Produce> {
   @override
   Widget build(BuildContext context) {
     return DefaultTabController(
-        length: 3,
+        length: 2,
         child: Scaffold(
           appBar: AppBar(
             backgroundColor: secondaryBlue,
@@ -41,12 +41,6 @@ class _ProduceState extends State<Produce> {
                     Tab(
                       child: Align(
                         alignment: Alignment.center,
-                        child: Text("Available"),
-                      ),
-                    ),
-                    Tab(
-                      child: Align(
-                        alignment: Alignment.center,
                         child: Text("Prices"),
                       ),
                     ),
@@ -56,13 +50,8 @@ class _ProduceState extends State<Produce> {
             ),
           ),
           body: TabBarView(
-            children: [
-              Center(
-                child: Text("orders"),
-              ),
-              Available(),
-              Price()
-            ],
+            physics: NeverScrollableScrollPhysics(),
+            children: [Orders(), Price()],
           ),
         ));
   }

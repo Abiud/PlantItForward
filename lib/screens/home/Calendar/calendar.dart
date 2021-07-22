@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:plant_it_forward/Models/CalEvent.dart';
 import 'package:plant_it_forward/config.dart';
+import 'package:plant_it_forward/helperFunctions.dart';
 import 'package:plant_it_forward/screens/home/Calendar/addEvent.dart';
 import 'package:plant_it_forward/screens/home/Calendar/viewEvent.dart';
 import 'package:plant_it_forward/services/database.dart';
@@ -239,29 +240,35 @@ class _CalendarScreenState extends State<CalendarScreen> {
                                                 DateFormat("hh:mm a").format(
                                                     _selectedEvents[index]
                                                         .startDateTime),
-                                                style: TextStyle(fontSize: 12),
+                                                style: TextStyle(
+                                                    fontSize: 12,
+                                                    color: Colors.black),
                                               ),
                                               if (_selectedEvents[index]
                                                       .endDate !=
                                                   null) ...[
                                                 Text(
                                                   " - ",
-                                                  style:
-                                                      TextStyle(fontSize: 12),
+                                                  style: TextStyle(
+                                                      fontSize: 12,
+                                                      color: Colors.black),
                                                 ),
                                                 Text(
                                                   DateFormat("hh:mm a").format(
                                                       _selectedEvents[index]
                                                           .endDateTime!),
-                                                  style:
-                                                      TextStyle(fontSize: 12),
+                                                  style: TextStyle(
+                                                      fontSize: 12,
+                                                      color: Colors.black),
                                                 ),
                                               ],
-                                              horizontalSpaceMedium,
+                                              horizontalSpaceSmall,
                                               Expanded(
                                                   child: Text(
                                                       _selectedEvents[index]
-                                                          .userId)),
+                                                          .userId,
+                                                      overflow: TextOverflow
+                                                          .ellipsis)),
                                             ],
                                           ),
                                         );

@@ -271,11 +271,7 @@ class _EditEventState extends State<EditEvent> {
                         maxLines: null,
                         keyboardType: TextInputType.multiline,
                         validator: (val) {
-                          // if (description.length > 0) {
-                          //   return null;
-                          // }
                           return null;
-                          // return "Name cannot be empty";
                         },
                         onChanged: (val) {
                           widget.calEvent.description = val;
@@ -283,39 +279,17 @@ class _EditEventState extends State<EditEvent> {
                       ),
                       if (widget.calEvent.needVolunteers == true) ...[
                         verticalSpaceMedium,
-                        Text("This event was marked as accepting volunteers")
-                      ],
-                      if (widget.calEvent.volunteers != null) ...[
-                        verticalSpaceMedium,
-                        ListView.builder(
-                          shrinkWrap: true,
-                          physics: NeverScrollableScrollPhysics(),
-                          itemCount: widget.calEvent.volunteers!.length,
-                          itemBuilder: (BuildContext context, int index) {
-                            UserData volunteer =
-                                widget.calEvent.volunteers![index];
-                            return Card(
-                              child: InkWell(
-                                splashColor: primaryGreen.withAlpha(30),
-                                // onTap: () {
-                                //   Navigator.push(
-                                //       context,
-                                //       CupertinoPageRoute(
-                                //           builder: (context) => ViewEvent(
-                                //               calEvent: _selectedEvents[index])));
-                                // },
-                                child: ListTile(
-                                  title: Text(volunteer.name!,
-                                      style: TextStyle(
-                                          fontSize: 18,
-                                          fontWeight: FontWeight.w500)),
-                                  subtitle: Text(volunteer.id),
-                                ),
-                              ),
-                            );
-                          },
+                        Row(
+                          children: [
+                            Icon(Icons.people),
+                            horizontalSpaceSmall,
+                            Expanded(
+                              child: Text(
+                                  "This event was marked as accepting volunteers"),
+                            )
+                          ],
                         ),
-                      ]
+                      ],
                     ],
                   ),
                 ),

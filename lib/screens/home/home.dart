@@ -30,22 +30,22 @@ class _HomeState extends State<Home> {
   List<PersistentBottomNavBarItem> _navBarsItems() {
     return [
       PersistentBottomNavBarItem(
-          icon: Icon(CupertinoIcons.graph_circle_fill),
-          title: ("Overview"),
+          icon: Icon(Icons.home),
+          title: ("Home"),
           activeColorPrimary: primaryGreen,
           inactiveColorPrimary: CupertinoColors.systemGrey),
       PersistentBottomNavBarItem(
-          icon: Icon(CupertinoIcons.cube_box_fill),
+          icon: Icon(Icons.shopping_basket),
           title: ("Produce"),
           activeColorPrimary: primaryGreen,
           inactiveColorPrimary: CupertinoColors.systemGrey),
       PersistentBottomNavBarItem(
-          icon: Icon(CupertinoIcons.chat_bubble_2_fill),
+          icon: Icon(Icons.forum),
           title: ("Chat"),
           activeColorPrimary: primaryGreen,
           inactiveColorPrimary: CupertinoColors.systemGrey),
       PersistentBottomNavBarItem(
-          icon: Icon(CupertinoIcons.calendar_circle_fill),
+          icon: Icon(Icons.calendar_today),
           title: ("Calendar"),
           activeColorPrimary: primaryGreen,
           inactiveColorPrimary: CupertinoColors.systemGrey),

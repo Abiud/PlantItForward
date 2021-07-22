@@ -67,3 +67,42 @@ DateTime lastDayOfMonth(DateTime month) {
 
   return beginningNextMonth.subtract(new Duration(days: 1));
 }
+
+/// Calculates number of weeks for a given year as per https://en.wikipedia.org/wiki/ISO_week_date#Weeks_per_year
+int numOfWeeks(int year) {
+  DateTime dec28 = DateTime(year, 12, 28);
+  int dayOfDec28 = int.parse(DateFormat("D").format(dec28));
+  return ((dayOfDec28 - dec28.weekday + 10) / 7).floor();
+}
+
+/// Calculates week number from a date as per https://en.wikipedia.org/wiki/ISO_week_date#Calculation
+int weekNumber(DateTime date) {
+  int dayOfYear = int.parse(DateFormat("D").format(date));
+  int woy = ((dayOfYear - date.weekday + 10) / 7).floor();
+  if (woy < 1) {
+    woy = numOfWeeks(date.year - 1);
+  } else if (woy > numOfWeeks(date.year)) {
+    woy = 1;
+  }
+  return woy;
+}
+
+/// Find the first date of the week which contains the provided date.
+DateTime findFirstDateOfTheWeek(DateTime dateTime) {
+  return dateTime.subtract(Duration(days: dateTime.weekday - 1));
+}
+
+/// Find last date of the week which contains provided date.
+DateTime findLastDateOfTheWeek(DateTime dateTime) {
+  return dateTime.add(Duration(days: DateTime.daysPerWeek - dateTime.weekday));
+}
+
+/// Find the first date of the week which contains the provided date.
+String printFirstDateOfTheWeek(DateTime dateTime, {String format = "MMMMd"}) {
+  return DateFormat(format).format(findFirstDateOfTheWeek(dateTime));
+}
+
+/// Find last date of the week which contains provided date.
+String printLastDateOfTheWeek(DateTime dateTime, {String format = "MMMMd"}) {
+  return DateFormat(format).format(findLastDateOfTheWeek(dateTime));
+}

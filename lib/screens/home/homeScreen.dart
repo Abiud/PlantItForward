@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 import 'package:plant_it_forward/config.dart';
 import 'package:plant_it_forward/helperFunctions.dart';
-import 'package:plant_it_forward/screens/home/Profile/viewProfile.dart';
+import 'package:plant_it_forward/screens/home/Profile/editProfile.dart';
 import 'package:plant_it_forward/screens/home/Settings/settings.dart';
 import 'package:plant_it_forward/services/auth.dart';
 import 'package:plant_it_forward/shared/ClippedParts.dart';
@@ -30,37 +30,6 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        // appBar: PreferredSize(
-        //   preferredSize: Size.fromHeight(70),
-        //   child: AppBar(
-        //     backgroundColor: Colors.transparent,
-        //     elevation: 0,
-        //     actions: [
-        //       Provider.of(context)!.auth.currentUser.photoUrl != null
-        //           ? GestureDetector(
-        //               onTap: () => Navigator.of(context).push(MaterialPageRoute(
-        //                   builder: (BuildContext context) => ViewProfile(
-        //                         profile: Provider.of(context)!.auth.currentUser,
-        //                       ))),
-        //               child: CircleAvatar(
-        //                   radius: 20,
-        //                   backgroundImage: NetworkImage(Provider.of(context)!
-        //                       .auth
-        //                       .currentUser
-        //                       .photoUrl!)),
-        //             )
-        //           : IconButton(
-        //               onPressed: () => Provider.of(context)!.auth.currentUser,
-        //               icon: Icon(Icons.person)),
-        //       horizontalSpaceSmall,
-        //       IconButton(
-        //           onPressed: () => showCupertinoModalBottomSheet(
-        //               context: context, builder: (context) => ModalFit()),
-        //           icon: Icon(Icons.settings, color: Colors.white))
-        //     ],
-        //   ),
-        // ),
-        // extendBodyBehindAppBar: true,
         body: SingleChildScrollView(
             child: Stack(
       children: [
@@ -92,7 +61,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     ? GestureDetector(
                         onTap: () =>
                             Navigator.of(context).push(MaterialPageRoute(
-                                builder: (BuildContext context) => ViewProfile(
+                                builder: (BuildContext context) => EditProfile(
                                       profile: Provider.of(context)!
                                           .auth
                                           .currentUser,
@@ -217,7 +186,7 @@ class ModalFit extends StatelessWidget {
       children: <Widget>[
         ListTile(
           title: Text('Settings'),
-          leading: Icon(CupertinoIcons.settings),
+          leading: Icon(Icons.settings),
           onTap: () {
             Navigator.push(context,
                 CupertinoPageRoute(builder: (context) => SettingsScreen()));
@@ -225,7 +194,7 @@ class ModalFit extends StatelessWidget {
         ),
         ListTile(
           title: Text('Log out'),
-          leading: Icon(CupertinoIcons.power),
+          leading: Icon(Icons.logout),
           onTap: () => AuthService().signOut(),
         ),
       ],

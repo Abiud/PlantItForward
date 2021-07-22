@@ -45,20 +45,6 @@ Widget buildContactCard(BuildContext context, UserData contact, String userID) {
                 ),
               horizontalSpaceSmall,
               Text(contact.name!),
-              // Column(
-              //   mainAxisAlignment: MainAxisAlignment.center,
-              //   children: [
-              //     Container(
-              //       decoration: BoxDecoration(
-              //           color: secondaryBlue,
-              //           borderRadius: BorderRadius.all(Radius.circular(20))),
-              //       width: 18,
-              //       height: 18,
-              //     ),
-              //     verticalSpaceSmall,
-              //     Text("11:30")
-              //   ],
-              // )
             ],
           ),
         ),

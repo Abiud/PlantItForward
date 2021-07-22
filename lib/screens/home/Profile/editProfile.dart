@@ -132,21 +132,24 @@ class _EditProfileState extends State<EditProfile> {
                         children: [
                           displayProfilePic(),
                           Positioned(
+                              right: 0.0,
                               child: ElevatedButton(
-                            style: ElevatedButton.styleFrom(
-                                shape: CircleBorder(), primary: Colors.white),
-                            child: Container(
-                              width: 32,
-                              height: 32,
-                              alignment: Alignment.center,
-                              decoration: BoxDecoration(shape: BoxShape.circle),
-                              child: Icon(
-                                Icons.add_a_photo,
-                                color: Colors.black,
-                              ),
-                            ),
-                            onPressed: pickImage,
-                          )),
+                                style: ElevatedButton.styleFrom(
+                                    shape: CircleBorder(),
+                                    primary: Colors.white),
+                                child: Container(
+                                  width: 32,
+                                  height: 32,
+                                  alignment: Alignment.center,
+                                  decoration:
+                                      BoxDecoration(shape: BoxShape.circle),
+                                  child: Icon(
+                                    Icons.add_a_photo,
+                                    color: Colors.black,
+                                  ),
+                                ),
+                                onPressed: pickImage,
+                              )),
                         ],
                       )),
                 ),

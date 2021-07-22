@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:plant_it_forward/config.dart';
 import 'package:plant_it_forward/services/database.dart';
 import 'package:plant_it_forward/widgets/provider_widget.dart';
 import 'package:plant_it_forward/screens/authenticate/authenticate.dart';
@@ -28,6 +29,11 @@ class MyApp extends StatelessWidget {
       db: DatabaseService(uid: ""),
       child: MaterialApp(
         title: "Plant It Forward",
+        theme: ThemeData(
+            brightness: Brightness.light,
+            primaryColor: secondaryBlue,
+            accentColor: primaryGreen,
+            colorScheme: ColorScheme.light(primary: secondaryBlue)),
         debugShowCheckedModeBanner: false,
         home: Wrapper(),
         localizationsDelegates: [
