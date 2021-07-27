@@ -74,8 +74,17 @@ class _HomeScreenState extends State<HomeScreen> {
                                 .photoUrl!)),
                       )
                     : IconButton(
-                        onPressed: () => Provider.of(context)!.auth.currentUser,
-                        icon: Icon(Icons.person)),
+                        onPressed: () =>
+                            Navigator.of(context).push(MaterialPageRoute(
+                                builder: (BuildContext context) => EditProfile(
+                                      profile: Provider.of(context)!
+                                          .auth
+                                          .currentUser,
+                                    ))),
+                        icon: Icon(
+                          Icons.person,
+                          color: Colors.white,
+                        )),
                 horizontalSpaceSmall,
                 IconButton(
                     onPressed: () => showCupertinoModalBottomSheet(

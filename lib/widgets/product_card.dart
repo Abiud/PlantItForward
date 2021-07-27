@@ -46,7 +46,7 @@ Widget buildProductCard(BuildContext context, DocumentSnapshot document) {
                           ),
                           horizontalSpaceSmall,
                           Text(
-                            product.quantity!,
+                            product.measure!,
                             style: TextStyle(color: Colors.grey, fontSize: 14),
                           ),
                         ],

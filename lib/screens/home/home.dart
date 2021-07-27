@@ -1,11 +1,14 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:persistent_bottom_nav_bar/persistent-tab-view.dart';
+import 'package:plant_it_forward/Models/UserData.dart';
 import 'package:plant_it_forward/config.dart';
 import 'package:plant_it_forward/screens/home/Calendar/calendar.dart';
 import 'package:plant_it_forward/screens/home/Chat/chat.dart';
 import 'package:plant_it_forward/screens/home/Produce/produce.dart';
 import 'package:plant_it_forward/screens/home/homeScreen.dart';
+import 'package:plant_it_forward/widgets/provider_widget.dart';
 
 class Home extends StatefulWidget {
   Home({Key? key}) : super(key: key);
@@ -24,24 +27,39 @@ class _HomeState extends State<Home> {
   }
 
   List<Widget> _buildScreens() {
-    return [HomeScreen(), Produce(), Chat(), CalendarScreen()];
+    if (Provider.of(context)!.auth.currentUser.isPartOfProgram())
+      return [HomeScreen(), Produce(), Chat(), CalendarScreen()];
+    return [HomeScreen(), CalendarScreen()];
   }
 
   List<PersistentBottomNavBarItem> _navBarsItems() {
+    if (Provider.of(context)!.auth.currentUser.isPartOfProgram())
+      return [
+        PersistentBottomNavBarItem(
+            icon: Icon(Icons.home),
+            title: ("Home"),
+            activeColorPrimary: primaryGreen,
+            inactiveColorPrimary: CupertinoColors.systemGrey),
+        PersistentBottomNavBarItem(
+            icon: Icon(Icons.shopping_basket),
+            title: ("Produce"),
+            activeColorPrimary: primaryGreen,
+            inactiveColorPrimary: CupertinoColors.systemGrey),
+        PersistentBottomNavBarItem(
+            icon: Icon(Icons.forum),
+            title: ("Chat"),
+            activeColorPrimary: primaryGreen,
+            inactiveColorPrimary: CupertinoColors.systemGrey),
+        PersistentBottomNavBarItem(
+            icon: Icon(Icons.calendar_today),
+            title: ("Calendar"),
+            activeColorPrimary: primaryGreen,
+            inactiveColorPrimary: CupertinoColors.systemGrey),
+      ];
     return [
       PersistentBottomNavBarItem(
           icon: Icon(Icons.home),
           title: ("Home"),
-          activeColorPrimary: primaryGreen,
-          inactiveColorPrimary: CupertinoColors.systemGrey),
-      PersistentBottomNavBarItem(
-          icon: Icon(Icons.shopping_basket),
-          title: ("Produce"),
-          activeColorPrimary: primaryGreen,
-          inactiveColorPrimary: CupertinoColors.systemGrey),
-      PersistentBottomNavBarItem(
-          icon: Icon(Icons.forum),
-          title: ("Chat"),
           activeColorPrimary: primaryGreen,
           inactiveColorPrimary: CupertinoColors.systemGrey),
       PersistentBottomNavBarItem(
@@ -88,61 +106,4 @@ class _HomeState extends State<Home> {
           NavBarStyle.style1, // Choose the nav bar style with this property.
     );
   }
-
-  // return CupertinoTabScaffold(
-  //   tabBar: CupertinoTabBar(
-  //     // backgroundColor: Theme.of(context).canvasColor.withOpacity(0.5),
-  //     activeColor: primaryGreen,
-  //     items: const <BottomNavigationBarItem>[
-  //       BottomNavigationBarItem(
-  //         icon: Icon(CupertinoIcons.graph_circle_fill),
-  //         label: 'Overview',
-  //       ),
-  //       BottomNavigationBarItem(
-  //         icon: Icon(CupertinoIcons.cube_box_fill),
-  //         label: 'Produce',
-  //       ),
-  //       BottomNavigationBarItem(
-  //         icon: Icon(CupertinoIcons.chat_bubble_2_fill),
-  //         label: 'Chat',
-  //       ),
-  //       BottomNavigationBarItem(
-  //         icon: Icon(CupertinoIcons.calendar_circle_fill),
-  //         label: 'Calendar',
-  //       ),
-  //     ],
-  //   ),
-  //   tabBuilder: (context, index) {
-  //     switch (index) {
-  //       case 0:
-  //         return CupertinoTabView(builder: (context) {
-  //           return HomeScreen();
-  //         });
-  //       case 1:
-  //         return CupertinoTabView(builder: (context) {
-  //           return CupertinoPageScaffold(
-  //             child: Produce(),
-  //           );
-  //         });
-  //       case 2:
-  //         return CupertinoTabView(builder: (context) {
-  //           return CupertinoPageScaffold(
-  //             child: Chat(),
-  //           );
-  //         });
-  //       case 3:
-  //         return CupertinoTabView(builder: (context) {
-  //           return CupertinoPageScaffold(
-  //             child: CalendarScreen(),
-  //           );
-  //         });
-  //       default:
-  //         return CupertinoTabView(builder: (context) {
-  //           return CupertinoPageScaffold(
-  //             child: HomeScreen(),
-  //           );
-  //         });
-  //     }
-  //   },
-  // );
 }

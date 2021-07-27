@@ -88,4 +88,20 @@ class UserData {
         role.hashCode ^
         photoUrl.hashCode;
   }
+
+  bool isAdmin() {
+    return role == "admin";
+  }
+
+  bool isFarmer() {
+    return role == "farmer";
+  }
+
+  bool isPartOfProgram() {
+    return isFarmer() || isAdmin();
+  }
+
+  bool isVolunteer() {
+    return role == "volunteer";
+  }
 }

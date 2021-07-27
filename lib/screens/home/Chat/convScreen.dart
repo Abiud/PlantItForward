@@ -8,6 +8,7 @@ import 'package:plant_it_forward/config.dart';
 import 'package:plant_it_forward/helperFunctions.dart';
 import 'package:plant_it_forward/screens/home/Profile/viewProfile.dart';
 import 'package:plant_it_forward/shared/ui_helpers.dart';
+import 'package:plant_it_forward/widgets/provider_widget.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 
 class ConvScreen extends StatefulWidget {
@@ -107,26 +108,15 @@ class _ConvScreenState extends State<ConvScreen> {
                       showDialog(
                           context: context,
                           builder: (BuildContext context) {
+                            if (selectedDocs.length > 0)
+                              return confirmationDialog();
                             return AlertDialog(
-                              title: Text(
-                                  "Do you want to delete the selected messages?"),
-                              content: Text(
-                                  "The selected messages will be permanently deleted for everyone in the conversation."),
+                              title: Text("No messages are selected"),
                               actions: [
                                 TextButton(
                                     onPressed: () =>
                                         Navigator.of(context).pop(),
-                                    child: Text("Cancel")),
-                                TextButton(
-                                    onPressed: () =>
-                                        batchDelete().then((value) {
-                                          selectedDocs = [];
-                                        }).whenComplete(
-                                            () => Navigator.of(context).pop()),
-                                    child: Text(
-                                      "Continue",
-                                      style: TextStyle(color: Colors.redAccent),
-                                    ))
+                                    child: Text("Ok")),
                               ],
                             );
                           });
@@ -160,7 +150,7 @@ class _ConvScreenState extends State<ConvScreen> {
       // Right (my message)
       return GestureDetector(
         onLongPress: () {
-          if (selectMode == false)
+          if (!selectMode)
             setState(() {
               selectMode = true;
               selectedDocs.add(msg);
@@ -179,7 +169,7 @@ class _ConvScreenState extends State<ConvScreen> {
         },
         child: Container(
           color:
-              isEditingDoc(msg.id) ? Colors.teal.shade100 : Colors.transparent,
+              isSelectedDoc(msg.id) ? Colors.teal.shade100 : Colors.transparent,
           padding: EdgeInsets.symmetric(vertical: 5, horizontal: 8),
           child: Column(
             children: [
@@ -190,7 +180,7 @@ class _ConvScreenState extends State<ConvScreen> {
                       height: 40,
                       child: selectMode
                           ? Checkbox(
-                              value: isEditingDoc(msg.id),
+                              value: isSelectedDoc(msg.id),
                               onChanged: (val) => addMsgToRemove(msg),
                               shape: CircleBorder(),
                             )
@@ -235,7 +225,7 @@ class _ConvScreenState extends State<ConvScreen> {
                     ],
                   ),
                 )
-              ]
+              ],
             ],
           ),
         ),
@@ -243,8 +233,17 @@ class _ConvScreenState extends State<ConvScreen> {
     } else {
       // Left (peer message)
       return GestureDetector(
-        onTap: () {
+        onLongPress: () {
           if (!selectMode)
+            setState(() {
+              selectMode = true;
+              selectedDocs.add(msg);
+            });
+        },
+        onTap: () {
+          if (canEliminateAllMessages())
+            addMsgToRemove(msg);
+          else
             setState(() {
               if (tappedMessage != msg.id)
                 tappedMessage = msg.id;
@@ -253,6 +252,8 @@ class _ConvScreenState extends State<ConvScreen> {
             });
         },
         child: Container(
+          color:
+              isSelectedDoc(msg.id) ? Colors.teal.shade100 : Colors.transparent,
           padding: EdgeInsets.symmetric(vertical: 5, horizontal: 10),
           child: Column(
             children: [
@@ -265,12 +266,22 @@ class _ConvScreenState extends State<ConvScreen> {
                         padding: const BubbleEdges.all(10.0),
                         alignment: Alignment.topLeft,
                         nip: BubbleNip.leftTop,
-                        child: Text(msg.content,
-                            style: TextStyle(color: Colors.white))),
+                        child: selectMode
+                            ? SelectableText(msg.content,
+                                style: TextStyle(color: Colors.white))
+                            : Text(msg.content,
+                                style: TextStyle(color: Colors.white))),
                   ),
                   Container(
-                    width: 60,
-                  ),
+                      width: 60,
+                      height: 40,
+                      child: canEliminateAllMessages()
+                          ? Checkbox(
+                              value: isSelectedDoc(msg.id),
+                              onChanged: (val) => addMsgToRemove(msg),
+                              shape: CircleBorder(),
+                            )
+                          : null),
                 ],
               ),
               if (tappedMessage == msg.id) ...[
@@ -447,6 +458,27 @@ class _ConvScreenState extends State<ConvScreen> {
     );
   }
 
+  Widget confirmationDialog() {
+    return AlertDialog(
+      title: Text("Do you want to delete the selected messages?"),
+      content: Text(
+          "The selected messages will be permanently deleted for everyone in the conversation."),
+      actions: [
+        TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: Text("Cancel")),
+        TextButton(
+            onPressed: () => batchDelete().then((value) {
+                  selectedDocs = [];
+                }).whenComplete(() => Navigator.of(context).pop()),
+            child: Text(
+              "Continue",
+              style: TextStyle(color: Colors.redAccent),
+            ))
+      ],
+    );
+  }
+
   void onSendMessage(String content) {
     if (content.trim() != '') {
       textEditingController.clear();
@@ -465,8 +497,6 @@ class _ConvScreenState extends State<ConvScreen> {
     if (txt != '') {
       textEditingController.clear();
       msgToEdit!.content = txt.trim();
-      print(msgToEdit.toString());
-      print(getConversationID(userID, contact.id));
       return FirebaseFirestore.instance
           .collection('messages')
           .doc(convoID)
@@ -520,13 +550,22 @@ class _ConvScreenState extends State<ConvScreen> {
   }
 
   void updateMessageRead(Message msg, String convoID) {
+    // batch update the read to true
+    // check
+    print("updating");
     FirebaseFirestore.instance
         .collection('messages')
         .doc(convoID)
         .update({'lastMessage.read': true});
+    FirebaseFirestore.instance
+        .collection('messages')
+        .doc(convoID)
+        .collection(getConversationID(userID, contact.id))
+        .doc(msg.id)
+        .update({"read": true});
   }
 
-  bool isEditingDoc(String docId) {
+  bool isSelectedDoc(String docId) {
     for (Message item in selectedDocs) {
       if (item.id == docId) return true;
     }
@@ -542,7 +581,7 @@ class _ConvScreenState extends State<ConvScreen> {
   }
 
   void addMsgToRemove(Message msg) {
-    if (selectMode == true && !isEditingDoc(msg.id))
+    if (selectMode == true && !isSelectedDoc(msg.id))
       setState(() {
         selectedDocs.add(msg);
       });
@@ -573,5 +612,9 @@ class _ConvScreenState extends State<ConvScreen> {
       editMode = false;
       msgToEdit = null;
     });
+  }
+
+  bool canEliminateAllMessages() {
+    return selectMode && Provider.of(context)!.auth.currentUser.isAdmin();
   }
 }

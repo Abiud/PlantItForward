@@ -36,7 +36,7 @@ class _ProductViewState extends State<ProductView> {
     if (widget.product != null) {
       setState(() {
         price = widget.product!.price.toString();
-        quantityValue = widget.product!.quantity;
+        quantityValue = widget.product!.measure;
       });
     }
     _prod = getProduct();
@@ -46,7 +46,7 @@ class _ProductViewState extends State<ProductView> {
     if (widget.product != null) {
       setState(() {
         price = widget.product!.price.toString();
-        quantityValue = widget.product!.quantity;
+        quantityValue = widget.product!.measure;
       });
       return Future.value(widget.product);
     }
@@ -61,7 +61,7 @@ class _ProductViewState extends State<ProductView> {
     });
     setState(() {
       price = prod.price.toString();
-      quantityValue = prod.quantity;
+      quantityValue = prod.measure;
     });
     return Future.value(prod);
   }
@@ -201,7 +201,7 @@ class _ProductViewState extends State<ProductView> {
                                         hintText: "Per pound/Per bunch"),
                                     value: quantityValue,
                                     onChanged: (val) {
-                                      item.quantity = val.toString();
+                                      item.measure = val.toString();
                                       quantityValue = val.toString();
                                     },
                                     items: <String>[

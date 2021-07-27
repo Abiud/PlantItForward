@@ -5,62 +5,68 @@ import 'package:plant_it_forward/extensions/CapExtension.dart';
 class Product {
   String? userId;
   String name;
-  String? quantity;
+  String? measure;
   String documentId;
   Money? price;
   dynamic createdAt;
   dynamic updatedAt;
+  int? quantity;
 
   Product(
       {required this.name,
-      this.quantity,
+      this.measure,
       this.price,
       this.userId,
       required this.documentId,
       this.createdAt,
-      required this.updatedAt});
+      this.updatedAt,
+      this.quantity = 0});
 
   // formatting for upload to Firbase when creating the Product
   Map<String, dynamic> toJson() => {
         'userId': userId,
         'name': name.inCaps,
-        'quantity': quantity,
+        'measure': measure,
         'price': price?.minorUnits.toInt(),
         'searchKeywords': createKeywords(),
         'createdAt': createdAt,
-        'updatedAt': updatedAt
+        'updatedAt': updatedAt,
+        'quantity': quantity
       };
 
   // creating a Product object from a firebase snapshot
   Product.fromSnapshot(DocumentSnapshot snapshot)
       : name = (snapshot.data() as Map)['name'],
-        quantity = (snapshot.data() as Map)['quantity'],
+        measure = (snapshot.data() as Map)['measure'],
         price = Money.fromInt(
             (snapshot.data() as Map)['price'], Currency.create('USD', 2)),
         documentId = snapshot.id,
         createdAt = (snapshot.data() as Map)['createdAt'],
-        updatedAt = (snapshot.data() as Map)['updatedAt'];
+        updatedAt = (snapshot.data() as Map)['updatedAt'],
+        quantity = (snapshot.data() as Map)['quantity'];
 
   static Product fromMap(Map<String, dynamic> map) {
     return Product(
         name: map['name'],
-        quantity: map['quantity'],
+        measure: map['measure'],
         userId: map['userId'],
         price: Money.fromInt(map['price'], Currency.create('USD', 2)),
         documentId: map['documentId'],
         createdAt: map['createdAt'],
-        updatedAt: map['updatedAt']);
+        updatedAt: map['updatedAt'],
+        quantity: map['quantity']);
   }
 
   Map<String, dynamic> toMap() {
     return {
       'userId': userId,
       'name': name.inCaps,
-      'quantity': quantity,
+      'measure': measure,
       'price': price?.minorUnits.toInt(),
       'searchKeywords': createKeywords(),
       'createdAt': createdAt,
-      'updatedAt': updatedAt
+      'updatedAt': updatedAt,
+      'quantity': quantity
     };
   }
 
@@ -71,5 +77,10 @@ class Product {
       subs.add(lowName.substring(0, i));
     }
     return subs;
+  }
+
+  String getMeasureUnits() {
+    if (measure == 'per ounce') return 'ounces';
+    return 'bounches';
   }
 }

@@ -51,7 +51,7 @@ Widget buildProductCardHistory(
                         ),
                         horizontalSpaceSmall,
                         Text(
-                          product.quantity!,
+                          product.measure!,
                           style: TextStyle(color: Colors.grey, fontSize: 14),
                         ),
                       ],

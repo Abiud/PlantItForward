@@ -21,7 +21,7 @@ class _NewProductViewState extends State<NewProductView> {
   final Currency usdCurrency = Currency.create('USD', 2);
   bool loading = false;
   String name = "";
-  String quantity = "per ounce";
+  String measure = "per ounce";
   Money price = Money.fromInt(0, Currency.create('USD', 2));
   String strPrice = "\$0.00";
 
@@ -105,9 +105,9 @@ class _NewProductViewState extends State<NewProductView> {
                             errorBorder: fieldErrorBorder,
                             labelText: 'Quantity',
                             hintText: "Per pound/Per bunch"),
-                        value: quantity,
+                        value: measure,
                         onChanged: (val) {
-                          quantity = val.toString();
+                          measure = val.toString();
                         },
                         items: <String>['per ounce', 'per bunch']
                             .map<DropdownMenuItem<String>>((String e) {
@@ -160,7 +160,7 @@ class _NewProductViewState extends State<NewProductView> {
     return await collection.add({
       "name": name.inCaps,
       "price": price.minorUnits.toInt(),
-      "quantity": quantity,
+      "measure": measure,
       "createdAt": FieldValue.serverTimestamp(),
       "updatedAt": FieldValue.serverTimestamp()
     });
