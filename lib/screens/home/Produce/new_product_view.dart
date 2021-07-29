@@ -21,7 +21,7 @@ class _NewProductViewState extends State<NewProductView> {
   final Currency usdCurrency = Currency.create('USD', 2);
   bool loading = false;
   String name = "";
-  String measure = "per ounce";
+  String measure = "per pound";
   Money price = Money.fromInt(0, Currency.create('USD', 2));
   String strPrice = "\$0.00";
 
@@ -109,8 +109,13 @@ class _NewProductViewState extends State<NewProductView> {
                         onChanged: (val) {
                           measure = val.toString();
                         },
-                        items: <String>['per ounce', 'per bunch']
-                            .map<DropdownMenuItem<String>>((String e) {
+                        items: <String>[
+                          'per pound',
+                          'per bunch',
+                          'per pint',
+                          'per foot',
+                          'per head'
+                        ].map<DropdownMenuItem<String>>((String e) {
                           return DropdownMenuItem<String>(
                             child: Text(e),
                             value: e,

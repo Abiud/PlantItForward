@@ -7,7 +7,7 @@ exports.setRole = functions.firestore
     .document("users/{docId}")
     .onCreate((snapshot, context) => {
         return snapshot.ref.update({
-            role: "user",
+            role: "volunteer",
         });
     });
 

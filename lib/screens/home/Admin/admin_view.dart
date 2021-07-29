@@ -1,10 +1,11 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:plant_it_forward/config.dart';
-import 'package:plant_it_forward/screens/home/Produce/orders.dart';
-import 'package:plant_it_forward/screens/home/Produce/price.dart';
+import 'package:plant_it_forward/screens/home/Admin/Farms/farms_view.dart';
+import 'package:plant_it_forward/screens/home/Admin/Users/users_view.dart';
 
-class Produce extends StatelessWidget {
+class AdminView extends StatelessWidget {
+  const AdminView({Key? key}) : super(key: key);
+
   @override
   Widget build(BuildContext context) {
     return DefaultTabController(
@@ -28,13 +29,13 @@ class Produce extends StatelessWidget {
                     Tab(
                       child: Align(
                         alignment: Alignment.center,
-                        child: Text("Orders"),
+                        child: Text("Farms"),
                       ),
                     ),
                     Tab(
                       child: Align(
                         alignment: Alignment.center,
-                        child: Text("Prices"),
+                        child: Text("Users"),
                       ),
                     ),
                   ],
@@ -44,7 +45,7 @@ class Produce extends StatelessWidget {
           ),
           body: TabBarView(
             physics: NeverScrollableScrollPhysics(),
-            children: [Orders(), Price()],
+            children: [FarmsView(), UsersView()],
           ),
         ));
   }

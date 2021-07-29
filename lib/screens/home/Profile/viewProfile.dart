@@ -115,7 +115,7 @@ class _ViewProfileState extends State<ViewProfile> {
                           Align(
                             alignment: Alignment.topCenter,
                             child: Text(
-                              item.name!,
+                              item.name,
                               style: TextStyle(
                                 color: LightColors.kDarkBlue,
                                 fontSize: 20.0,

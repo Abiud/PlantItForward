@@ -3,27 +3,25 @@ import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
+import 'package:plant_it_forward/Models/Farm.dart';
 import 'package:plant_it_forward/config.dart';
-import 'package:plant_it_forward/screens/home/Produce/new_product_view.dart';
-import 'package:plant_it_forward/shared/ui_helpers.dart';
-import 'package:plant_it_forward/widgets/produce_search.dart';
-import 'package:plant_it_forward/widgets/product_card.dart';
+import 'package:plant_it_forward/screens/home/Admin/Farms/addFarm.dart';
+import 'package:plant_it_forward/widgets/farm_card.dart';
 
-class Price extends StatefulWidget {
-  Price({Key? key}) : super(key: key);
+class FarmsView extends StatefulWidget {
+  FarmsView({Key? key}) : super(key: key);
 
   @override
-  _PriceState createState() => _PriceState();
+  _FarmsViewState createState() => _FarmsViewState();
 }
 
-class _PriceState extends State<Price> {
+class _FarmsViewState extends State<FarmsView> {
   ScrollController _scrollController = ScrollController();
-  final StreamController<List<DocumentSnapshot>> _produceController =
+  final StreamController<List<DocumentSnapshot>> _farmsController =
       StreamController<List<DocumentSnapshot>>.broadcast();
   List<List<DocumentSnapshot>> _allPagedResults = [<DocumentSnapshot>[]];
 
-  static const int produceLimit = 9;
+  static const int farmLimit = 9;
   DocumentSnapshot? _lastDocument;
   bool _hasMoreData = true;
 
@@ -34,7 +32,7 @@ class _PriceState extends State<Price> {
       if (_scrollController.offset >=
               (_scrollController.position.maxScrollExtent) &&
           !_scrollController.position.outOfRange) {
-        _getProduce();
+        _getFarms();
       }
     });
   }
@@ -42,23 +40,23 @@ class _PriceState extends State<Price> {
   @override
   void dispose() {
     _scrollController.dispose();
-    _produceController.close();
+    _farmsController.close();
     super.dispose();
   }
 
-  Stream<List<DocumentSnapshot>> listenToProduceRealTime() {
-    _getProduce();
-    return _produceController.stream;
+  Stream<List<DocumentSnapshot>> listenToFarmsRealTime() {
+    _getFarms();
+    return _farmsController.stream;
   }
 
-  void _getProduce() {
+  void _getFarms() {
     if (!_hasMoreData) {
       return;
     }
-    print("fetching.....");
-    final CollectionReference _produceCollectionReference =
-        FirebaseFirestore.instance.collection("products");
-    var pagechatQuery = _produceCollectionReference.orderBy('name').limit(9);
+
+    final CollectionReference _farmCollectionReference =
+        FirebaseFirestore.instance.collection("farms");
+    var pagechatQuery = _farmCollectionReference.orderBy('name').limit(9);
 
     if (_lastDocument != null) {
       pagechatQuery = pagechatQuery.startAfterDocument(_lastDocument!);
@@ -68,26 +66,26 @@ class _PriceState extends State<Price> {
     pagechatQuery.snapshots().listen(
       (snapshot) {
         if (snapshot.docs.isNotEmpty) {
-          var moreProduce = snapshot.docs.toList();
+          var moreFarms = snapshot.docs.toList();
 
           var pageExists = currentRequestIndex < _allPagedResults.length;
 
           if (pageExists) {
-            _allPagedResults[currentRequestIndex] = moreProduce;
+            _allPagedResults[currentRequestIndex] = moreFarms;
           } else {
-            _allPagedResults.add(moreProduce);
+            _allPagedResults.add(moreFarms);
           }
 
           var allChats = _allPagedResults.fold<List<DocumentSnapshot>>(
               <DocumentSnapshot>[],
               (initialValue, pageItems) => initialValue..addAll(pageItems));
 
-          _produceController.add(allChats);
+          _farmsController.add(allChats);
 
           if (currentRequestIndex == _allPagedResults.length - 1) {
             _lastDocument = snapshot.docs.last;
           }
-          _hasMoreData = moreProduce.length == produceLimit;
+          _hasMoreData = moreFarms.length == farmLimit;
           if (!_hasMoreData) setState(() {});
         } else {
           setState(() {
@@ -119,54 +117,41 @@ class _PriceState extends State<Price> {
                           onSurface: Colors.white,
                           padding: EdgeInsets.symmetric(
                               horizontal: 12, vertical: 8)),
-                      onPressed: () => showSearch(
-                          context: context, delegate: ProduceSearch()),
-                      label: Text("Search"),
-                      icon: Icon(Icons.search)),
-                  horizontalSpaceSmall,
-                  TextButton.icon(
-                      style: TextButton.styleFrom(
-                          primary: secondaryBlue,
-                          elevation: 1,
-                          backgroundColor: Colors.white,
-                          onSurface: Colors.white,
-                          padding: EdgeInsets.symmetric(
-                              horizontal: 12, vertical: 8)),
-                      onPressed: () => Navigator.push(
-                          context,
-                          CupertinoPageRoute(
-                              builder: (context) => NewProductView())),
+                      onPressed: () => Navigator.push(context,
+                          CupertinoPageRoute(builder: (context) => AddFarm())),
                       label: Text("Add"),
                       icon: Icon(Icons.add)),
                 ],
               ),
             ),
             StreamBuilder<List<DocumentSnapshot>>(
-              stream: listenToProduceRealTime(),
-              builder: (BuildContext context, produceSnapshot) {
-                if (produceSnapshot.connectionState ==
-                        ConnectionState.waiting ||
-                    produceSnapshot.connectionState == ConnectionState.none) {
-                  return produceSnapshot.hasData
+              stream: listenToFarmsRealTime(),
+              builder: (BuildContext context, farmSnapshot) {
+                if (farmSnapshot.connectionState == ConnectionState.waiting ||
+                    farmSnapshot.connectionState == ConnectionState.none) {
+                  return farmSnapshot.hasData
                       ? Center(
                           child: CircularProgressIndicator(),
                         )
                       : Center(
-                          child: Text("No produce found."),
+                          child: Text("No farms registered."),
                         );
                 } else {
-                  if (produceSnapshot.hasData) {
-                    final produceDocs = produceSnapshot.data!;
+                  if (farmSnapshot.hasData) {
+                    final farmDocs = farmSnapshot.data!;
                     return Column(
                       children: [
                         ListView.builder(
                             padding: EdgeInsets.symmetric(vertical: 8),
                             physics: ScrollPhysics(),
                             shrinkWrap: true,
-                            itemCount: produceDocs.length,
+                            itemCount: farmDocs.length,
                             itemBuilder: (BuildContext context, int index) =>
-                                buildProductCard(context, produceDocs[index])),
-                        if (produceDocs.length >= produceLimit && _hasMoreData)
+                                buildFarmCard(
+                                    context,
+                                    Farm.fromMap(farmDocs[index].data()
+                                        as Map<String, dynamic>))),
+                        if (farmDocs.length >= farmLimit && _hasMoreData)
                           Padding(
                             padding: const EdgeInsets.symmetric(horizontal: 12),
                             child: Center(child: CircularProgressIndicator()),

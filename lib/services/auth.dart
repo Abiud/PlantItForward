@@ -8,7 +8,7 @@ import 'package:plant_it_forward/Models/UserData.dart';
 
 class AuthService {
   final FirebaseAuth _auth = FirebaseAuth.instance;
-  UserData currentUser = UserData(id: "");
+  UserData? currentUser;
 
   Stream<String?> get onAuthStateChanged =>
       _auth.authStateChanges().map((User? user) => user?.uid);
@@ -24,22 +24,14 @@ class AuthService {
   }
 
   Future setCurrentUser(String uid) async {
-    if (uid != null) {
-      await FirebaseFirestore.instance
-          .collection("users")
-          .doc(uid)
-          .get()
-          .then((res) {
-        currentUser.name = res.data()!['name'];
-        currentUser.role = res.data()!['role'];
-        currentUser.id = res.data()!['id'];
-        currentUser.photoUrl = res.data()!['photoUrl'];
-      });
-    } else {
-      currentUser = UserData(id: "");
-    }
     print("setting temporal user");
-    return 1;
+    await FirebaseFirestore.instance
+        .collection("users")
+        .doc(uid)
+        .get()
+        .then((res) {
+      currentUser = UserData.fromSnapshot(res);
+    });
   }
 
   // sign in email

@@ -92,7 +92,7 @@ class _ConvScreenState extends State<ConvScreen> {
           child: Padding(
             padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 4),
             child: Text(
-              widget.contact.name!,
+              widget.contact.name,
               textAlign: TextAlign.left,
             ),
           ),
@@ -615,6 +615,6 @@ class _ConvScreenState extends State<ConvScreen> {
   }
 
   bool canEliminateAllMessages() {
-    return selectMode && Provider.of(context)!.auth.currentUser.isAdmin();
+    return selectMode && Provider.of(context)!.auth.currentUser!.isAdmin();
   }
 }

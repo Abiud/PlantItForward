@@ -350,7 +350,7 @@ class _AddEventState extends State<AddEvent> {
       "needVolunteers": needVolunteers,
       "title": title,
       "description": description == "" ? null : description,
-      "userId": auth.currentUser.id,
+      "userId": auth.currentUser!.id,
     });
   }
 }

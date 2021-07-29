@@ -80,7 +80,10 @@ class Product {
   }
 
   String getMeasureUnits() {
-    if (measure == 'per ounce') return 'ounces';
-    return 'bounches';
+    if (measure == 'per pound') return 'pounds';
+    if (measure == 'per pint') return 'pints';
+    if (measure == 'per foot') return 'feet';
+    if (measure == 'per head') return 'heads';
+    return 'bunches';
   }
 }

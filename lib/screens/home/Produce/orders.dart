@@ -8,7 +8,7 @@ class Orders extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Provider.of(context)!.auth.currentUser.role == 'admin'
+    return Provider.of(context)!.auth.currentUser!.role == 'admin'
         ? OrdersStaff()
         : OrdersFarmer();
   }

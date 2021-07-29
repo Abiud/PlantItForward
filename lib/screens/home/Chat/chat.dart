@@ -31,7 +31,7 @@ class _ChatState extends State<Chat> {
           backgroundColor: secondaryBlue,
           title: Text('Chat'),
           actions: [
-            if (ProviderWidget.Provider.of(context)!.auth.currentUser.role ==
+            if (ProviderWidget.Provider.of(context)!.auth.currentUser!.role ==
                 'admin')
               IconButton(
                 onPressed: () => Navigator.push(context,
@@ -42,7 +42,7 @@ class _ChatState extends State<Chat> {
         ),
         body: StreamProvider<List<Convo>>.value(
             initialData: [],
-            value: chatService.streamConversations(auth.currentUser.id),
+            value: chatService.streamConversations(auth.currentUser!.id),
             child: ConversationDetailsProvider()));
   }
 }
@@ -69,7 +69,7 @@ class ConversationDetailsProvider extends StatelessWidget {
     final List<String> users = <String>[];
     if (_convos.length > 0) {
       for (Convo c in _convos) {
-        c.userIds[0] != auth.currentUser.id
+        c.userIds[0] != auth.currentUser!.id
             ? users.add(c.userIds[0])
             : users.add(c.userIds[1]);
       }

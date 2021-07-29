@@ -16,7 +16,8 @@ class AllConvos extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final UserData user = ProviderWidget.Provider.of(context)!.auth.currentUser;
+    final UserData user =
+        ProviderWidget.Provider.of(context)!.auth.currentUser!;
     final List<Convo> _convos = Provider.of<List<Convo>>(context);
     final List<UserData> _users = Provider.of<List<UserData>>(context);
 
@@ -121,7 +122,7 @@ class ConvoListItem extends StatelessWidget {
           padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 12),
           child: Container(
               width: double.infinity,
-              child: buildConvoDetails(peer.name!, context)),
+              child: buildConvoDetails(peer.name, context)),
         ),
       ),
     );

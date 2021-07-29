@@ -144,7 +144,7 @@ class _ViewEventState extends State<ViewEvent> {
                                 ),
                                 onPressed: () {},
                               ),
-                              if (Provider.of(context)!.auth.currentUser.id ==
+                              if (Provider.of(context)!.auth.currentUser!.id ==
                                   event.userId) ...[
                                 horizontalSpaceSmall,
                                 TextButton.icon(
@@ -220,10 +220,10 @@ class _ViewEventState extends State<ViewEvent> {
                                       avatar: CircleAvatar(
                                         backgroundColor: Colors.white70,
                                         child: Text(
-                                            volunteer.name![0].toUpperCase()),
+                                            volunteer.name[0].toUpperCase()),
                                       ),
                                       label: Text(
-                                        volunteer.name!,
+                                        volunteer.name,
                                         style: TextStyle(
                                           color: Colors.white,
                                         ),
@@ -249,19 +249,19 @@ class _ViewEventState extends State<ViewEvent> {
   }
 
   Future registerVolunteer(BuildContext context) async {
-    UserData user = Provider.of(context)!.auth.currentUser;
+    UserData user = Provider.of(context)!.auth.currentUser!;
     return await FirebaseFirestore.instance
         .collection("events")
         .doc(event.id)
         .update({
       'volunteers': FieldValue.arrayUnion([
-        {"name": user.name!, "id": user.id}
+        {"name": user.name, "id": user.id}
       ])
     });
   }
 
   Future removeVolunteer(BuildContext context) async {
-    UserData user = Provider.of(context)!.auth.currentUser;
+    UserData user = Provider.of(context)!.auth.currentUser!;
     final idx =
         event.volunteers!.indexWhere((element) => element.id == user.id);
     if (idx < 0) return Future.error("User not found in calEvent list");
@@ -285,7 +285,7 @@ class _ViewEventState extends State<ViewEvent> {
           onSurface: Colors.white,
           padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8)),
       onPressed: () => registerVolunteer(context).then((value) => setState(() {
-            event.volunteers!.add(Provider.of(context)!.auth.currentUser);
+            event.volunteers!.add(Provider.of(context)!.auth.currentUser!);
           })),
       label: Text("I want to volunteer!"),
       icon: Icon(Icons.emoji_people),
@@ -299,7 +299,7 @@ class _ViewEventState extends State<ViewEvent> {
           padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8)),
       onPressed: () => removeVolunteer(context).then((value) => setState(() {
             event.volunteers!.removeWhere((element) =>
-                element.id == Provider.of(context)!.auth.currentUser.id);
+                element.id == Provider.of(context)!.auth.currentUser!.id);
           })),
       label: Text("Remove from list!"),
       icon: Icon(Icons.remove),
@@ -307,7 +307,7 @@ class _ViewEventState extends State<ViewEvent> {
     if (event.volunteers == null) return registerButton;
     if (event.volunteers!.isEmpty) return registerButton;
     for (UserData item in event.volunteers!) {
-      if (item.id == Provider.of(context)!.auth.currentUser.id)
+      if (item.id == Provider.of(context)!.auth.currentUser!.id)
         return removeButton;
     }
     return registerButton;

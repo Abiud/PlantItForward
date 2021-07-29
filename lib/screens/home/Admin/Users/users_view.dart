@@ -3,27 +3,24 @@ import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
+import 'package:plant_it_forward/Models/UserData.dart';
 import 'package:plant_it_forward/config.dart';
-import 'package:plant_it_forward/screens/home/Produce/new_product_view.dart';
-import 'package:plant_it_forward/shared/ui_helpers.dart';
-import 'package:plant_it_forward/widgets/produce_search.dart';
-import 'package:plant_it_forward/widgets/product_card.dart';
+import 'package:plant_it_forward/widgets/user_card.dart';
 
-class Price extends StatefulWidget {
-  Price({Key? key}) : super(key: key);
+class UsersView extends StatefulWidget {
+  UsersView({Key? key}) : super(key: key);
 
   @override
-  _PriceState createState() => _PriceState();
+  _UsersViewState createState() => _UsersViewState();
 }
 
-class _PriceState extends State<Price> {
+class _UsersViewState extends State<UsersView> {
   ScrollController _scrollController = ScrollController();
-  final StreamController<List<DocumentSnapshot>> _produceController =
+  final StreamController<List<DocumentSnapshot>> _userController =
       StreamController<List<DocumentSnapshot>>.broadcast();
   List<List<DocumentSnapshot>> _allPagedResults = [<DocumentSnapshot>[]];
 
-  static const int produceLimit = 9;
+  static const int userLimit = 9;
   DocumentSnapshot? _lastDocument;
   bool _hasMoreData = true;
 
@@ -34,7 +31,7 @@ class _PriceState extends State<Price> {
       if (_scrollController.offset >=
               (_scrollController.position.maxScrollExtent) &&
           !_scrollController.position.outOfRange) {
-        _getProduce();
+        _getUsers();
       }
     });
   }
@@ -42,23 +39,25 @@ class _PriceState extends State<Price> {
   @override
   void dispose() {
     _scrollController.dispose();
-    _produceController.close();
+    _userController.close();
     super.dispose();
   }
 
-  Stream<List<DocumentSnapshot>> listenToProduceRealTime() {
-    _getProduce();
-    return _produceController.stream;
+  Stream<List<DocumentSnapshot>> listenToUsersRealTime() {
+    _getUsers();
+    return _userController.stream;
   }
 
-  void _getProduce() {
+  void _getUsers() {
     if (!_hasMoreData) {
       return;
     }
-    print("fetching.....");
-    final CollectionReference _produceCollectionReference =
-        FirebaseFirestore.instance.collection("products");
-    var pagechatQuery = _produceCollectionReference.orderBy('name').limit(9);
+
+    print("fetching...");
+
+    final CollectionReference _userCollectionReference =
+        FirebaseFirestore.instance.collection("users");
+    var pagechatQuery = _userCollectionReference.orderBy('name').limit(9);
 
     if (_lastDocument != null) {
       pagechatQuery = pagechatQuery.startAfterDocument(_lastDocument!);
@@ -68,26 +67,26 @@ class _PriceState extends State<Price> {
     pagechatQuery.snapshots().listen(
       (snapshot) {
         if (snapshot.docs.isNotEmpty) {
-          var moreProduce = snapshot.docs.toList();
+          var moreUsers = snapshot.docs.toList();
 
           var pageExists = currentRequestIndex < _allPagedResults.length;
 
           if (pageExists) {
-            _allPagedResults[currentRequestIndex] = moreProduce;
+            _allPagedResults[currentRequestIndex] = moreUsers;
           } else {
-            _allPagedResults.add(moreProduce);
+            _allPagedResults.add(moreUsers);
           }
 
           var allChats = _allPagedResults.fold<List<DocumentSnapshot>>(
               <DocumentSnapshot>[],
               (initialValue, pageItems) => initialValue..addAll(pageItems));
 
-          _produceController.add(allChats);
+          _userController.add(allChats);
 
           if (currentRequestIndex == _allPagedResults.length - 1) {
             _lastDocument = snapshot.docs.last;
           }
-          _hasMoreData = moreProduce.length == produceLimit;
+          _hasMoreData = moreUsers.length == userLimit;
           if (!_hasMoreData) setState(() {});
         } else {
           setState(() {
@@ -119,54 +118,42 @@ class _PriceState extends State<Price> {
                           onSurface: Colors.white,
                           padding: EdgeInsets.symmetric(
                               horizontal: 12, vertical: 8)),
-                      onPressed: () => showSearch(
-                          context: context, delegate: ProduceSearch()),
+                      onPressed: () {},
+                      // onPressed: () => showSearch(
+                      //     context: context, delegate: ProduceSearch()),
                       label: Text("Search"),
                       icon: Icon(Icons.search)),
-                  horizontalSpaceSmall,
-                  TextButton.icon(
-                      style: TextButton.styleFrom(
-                          primary: secondaryBlue,
-                          elevation: 1,
-                          backgroundColor: Colors.white,
-                          onSurface: Colors.white,
-                          padding: EdgeInsets.symmetric(
-                              horizontal: 12, vertical: 8)),
-                      onPressed: () => Navigator.push(
-                          context,
-                          CupertinoPageRoute(
-                              builder: (context) => NewProductView())),
-                      label: Text("Add"),
-                      icon: Icon(Icons.add)),
                 ],
               ),
             ),
             StreamBuilder<List<DocumentSnapshot>>(
-              stream: listenToProduceRealTime(),
-              builder: (BuildContext context, produceSnapshot) {
-                if (produceSnapshot.connectionState ==
-                        ConnectionState.waiting ||
-                    produceSnapshot.connectionState == ConnectionState.none) {
-                  return produceSnapshot.hasData
+              stream: listenToUsersRealTime(),
+              builder: (BuildContext context, userSnapshot) {
+                if (userSnapshot.connectionState == ConnectionState.waiting ||
+                    userSnapshot.connectionState == ConnectionState.none) {
+                  return userSnapshot.hasData
                       ? Center(
                           child: CircularProgressIndicator(),
                         )
                       : Center(
-                          child: Text("No produce found."),
+                          child: Text("No users registered."),
                         );
                 } else {
-                  if (produceSnapshot.hasData) {
-                    final produceDocs = produceSnapshot.data!;
+                  if (userSnapshot.hasData) {
+                    final userDocs = userSnapshot.data!;
                     return Column(
                       children: [
                         ListView.builder(
                             padding: EdgeInsets.symmetric(vertical: 8),
                             physics: ScrollPhysics(),
                             shrinkWrap: true,
-                            itemCount: produceDocs.length,
+                            itemCount: userDocs.length,
                             itemBuilder: (BuildContext context, int index) =>
-                                buildProductCard(context, produceDocs[index])),
-                        if (produceDocs.length >= produceLimit && _hasMoreData)
+                                buildUserCard(
+                                    context,
+                                    UserData.fromMap(userDocs[index].data()
+                                        as Map<String, dynamic>))),
+                        if (userDocs.length >= userLimit && _hasMoreData)
                           Padding(
                             padding: const EdgeInsets.symmetric(horizontal: 12),
                             child: Center(child: CircularProgressIndicator()),

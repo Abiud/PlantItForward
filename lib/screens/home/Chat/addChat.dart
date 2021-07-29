@@ -42,11 +42,12 @@ class AddChat extends StatelessWidget {
                         shrinkWrap: true,
                         itemCount: snapshot.data!.length,
                         itemBuilder: (BuildContext context, int index) {
-                          if (snapshot.data![index].id == auth.currentUser.id) {
+                          if (snapshot.data![index].id ==
+                              auth.currentUser!.id) {
                             return Container();
                           }
                           return buildContactCard(context,
-                              snapshot.data![index], auth.currentUser.id);
+                              snapshot.data![index], auth.currentUser!.id);
                         }),
                   ],
                 );

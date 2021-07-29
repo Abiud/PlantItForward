@@ -101,7 +101,7 @@ class _ProductViewState extends State<ProductView> {
                               builder: (context) => ProductHistoryView(
                                   productId: item.documentId));
                         } else if (res == 1) {
-                          deleteTrip(context, item);
+                          deleteTrip(item);
                           Navigator.pop(context);
                         }
                       },
@@ -205,8 +205,11 @@ class _ProductViewState extends State<ProductView> {
                                       quantityValue = val.toString();
                                     },
                                     items: <String>[
-                                      'per ounce',
-                                      'per bunch'
+                                      'per pound',
+                                      'per bunch',
+                                      'per pint',
+                                      'per foot',
+                                      'per head'
                                     ].map<DropdownMenuItem<String>>((String e) {
                                       return DropdownMenuItem<String>(
                                         child: Text(e),
@@ -310,7 +313,7 @@ class _ProductViewState extends State<ProductView> {
     return await doc.set(item.toJson());
   }
 
-  Future deleteTrip(context, Product item) async {
+  Future deleteTrip(Product item) async {
     if (widget.parentId != null) {
       return await FirebaseFirestore.instance
           .collection("products")

@@ -57,20 +57,20 @@ class _HomeScreenState extends State<HomeScreen> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
-                Provider.of(context)!.auth.currentUser.photoUrl != null
+                Provider.of(context)!.auth.currentUser!.photoUrl != null
                     ? GestureDetector(
                         onTap: () =>
                             Navigator.of(context).push(MaterialPageRoute(
                                 builder: (BuildContext context) => EditProfile(
                                       profile: Provider.of(context)!
                                           .auth
-                                          .currentUser,
+                                          .currentUser!,
                                     ))),
                         child: CircleAvatar(
                             radius: 20,
                             backgroundImage: NetworkImage(Provider.of(context)!
                                 .auth
-                                .currentUser
+                                .currentUser!
                                 .photoUrl!)),
                       )
                     : IconButton(
@@ -79,7 +79,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                 builder: (BuildContext context) => EditProfile(
                                       profile: Provider.of(context)!
                                           .auth
-                                          .currentUser,
+                                          .currentUser!,
                                     ))),
                         icon: Icon(
                           Icons.person,

@@ -1,81 +1,28 @@
-import 'dart:io';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_storage/firebase_storage.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:image_picker/image_picker.dart';
-import 'package:path/path.dart';
 import 'package:plant_it_forward/Models/UserData.dart';
 import 'package:plant_it_forward/config.dart';
 import 'package:plant_it_forward/shared/shared_styles.dart';
 import 'package:plant_it_forward/shared/ui_helpers.dart';
 import 'package:plant_it_forward/theme/colors.dart';
-import 'package:plant_it_forward/widgets/provider_widget.dart';
 
-class EditProfile extends StatefulWidget {
-  final UserData profile;
-
-  const EditProfile({Key? key, required this.profile}) : super(key: key);
+class EditUser extends StatefulWidget {
+  final UserData user;
+  EditUser({Key? key, required this.user}) : super(key: key);
 
   @override
-  _EditProfileState createState() => _EditProfileState();
+  _EditUserState createState() => _EditUserState();
 }
 
-class _EditProfileState extends State<EditProfile> {
+class _EditUserState extends State<EditUser> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   bool loading = false;
-  File? _imageFile;
-
-  Future pickImage() async {
-    final pickedFile =
-        await ImagePicker().getImage(source: ImageSource.gallery);
-
-    if (pickedFile != null) {
-      print("setting file");
-      setState(() {
-        _imageFile = File(pickedFile.path);
-      });
-    }
-  }
-
-  Future<String?> uploadImageToFirebase(BuildContext context) async {
-    if (_imageFile == null) return null;
-    String fileName = basename(_imageFile!.path);
-    Reference firebaseStorageRef = FirebaseStorage.instance
-        .ref()
-        .child("users")
-        .child(Provider.of(context)!.auth.currentUser!.id)
-        .child("avatar")
-        .child(fileName);
-    await firebaseStorageRef.putFile(_imageFile!);
-    String? downloadUrl;
-    // await taskSnapshot.ref
-    //     .getDownloadURL()
-    //     .then((value) => downloadUrl = value);
-    String? resImg = fileName.substring(0, fileName.indexOf("."));
-    Reference resizeImg = FirebaseStorage.instance
-        .ref()
-        .child("users")
-        .child(Provider.of(context)!.auth.currentUser!.id)
-        .child("avatar")
-        .child(resImg + "_200x200.webp");
-    await Future.delayed(const Duration(seconds: 5), () {});
-    await resizeImg.getDownloadURL().then((value) => downloadUrl = value);
-    Provider.of(context)!.auth.currentUser!.photoUrl = downloadUrl;
-    return downloadUrl;
-  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      extendBodyBehindAppBar: true,
       appBar: AppBar(
-        iconTheme: IconThemeData(
-          color: Colors.black,
-        ),
-        backgroundColor: Colors.transparent,
-        elevation: 0,
+        title: Text("Editing User"),
       ),
       floatingActionButton: Padding(
         padding: EdgeInsets.only(bottom: 4),
@@ -131,7 +78,7 @@ class _EditProfileState extends State<EditProfile> {
               children: <Widget>[
                 Image(
                   width: double.infinity,
-                  height: MediaQuery.of(context).size.height / 4,
+                  height: 200,
                   fit: BoxFit.cover,
                   image: AssetImage("assets/pattern.png"),
                 ),
@@ -139,30 +86,7 @@ class _EditProfileState extends State<EditProfile> {
                   bottom: -60.0,
                   child: Container(
                       margin: const EdgeInsets.fromLTRB(0, 16, 0, 24),
-                      child: Stack(
-                        children: [
-                          displayProfilePic(),
-                          Positioned(
-                              right: 0.0,
-                              child: ElevatedButton(
-                                style: ElevatedButton.styleFrom(
-                                    shape: CircleBorder(),
-                                    primary: Colors.white),
-                                child: Container(
-                                  width: 32,
-                                  height: 32,
-                                  alignment: Alignment.center,
-                                  decoration:
-                                      BoxDecoration(shape: BoxShape.circle),
-                                  child: Icon(
-                                    Icons.add_a_photo,
-                                    color: Colors.black,
-                                  ),
-                                ),
-                                onPressed: pickImage,
-                              )),
-                        ],
-                      )),
+                      child: displayProfilePic()),
                 ),
               ],
             ),
@@ -185,7 +109,7 @@ class _EditProfileState extends State<EditProfile> {
                     key: _formKey,
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
-                      crossAxisAlignment: CrossAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         TextFormField(
                           decoration: InputDecoration(
@@ -195,17 +119,54 @@ class _EditProfileState extends State<EditProfile> {
                               errorBorder: fieldErrorBorder,
                               labelText: 'Name',
                               hintText: "Name..."),
-                          initialValue: widget.profile.name,
+                          initialValue: widget.user.name,
                           validator: (val) {
-                            if (widget.profile.name.length > 0) {
+                            if (widget.user.name.length > 0) {
                               return null;
                             }
                             return "Title cannot be empty";
                           },
                           onChanged: (val) {
-                            widget.profile.name = val;
+                            widget.user.name = val;
                           },
                         ),
+                        verticalSpaceMedium,
+                        if (widget.user.isAdmin())
+                          Row(
+                            children: [
+                              Text(
+                                "Role: ",
+                                style: TextStyle(
+                                    color: Colors.grey.shade600, fontSize: 16),
+                              ),
+                              Text(
+                                "admin",
+                                style: TextStyle(fontSize: 16),
+                              ),
+                            ],
+                          )
+                        else
+                          DropdownButtonFormField(
+                              decoration: InputDecoration(
+                                  contentPadding: fieldContentPadding,
+                                  enabledBorder: fieldEnabledBorder,
+                                  focusedBorder: fieldFocusedBorder,
+                                  errorBorder: fieldErrorBorder,
+                                  labelText: 'Role',
+                                  hintText: "Farmer/Volunteer"),
+                              value: widget.user.role,
+                              onChanged: (val) {
+                                widget.user.role = val.toString();
+                              },
+                              items: <String>[
+                                'farmer',
+                                'volunteer',
+                              ].map<DropdownMenuItem<String>>((String e) {
+                                return DropdownMenuItem<String>(
+                                  child: Text(e),
+                                  value: e,
+                                );
+                              }).toList()),
                       ],
                     ),
                   ),
@@ -220,28 +181,19 @@ class _EditProfileState extends State<EditProfile> {
 
   Future editProfile(context) async {
     final userDoc =
-        FirebaseFirestore.instance.collection('users').doc(widget.profile.id);
+        FirebaseFirestore.instance.collection('users').doc(widget.user.id);
 
-    String? url = await uploadImageToFirebase(context);
-
-    if (url != null) {
-      return await userDoc
-          .update({"name": widget.profile.name, "photoUrl": url});
-    }
-
-    return await userDoc.update({"name": widget.profile.name});
+    return await userDoc.update(widget.user.toMap());
   }
 
   Widget displayProfilePic() {
-    if (widget.profile.photoUrl != null) {
-      if (_imageFile == null)
-        return CircleAvatar(
-          radius: 85,
-          backgroundColor: Colors.teal.shade100,
-          child: CircleAvatar(
-              radius: 80,
-              backgroundImage: NetworkImage(widget.profile.photoUrl!)),
-        );
+    if (widget.user.photoUrl != null) {
+      return CircleAvatar(
+        radius: 85,
+        backgroundColor: Colors.teal.shade100,
+        child: CircleAvatar(
+            radius: 80, backgroundImage: NetworkImage(widget.user.photoUrl!)),
+      );
     }
     return Container(
       height: 160,
@@ -250,10 +202,7 @@ class _EditProfileState extends State<EditProfile> {
           color: Colors.grey.shade300,
           shape: BoxShape.circle,
           image: DecorationImage(
-              image: _imageFile == null
-                  ? AssetImage("assets/PIF-icon.png")
-                  : Image.file(_imageFile!).image,
-              fit: BoxFit.cover)),
+              image: AssetImage("assets/PIF-icon.png"), fit: BoxFit.cover)),
     );
   }
 }

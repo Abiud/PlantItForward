@@ -368,7 +368,7 @@ class _EditEventState extends State<EditEvent> {
           selectedDateStart.day),
       "title": widget.calEvent.title,
       "description": widget.calEvent.description,
-      "userId": auth.currentUser.id,
+      "userId": auth.currentUser!.id,
     });
   }
 }

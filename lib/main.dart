@@ -61,7 +61,7 @@ class Wrapper extends StatelessWidget {
             return FutureBuilder(
                 future: auth.setCurrentUser(snapshot.data!),
                 builder: (context, snapshot) {
-                  if (snapshot.hasData) {
+                  if (auth.currentUser != null) {
                     return Home();
                   } else {
                     return Loading();
