@@ -3,6 +3,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:plant_it_forward/Models/Farm.dart';
+import 'package:plant_it_forward/Models/UserData.dart';
 import 'package:plant_it_forward/config.dart';
 import 'package:plant_it_forward/screens/home/Admin/Farms/editFarm.dart';
 import 'package:plant_it_forward/shared/ui_helpers.dart';
@@ -100,8 +101,16 @@ Widget confirmationDialog(BuildContext context, Farm item) {
 }
 
 Future deleteTrip(Farm item) async {
-  return await FirebaseFirestore.instance
-      .collection("farms")
-      .doc(item.id)
-      .delete();
+  final db = FirebaseFirestore.instance;
+
+  WriteBatch batch = db.batch();
+
+  batch.delete(item.reference!);
+  if (item.farmers != null)
+    for (UserData user in item.farmers!) {
+      batch.update(db.collection("users").doc(user.id),
+          {"farmId": null, "farmName": null});
+    }
+
+  return await batch.commit();
 }

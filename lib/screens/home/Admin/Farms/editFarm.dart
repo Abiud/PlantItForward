@@ -12,8 +12,11 @@ class EditFarm extends StatefulWidget {
 class _EditFarmState extends State<EditFarm> {
   @override
   Widget build(BuildContext context) {
-    return Container(
-      child: null,
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(widget.farm.name),
+      ),
+      body: Container(),
     );
   }
 }

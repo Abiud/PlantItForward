@@ -550,7 +550,6 @@ class _ConvScreenState extends State<ConvScreen> {
   }
 
   void updateMessageRead(Message msg, String convoID) {
-    // batch update the read to true
     // check
     print("updating");
     FirebaseFirestore.instance
@@ -572,12 +571,12 @@ class _ConvScreenState extends State<ConvScreen> {
     return false;
   }
 
-  Future batchDelete() {
+  Future batchDelete() async {
     WriteBatch batch = FirebaseFirestore.instance.batch();
     selectedDocs.forEach((element) {
       batch.delete(element.reference!);
     });
-    return batch.commit();
+    return await batch.commit();
   }
 
   void addMsgToRemove(Message msg) {

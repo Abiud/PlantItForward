@@ -19,6 +19,7 @@ Widget buildProductCard(BuildContext context, DocumentSnapshot document) {
 Widget cardDefault(BuildContext context, Product product) {
   return Container(
     child: Card(
+      elevation: 2,
       clipBehavior: Clip.antiAliasWithSaveLayer,
       child: InkWell(
         onTap: () {
@@ -36,8 +37,7 @@ Widget cardDefault(BuildContext context, Product product) {
             color: secondaryBlue,
           ),
           Padding(
-            padding:
-                const EdgeInsets.only(top: 12, bottom: 12, left: 16, right: 16),
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 16),
             child: Row(
               mainAxisSize: MainAxisSize.max,
               children: [

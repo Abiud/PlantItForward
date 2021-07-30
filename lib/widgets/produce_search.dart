@@ -1,11 +1,13 @@
 import 'package:algolia/algolia.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:plant_it_forward/screens/home/Produce/product_view.dart';
 import 'package:plant_it_forward/services/algolia.dart';
 import 'package:plant_it_forward/shared/loading.dart';
 
-class ProduceSearch extends SearchDelegate<String> {
+class ItemSearch extends SearchDelegate<String> {
+  final String indexName;
+  final Function navFunction;
+  ItemSearch({required this.indexName, required this.navFunction});
   final Algolia _algoliaApp = AlgoliaApplication.algolia;
 
   @override
@@ -32,7 +34,7 @@ class ProduceSearch extends SearchDelegate<String> {
   @override
   Widget buildResults(BuildContext context) {
     final AlgoliaQuery searchQuery =
-        _algoliaApp.instance.index("AppProduce").query(query);
+        _algoliaApp.instance.index(indexName).query(query);
     if (query.isNotEmpty) {
       return FutureBuilder(
         future: searchQuery.getObjects(),
@@ -52,13 +54,7 @@ class ProduceSearch extends SearchDelegate<String> {
                     return ListTile(
                       leading: Icon(Icons.list),
                       title: Text(result.data['name']),
-                      onTap: () {
-                        Navigator.push(
-                            context,
-                            CupertinoPageRoute(
-                                builder: (context) => ProductView(
-                                    produceId: result.data['objectID'])));
-                      },
+                      onTap: () => navFunction(result.data['objectID']),
                     );
                   },
                   itemCount: snapshot.data?.hits.length,
@@ -74,7 +70,7 @@ class ProduceSearch extends SearchDelegate<String> {
   @override
   Widget buildSuggestions(BuildContext context) {
     final AlgoliaQuery searchQuery =
-        _algoliaApp.instance.index("AppProduce").query(query);
+        _algoliaApp.instance.index(indexName).query(query);
 
     if (query.length < 2) {
       return Container();
@@ -95,6 +91,7 @@ class ProduceSearch extends SearchDelegate<String> {
                   final AlgoliaObjectSnapshot result =
                       snapshot.data!.hits[index];
                   return ListTile(
+                      onTap: () => navFunction(result.data['objectID']),
                       leading: Icon(Icons.food_bank),
                       title: Text(result.data['name']));
                 },

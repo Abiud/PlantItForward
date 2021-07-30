@@ -39,8 +39,8 @@ class _FarmsViewState extends State<FarmsView> {
 
   @override
   void dispose() {
-    _scrollController.dispose();
     _farmsController.close();
+    _scrollController.dispose();
     super.dispose();
   }
 
@@ -80,17 +80,17 @@ class _FarmsViewState extends State<FarmsView> {
               <DocumentSnapshot>[],
               (initialValue, pageItems) => initialValue..addAll(pageItems));
 
-          _farmsController.add(allChats);
+          if (!_farmsController.isClosed) _farmsController.add(allChats);
 
           if (currentRequestIndex == _allPagedResults.length - 1) {
             _lastDocument = snapshot.docs.last;
           }
           _hasMoreData = moreFarms.length == farmLimit;
-          if (!_hasMoreData) setState(() {});
         } else {
-          setState(() {
-            _hasMoreData = false;
-          });
+          if (mounted)
+            setState(() {
+              _hasMoreData = false;
+            });
         }
       },
     );
@@ -149,8 +149,11 @@ class _FarmsViewState extends State<FarmsView> {
                             itemBuilder: (BuildContext context, int index) =>
                                 buildFarmCard(
                                     context,
-                                    Farm.fromMap(farmDocs[index].data()
-                                        as Map<String, dynamic>))),
+                                    Farm.fromMap(
+                                        farmDocs[index].data()
+                                            as Map<String, dynamic>,
+                                        farmDocs[index].id,
+                                        reference: farmDocs[index].reference))),
                         if (farmDocs.length >= farmLimit && _hasMoreData)
                           Padding(
                             padding: const EdgeInsets.symmetric(horizontal: 12),

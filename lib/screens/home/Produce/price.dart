@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:plant_it_forward/config.dart';
 import 'package:plant_it_forward/screens/home/Produce/new_product_view.dart';
+import 'package:plant_it_forward/screens/home/Produce/product_view.dart';
 import 'package:plant_it_forward/shared/ui_helpers.dart';
 import 'package:plant_it_forward/widgets/produce_search.dart';
 import 'package:plant_it_forward/widgets/product_card.dart';
@@ -41,8 +42,8 @@ class _PriceState extends State<Price> {
 
   @override
   void dispose() {
-    _scrollController.dispose();
     _produceController.close();
+    _scrollController.dispose();
     super.dispose();
   }
 
@@ -82,17 +83,17 @@ class _PriceState extends State<Price> {
               <DocumentSnapshot>[],
               (initialValue, pageItems) => initialValue..addAll(pageItems));
 
-          _produceController.add(allChats);
+          if (!_produceController.isClosed) _produceController.add(allChats);
 
           if (currentRequestIndex == _allPagedResults.length - 1) {
             _lastDocument = snapshot.docs.last;
           }
           _hasMoreData = moreProduce.length == produceLimit;
-          if (!_hasMoreData) setState(() {});
         } else {
-          setState(() {
-            _hasMoreData = false;
-          });
+          if (mounted)
+            setState(() {
+              _hasMoreData = false;
+            });
         }
       },
     );
@@ -120,7 +121,14 @@ class _PriceState extends State<Price> {
                           padding: EdgeInsets.symmetric(
                               horizontal: 12, vertical: 8)),
                       onPressed: () => showSearch(
-                          context: context, delegate: ProduceSearch()),
+                          context: context,
+                          delegate: ItemSearch(
+                              indexName: "AppProduce",
+                              navFunction: (String id) => Navigator.push(
+                                  context,
+                                  CupertinoPageRoute(
+                                      builder: (context) =>
+                                          ProductView(produceId: id))))),
                       label: Text("Search"),
                       icon: Icon(Icons.search)),
                   horizontalSpaceSmall,

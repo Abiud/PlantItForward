@@ -30,7 +30,7 @@ class _ProductHistoryViewState extends State<ProductHistoryView> {
         .collection('products')
         .doc(widget.productId)
         .collection("history")
-        .orderBy("updatedAt")
+        .orderBy("updatedAt", descending: true)
         .get();
 
     setState(() {
@@ -47,6 +47,7 @@ class _ProductHistoryViewState extends State<ProductHistoryView> {
       body: loading
           ? Loading()
           : ListView(
+              physics: AlwaysScrollableScrollPhysics(),
               children: [
                 Padding(
                   padding: EdgeInsets.fromLTRB(16, 16, 16, 6),
@@ -56,16 +57,14 @@ class _ProductHistoryViewState extends State<ProductHistoryView> {
                           fontWeight: FontWeight.w500,
                           color: Colors.grey.shade800)),
                 ),
-                Padding(
-                  padding: EdgeInsets.fromLTRB(8, 6, 8, 12),
-                  child: ListView.builder(
-                      physics: ScrollPhysics(),
-                      shrinkWrap: true,
-                      itemCount: _allResults.length,
-                      itemBuilder: (BuildContext context, int index) =>
-                          buildProductCardHistory(
-                              context, _allResults[index], widget.productId)),
-                )
+                ListView.builder(
+                    padding: EdgeInsets.fromLTRB(8, 6, 8, 12),
+                    physics: ScrollPhysics(),
+                    shrinkWrap: true,
+                    itemCount: _allResults.length,
+                    itemBuilder: (BuildContext context, int index) =>
+                        buildProductCardHistory(
+                            context, _allResults[index], widget.productId))
               ],
             ),
       // ListView.builder(

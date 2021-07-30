@@ -44,7 +44,11 @@ Widget buildContactCard(BuildContext context, UserData contact, String userID) {
                           fit: BoxFit.cover)),
                 ),
               horizontalSpaceSmall,
-              Text(contact.name),
+              Text(
+                contact.name,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(fontWeight: FontWeight.w500, fontSize: 18),
+              ),
             ],
           ),
         ),

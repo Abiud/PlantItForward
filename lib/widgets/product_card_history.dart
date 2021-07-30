@@ -2,7 +2,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:plant_it_forward/Models/Product.dart';
-import 'package:plant_it_forward/config.dart';
 import 'package:plant_it_forward/screens/home/Produce/product_view.dart';
 import 'package:plant_it_forward/shared/ui_helpers.dart';
 import 'package:plant_it_forward/utils.dart';
@@ -11,12 +10,11 @@ Widget buildProductCardHistory(
     BuildContext context, DocumentSnapshot document, String parentId) {
   final product = Product.fromSnapshot(document);
 
-  return new Container(
+  return Container(
     child: Card(
       elevation: 2,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+      clipBehavior: Clip.antiAliasWithSaveLayer,
       child: InkWell(
-        splashColor: primaryGreen.withAlpha(30),
         onTap: () {
           Navigator.push(
               context,
@@ -24,52 +22,56 @@ Widget buildProductCardHistory(
                   builder: (context) =>
                       ProductView(product: product, parentId: parentId)));
         },
-        child: Padding(
-          padding:
-              const EdgeInsets.only(top: 12, bottom: 12, left: 16, right: 16),
-          child: Column(
-            children: <Widget>[
-              Row(
+        child: Stack(
+          children: [
+            Container(
+              height: 100,
+              width: 5,
+              color: Colors.grey.shade600,
+            ),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 16, 12, 16),
+              child: Row(
+                mainAxisSize: MainAxisSize.max,
                 children: [
-                  Text(
-                      "Last update on " +
-                          dateF.format(product.updatedAt!.toDate()),
-                      style: TextStyle(color: Colors.grey))
-                ],
-              ),
-              Padding(
-                padding: const EdgeInsets.fromLTRB(0, 4, 0, 4),
-                child: Row(
-                  mainAxisSize: MainAxisSize.max,
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Row(
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
+                        Text(
+                            "Last update on " +
+                                dateF.format(product.updatedAt!.toDate()),
+                            style: TextStyle(color: Colors.grey)),
+                        verticalSpaceTiny,
                         Text(
                           product.name,
                           style: TextStyle(fontSize: 20),
+                          overflow: TextOverflow.ellipsis,
                         ),
-                        horizontalSpaceSmall,
-                        Text(
-                          product.measure!,
-                          style: TextStyle(color: Colors.grey, fontSize: 14),
-                        ),
-                      ],
-                    ),
-                    Row(
-                      children: [
-                        Text(product.price.toString()),
-                        Icon(
-                          Icons.chevron_right,
-                          color: Colors.grey,
+                        verticalSpaceTiny,
+                        Row(
+                          children: [
+                            Text(product.price.toString()),
+                            horizontalSpaceTiny,
+                            Text(
+                              product.measure!,
+                              style:
+                                  TextStyle(color: Colors.grey, fontSize: 14),
+                            ),
+                          ],
                         )
                       ],
                     ),
-                  ],
-                ),
+                  ),
+                  horizontalSpaceSmall,
+                  Icon(
+                    Icons.chevron_right,
+                    color: Colors.grey,
+                  ),
+                ],
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     ),

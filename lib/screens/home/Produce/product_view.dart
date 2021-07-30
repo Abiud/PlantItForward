@@ -4,6 +4,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:money2/money2.dart';
 import 'package:plant_it_forward/Models/Product.dart';
+import 'package:plant_it_forward/config.dart';
 import 'package:plant_it_forward/screens/home/Produce/product_history.dart';
 import 'package:plant_it_forward/shared/loading.dart';
 import 'package:plant_it_forward/shared/shared_styles.dart';
@@ -80,20 +81,15 @@ class _ProductViewState extends State<ProductView> {
               );
             } else {
               Product item = snapshot.data!;
-              return CupertinoPageScaffold(
-                navigationBar: CupertinoNavigationBar(
-                  heroTag:
-                      'single_product', // a different string for each navigationBar
-                  transitionBetweenRoutes: false,
-                  middle: Text(item.name),
-                  trailing: Material(
-                    color: Colors.transparent,
-                    child: PopupMenuButton(
+              return Scaffold(
+                appBar: AppBar(
+                  title: Text(item.name),
+                  actions: [
+                    PopupMenuButton(
                       icon: Icon(Icons.more_vert),
                       shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.all(Radius.circular(4.0))),
                       elevation: 2,
-                      padding: EdgeInsets.all(0),
                       onSelected: (res) {
                         if (res == 0) {
                           showModalBottomSheet(
@@ -133,15 +129,23 @@ class _ProductViewState extends State<ProductView> {
                         ];
                       },
                     ),
-                  ),
+                  ],
                 ),
-                child: SafeArea(
-                    child: Scaffold(
-                  floatingActionButton: widget.parentId == null
-                      ? FloatingActionButton(
+                floatingActionButton: widget.parentId == null
+                    ? Padding(
+                        padding: EdgeInsets.only(bottom: 4),
+                        child: FloatingActionButton.extended(
+                          backgroundColor: primaryGreen,
                           elevation: 2,
-                          child: !loading
-                              ? Icon(Icons.edit)
+                          label: Text(
+                            "Update",
+                            style: TextStyle(color: Colors.white),
+                          ),
+                          icon: !loading
+                              ? Icon(
+                                  Icons.edit,
+                                  color: Colors.white,
+                                )
                               : CircularProgressIndicator(
                                   valueColor:
                                       AlwaysStoppedAnimation(Colors.white),
@@ -161,143 +165,141 @@ class _ProductViewState extends State<ProductView> {
                               }
                             }
                           },
-                        )
-                      : null,
-                  body: SingleChildScrollView(
-                      child: Form(
-                          key: _formKey,
-                          child: Padding(
-                            padding: const EdgeInsets.all(16.0),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                TextFormField(
+                        ),
+                      )
+                    : null,
+                body: SingleChildScrollView(
+                    child: Form(
+                        key: _formKey,
+                        child: Padding(
+                          padding: const EdgeInsets.all(16.0),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              TextFormField(
+                                decoration: InputDecoration(
+                                    contentPadding: fieldContentPadding,
+                                    enabledBorder: fieldEnabledBorder,
+                                    focusedBorder: fieldFocusedBorder,
+                                    errorBorder: fieldErrorBorder,
+                                    labelText: 'Name',
+                                    hintText: "Lettuce"),
+                                initialValue: item.name,
+                                validator: (val) {
+                                  if (item.name.length > 0) {
+                                    return null;
+                                  }
+                                  return "Name cannot be empty";
+                                },
+                                onChanged: (val) {
+                                  item.name = val.toString();
+                                },
+                              ),
+                              verticalSpaceMedium,
+                              DropdownButtonFormField(
                                   decoration: InputDecoration(
                                       contentPadding: fieldContentPadding,
                                       enabledBorder: fieldEnabledBorder,
                                       focusedBorder: fieldFocusedBorder,
                                       errorBorder: fieldErrorBorder,
-                                      labelText: 'Name',
-                                      hintText: "Lettuce"),
-                                  initialValue: item.name,
-                                  validator: (val) {
-                                    if (item.name.length > 0) {
-                                      return null;
-                                    }
-                                    return "Name cannot be empty";
-                                  },
+                                      labelText: 'Quantity',
+                                      hintText: "Per pound/Per bunch"),
+                                  value: quantityValue,
                                   onChanged: (val) {
-                                    item.name = val.toString();
+                                    item.measure = val.toString();
+                                    quantityValue = val.toString();
                                   },
-                                ),
-                                verticalSpaceMedium,
-                                DropdownButtonFormField(
-                                    decoration: InputDecoration(
-                                        contentPadding: fieldContentPadding,
-                                        enabledBorder: fieldEnabledBorder,
-                                        focusedBorder: fieldFocusedBorder,
-                                        errorBorder: fieldErrorBorder,
-                                        labelText: 'Quantity',
-                                        hintText: "Per pound/Per bunch"),
-                                    value: quantityValue,
-                                    onChanged: (val) {
-                                      item.measure = val.toString();
-                                      quantityValue = val.toString();
-                                    },
-                                    items: <String>[
-                                      'per pound',
-                                      'per bunch',
-                                      'per pint',
-                                      'per foot',
-                                      'per head'
-                                    ].map<DropdownMenuItem<String>>((String e) {
-                                      return DropdownMenuItem<String>(
-                                        child: Text(e),
-                                        value: e,
-                                      );
-                                    }).toList()),
-                                verticalSpaceMedium,
-                                TextFormField(
-                                  inputFormatters: [
-                                    CurrencyTextInputFormatter(symbol: '\$')
-                                  ],
-                                  keyboardType: TextInputType.number,
-                                  decoration: InputDecoration(
-                                      contentPadding: fieldContentPadding,
-                                      enabledBorder: fieldEnabledBorder,
-                                      focusedBorder: fieldFocusedBorder,
-                                      errorBorder: fieldErrorBorder,
-                                      labelText: 'Price',
-                                      hintText: "\$2.50"),
-                                  initialValue: price,
-                                  validator: (val) {
-                                    try {
-                                      item.price = usdCurrency.parse(price!);
-                                      return null;
-                                    } catch (e) {
-                                      return r'The value needs to be in the format ".0"';
-                                    }
-                                  },
-                                  onChanged: (val) {
-                                    price = val;
-                                  },
-                                ),
-                                verticalSpaceMedium,
-                                Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  mainAxisAlignment: MainAxisAlignment.end,
-                                  children: [
-                                    Text("Farmer price (80/20)",
-                                        style: TextStyle(
-                                            color: Colors.grey.shade800)),
-                                    verticalSpaceTiny,
-                                    Text(getFarmerPrice(item.price!).toString())
-                                  ],
-                                ),
-                                verticalSpaceMedium,
-                                Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  mainAxisAlignment: MainAxisAlignment.end,
-                                  children: [
-                                    Text(
-                                        "Farmer price (75/25) with adjustments",
-                                        style: TextStyle(
-                                            color: Colors.grey.shade800)),
-                                    verticalSpaceTiny,
-                                    Text("??")
-                                  ],
-                                ),
-                                verticalSpaceMedium,
-                                Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  mainAxisAlignment: MainAxisAlignment.end,
-                                  children: [
-                                    Text(
-                                        "Farmer price 2 - Lost adjustment (All)",
-                                        style: TextStyle(
-                                            color: Colors.grey.shade800)),
-                                    verticalSpaceTiny,
-                                    Text("??")
-                                  ],
-                                ),
-                                verticalSpaceMedium,
-                                Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  mainAxisAlignment: MainAxisAlignment.end,
-                                  children: [
-                                    Text(
-                                      "Farmer price 3 - Discounts + Trade Basket Losses ONLY",
+                                  items: <String>[
+                                    'per pound',
+                                    'per bunch',
+                                    'per pint',
+                                    'per foot',
+                                    'per head'
+                                  ].map<DropdownMenuItem<String>>((String e) {
+                                    return DropdownMenuItem<String>(
+                                      child: Text(e),
+                                      value: e,
+                                    );
+                                  }).toList()),
+                              verticalSpaceMedium,
+                              TextFormField(
+                                inputFormatters: [
+                                  CurrencyTextInputFormatter(symbol: '\$')
+                                ],
+                                keyboardType: TextInputType.number,
+                                decoration: InputDecoration(
+                                    contentPadding: fieldContentPadding,
+                                    enabledBorder: fieldEnabledBorder,
+                                    focusedBorder: fieldFocusedBorder,
+                                    errorBorder: fieldErrorBorder,
+                                    labelText: 'Price',
+                                    hintText: "\$2.50"),
+                                initialValue: price,
+                                validator: (val) {
+                                  try {
+                                    item.price = usdCurrency.parse(price!);
+                                    return null;
+                                  } catch (e) {
+                                    return r'The value needs to be in the format ".0"';
+                                  }
+                                },
+                                onChanged: (val) {
+                                  price = val;
+                                },
+                              ),
+                              verticalSpaceMedium,
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                mainAxisAlignment: MainAxisAlignment.end,
+                                children: [
+                                  Text("Farmer price (80/20)",
                                       style: TextStyle(
-                                          color: Colors.grey.shade800),
-                                    ),
-                                    verticalSpaceTiny,
-                                    Text("??")
-                                  ],
-                                ),
-                              ],
-                            ),
-                          ))),
-                )),
+                                          color: Colors.grey.shade800)),
+                                  verticalSpaceTiny,
+                                  Text(getFarmerPrice(item.price!).toString())
+                                ],
+                              ),
+                              verticalSpaceMedium,
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                mainAxisAlignment: MainAxisAlignment.end,
+                                children: [
+                                  Text("Farmer price (75/25) with adjustments",
+                                      style: TextStyle(
+                                          color: Colors.grey.shade800)),
+                                  verticalSpaceTiny,
+                                  Text("??")
+                                ],
+                              ),
+                              verticalSpaceMedium,
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                mainAxisAlignment: MainAxisAlignment.end,
+                                children: [
+                                  Text("Farmer price 2 - Lost adjustment (All)",
+                                      style: TextStyle(
+                                          color: Colors.grey.shade800)),
+                                  verticalSpaceTiny,
+                                  Text("??")
+                                ],
+                              ),
+                              verticalSpaceMedium,
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                mainAxisAlignment: MainAxisAlignment.end,
+                                children: [
+                                  Text(
+                                    "Farmer price 3 - Discounts + Trade Basket Losses ONLY",
+                                    style:
+                                        TextStyle(color: Colors.grey.shade800),
+                                  ),
+                                  verticalSpaceTiny,
+                                  Text("??")
+                                ],
+                              ),
+                            ],
+                          ),
+                        ))),
               );
             }
           }

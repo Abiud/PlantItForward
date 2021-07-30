@@ -4,6 +4,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:money2/money2.dart';
 import 'package:plant_it_forward/Models/Product.dart';
+import 'package:plant_it_forward/config.dart';
 import 'package:plant_it_forward/screens/home/Produce/product_view.dart';
 import 'package:plant_it_forward/shared/shared_styles.dart';
 import 'package:plant_it_forward/shared/ui_helpers.dart';
@@ -27,131 +28,134 @@ class _NewProductViewState extends State<NewProductView> {
 
   @override
   Widget build(BuildContext context) {
-    return CupertinoPageScaffold(
-      navigationBar: CupertinoNavigationBar(
-        heroTag: 'new_product', // a different string for each navigationBar
-        transitionBetweenRoutes: false,
-        middle: Text("Add Produce"),
+    return Scaffold(
+      appBar: AppBar(
+        title: Text("Add Produce"),
       ),
-      child: SafeArea(
-        child: Scaffold(
-          floatingActionButton: FloatingActionButton(
-            elevation: 2,
-            child: !loading
-                ? Icon(Icons.save)
-                : CircularProgressIndicator(
-                    valueColor: AlwaysStoppedAnimation(Colors.white),
-                  ),
-            onPressed: () {
-              if (!loading) {
-                if (_formKey.currentState!.validate()) {
-                  FocusScope.of(context).unfocus();
-                  setState(() {
-                    loading = true;
-                  });
-                  createProduct(context).then((val) async {
-                    var doc = await FirebaseFirestore.instance
-                        .collection("products")
-                        .doc(val.id)
-                        .get();
-                    setState(() {
-                      loading = false;
-                    });
-                    Product newProd = Product.fromSnapshot(doc);
-
-                    Navigator.pushReplacement(
-                        context,
-                        CupertinoPageRoute(
-                            builder: (context) => ProductView(
-                                  product: newProd,
-                                )));
-                  });
-                }
-              }
-            },
+      floatingActionButton: Padding(
+        padding: EdgeInsets.only(bottom: 4),
+        child: FloatingActionButton.extended(
+          backgroundColor: primaryGreen,
+          elevation: 2,
+          label: Text(
+            "Add",
+            style: TextStyle(color: Colors.white),
           ),
-          body: SingleChildScrollView(
-            child: Form(
-              key: _formKey,
-              child: Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Column(
-                  children: [
-                    TextFormField(
-                      decoration: InputDecoration(
-                          contentPadding: fieldContentPadding,
-                          enabledBorder: fieldEnabledBorder,
-                          focusedBorder: fieldFocusedBorder,
-                          errorBorder: fieldErrorBorder,
-                          labelText: 'Name',
-                          hintText: "Lettuce"),
-                      initialValue: name,
-                      validator: (val) {
-                        if (name.length > 0) {
-                          return null;
-                        }
-                        return "Name cannot be empty";
-                      },
-                      onChanged: (val) {
-                        name = val;
-                      },
-                    ),
-                    verticalSpaceMedium,
-                    DropdownButtonFormField(
-                        decoration: InputDecoration(
-                            contentPadding: fieldContentPadding,
-                            enabledBorder: fieldEnabledBorder,
-                            focusedBorder: fieldFocusedBorder,
-                            errorBorder: fieldErrorBorder,
-                            labelText: 'Quantity',
-                            hintText: "Per pound/Per bunch"),
-                        value: measure,
-                        onChanged: (val) {
-                          measure = val.toString();
-                        },
-                        items: <String>[
-                          'per pound',
-                          'per bunch',
-                          'per pint',
-                          'per foot',
-                          'per head'
-                        ].map<DropdownMenuItem<String>>((String e) {
-                          return DropdownMenuItem<String>(
-                            child: Text(e),
-                            value: e,
-                          );
-                        }).toList()),
-                    verticalSpaceMedium,
-                    TextFormField(
-                      inputFormatters: [
-                        CurrencyTextInputFormatter(symbol: '\$')
-                      ],
-                      keyboardType: TextInputType.number,
-                      decoration: InputDecoration(
-                          contentPadding: fieldContentPadding,
-                          enabledBorder: fieldEnabledBorder,
-                          focusedBorder: fieldFocusedBorder,
-                          errorBorder: fieldErrorBorder,
-                          labelText: 'Price',
-                          hintText: "\$2.50"),
-                      initialValue: strPrice,
-                      validator: (val) {
-                        try {
-                          price = usdCurrency.parse(strPrice);
-                          return null;
-                        } catch (e) {
-                          return r'The value needs to be in the format ".0"';
-                        }
-                      },
-                      onChanged: (val) {
-                        setState(() {
-                          strPrice = val;
-                        });
-                      },
-                    ),
-                  ],
+          icon: !loading
+              ? Icon(
+                  Icons.add,
+                  color: Colors.white,
+                )
+              : CircularProgressIndicator(
+                  valueColor: AlwaysStoppedAnimation(Colors.white),
                 ),
-              ),
+          onPressed: () {
+            if (!loading) {
+              if (_formKey.currentState!.validate()) {
+                FocusScope.of(context).unfocus();
+                setState(() {
+                  loading = true;
+                });
+                createProduct(context).then((val) async {
+                  var doc = await FirebaseFirestore.instance
+                      .collection("products")
+                      .doc(val.id)
+                      .get();
+                  setState(() {
+                    loading = false;
+                  });
+                  Product newProd = Product.fromSnapshot(doc);
+
+                  Navigator.pushReplacement(
+                      context,
+                      CupertinoPageRoute(
+                          builder: (context) => ProductView(
+                                product: newProd,
+                              )));
+                });
+              }
+            }
+          },
+        ),
+      ),
+      body: SingleChildScrollView(
+        child: Form(
+          key: _formKey,
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              children: [
+                TextFormField(
+                  decoration: InputDecoration(
+                      contentPadding: fieldContentPadding,
+                      enabledBorder: fieldEnabledBorder,
+                      focusedBorder: fieldFocusedBorder,
+                      errorBorder: fieldErrorBorder,
+                      labelText: 'Name',
+                      hintText: "Lettuce"),
+                  initialValue: name,
+                  validator: (val) {
+                    if (name.length > 0) {
+                      return null;
+                    }
+                    return "Name cannot be empty";
+                  },
+                  onChanged: (val) {
+                    name = val;
+                  },
+                ),
+                verticalSpaceMedium,
+                DropdownButtonFormField(
+                    decoration: InputDecoration(
+                        contentPadding: fieldContentPadding,
+                        enabledBorder: fieldEnabledBorder,
+                        focusedBorder: fieldFocusedBorder,
+                        errorBorder: fieldErrorBorder,
+                        labelText: 'Quantity',
+                        hintText: "Per pound/Per bunch"),
+                    value: measure,
+                    onChanged: (val) {
+                      measure = val.toString();
+                    },
+                    items: <String>[
+                      'per pound',
+                      'per bunch',
+                      'per pint',
+                      'per foot',
+                      'per head'
+                    ].map<DropdownMenuItem<String>>((String e) {
+                      return DropdownMenuItem<String>(
+                        child: Text(e),
+                        value: e,
+                      );
+                    }).toList()),
+                verticalSpaceMedium,
+                TextFormField(
+                  inputFormatters: [CurrencyTextInputFormatter(symbol: '\$')],
+                  keyboardType: TextInputType.number,
+                  decoration: InputDecoration(
+                      contentPadding: fieldContentPadding,
+                      enabledBorder: fieldEnabledBorder,
+                      focusedBorder: fieldFocusedBorder,
+                      errorBorder: fieldErrorBorder,
+                      labelText: 'Price',
+                      hintText: "\$2.50"),
+                  initialValue: strPrice,
+                  validator: (val) {
+                    try {
+                      price = usdCurrency.parse(strPrice);
+                      return null;
+                    } catch (e) {
+                      return r'The value needs to be in the format ".0"';
+                    }
+                  },
+                  onChanged: (val) {
+                    setState(() {
+                      strPrice = val;
+                    });
+                  },
+                ),
+              ],
             ),
           ),
         ),

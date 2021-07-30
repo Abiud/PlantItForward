@@ -5,6 +5,8 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:plant_it_forward/Models/UserData.dart';
 import 'package:plant_it_forward/config.dart';
+import 'package:plant_it_forward/screens/home/Admin/Users/editUser.dart';
+import 'package:plant_it_forward/widgets/produce_search.dart';
 import 'package:plant_it_forward/widgets/user_card.dart';
 
 class UsersView extends StatefulWidget {
@@ -38,8 +40,8 @@ class _UsersViewState extends State<UsersView> {
 
   @override
   void dispose() {
-    _scrollController.dispose();
     _userController.close();
+    _scrollController.dispose();
     super.dispose();
   }
 
@@ -81,13 +83,12 @@ class _UsersViewState extends State<UsersView> {
               <DocumentSnapshot>[],
               (initialValue, pageItems) => initialValue..addAll(pageItems));
 
-          _userController.add(allChats);
+          if (!_userController.isClosed) _userController.add(allChats);
 
           if (currentRequestIndex == _allPagedResults.length - 1) {
             _lastDocument = snapshot.docs.last;
           }
           _hasMoreData = moreUsers.length == userLimit;
-          if (!_hasMoreData) setState(() {});
         } else {
           setState(() {
             _hasMoreData = false;
@@ -118,9 +119,15 @@ class _UsersViewState extends State<UsersView> {
                           onSurface: Colors.white,
                           padding: EdgeInsets.symmetric(
                               horizontal: 12, vertical: 8)),
-                      onPressed: () {},
-                      // onPressed: () => showSearch(
-                      //     context: context, delegate: ProduceSearch()),
+                      onPressed: () => showSearch(
+                          context: context,
+                          delegate: ItemSearch(
+                              indexName: "AppUsers",
+                              navFunction: (String id) => Navigator.push(
+                                  context,
+                                  CupertinoPageRoute(
+                                      builder: (context) =>
+                                          EditUser(userId: id))))),
                       label: Text("Search"),
                       icon: Icon(Icons.search)),
                 ],
