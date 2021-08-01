@@ -14,8 +14,8 @@ class Register extends StatefulWidget {
 }
 
 class _RegisterState extends State<Register> {
-  final AuthService _auth = AuthService();
   final _formKey = GlobalKey<FormState>();
+  final AuthService _auth = AuthService();
   bool loading = false;
   // text field state
   String name = '';

@@ -1,14 +1,12 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:plant_it_forward/Models/AppUser.dart';
 import 'package:plant_it_forward/Models/Convo.dart';
 import 'package:plant_it_forward/Models/UserData.dart';
 import 'package:plant_it_forward/config.dart';
 import 'package:plant_it_forward/screens/home/Chat/addChat.dart';
 import 'package:plant_it_forward/screens/home/Chat/allConvos.dart';
-import 'package:plant_it_forward/services/auth.dart';
 import 'package:plant_it_forward/services/chat.dart';
-import 'package:plant_it_forward/widgets/provider_widget.dart'
-    as ProviderWidget;
 import 'package:provider/provider.dart';
 
 class Chat extends StatefulWidget {
@@ -23,16 +21,12 @@ class _ChatState extends State<Chat> {
 
   @override
   Widget build(BuildContext context) {
-    final AuthService auth = ProviderWidget.Provider.of(context)!.auth;
-    // final DatabaseService db = ProviderWidget.Provider.of(context)!.db;
-
     return Scaffold(
         appBar: AppBar(
           backgroundColor: secondaryBlue,
           title: Text('Chat'),
           actions: [
-            if (ProviderWidget.Provider.of(context)!.auth.currentUser!.role ==
-                'admin')
+            if (Provider.of<UserData>(context).isAdmin())
               IconButton(
                 onPressed: () => Navigator.push(context,
                     CupertinoPageRoute(builder: (context) => AddChat())),
@@ -42,7 +36,8 @@ class _ChatState extends State<Chat> {
         ),
         body: StreamProvider<List<Convo>>.value(
             initialData: [],
-            value: chatService.streamConversations(auth.currentUser!.id),
+            value: chatService
+                .streamConversations(Provider.of<AppUser?>(context)!.uid),
             child: ConversationDetailsProvider()));
   }
 }
@@ -56,20 +51,22 @@ class ConversationDetailsProvider extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final AuthService auth = ProviderWidget.Provider.of(context)!.auth;
-
     return StreamProvider<List<UserData>>.value(
         value: ChatService.getUsersByList(
-            getUserIds(Provider.of<List<Convo>>(context), auth)),
+            getUserIds(Provider.of<List<Convo>>(context), context)),
         initialData: [],
+        catchError: (_, err) {
+          print(err.toString());
+          return [];
+        },
         child: AllConvos());
   }
 
-  List<String> getUserIds(List<Convo> _convos, AuthService auth) {
+  List<String> getUserIds(List<Convo> _convos, BuildContext context) {
     final List<String> users = <String>[];
     if (_convos.length > 0) {
       for (Convo c in _convos) {
-        c.userIds[0] != auth.currentUser!.id
+        c.userIds[0] != Provider.of<AppUser?>(context)!.uid
             ? users.add(c.userIds[0])
             : users.add(c.userIds[1]);
       }

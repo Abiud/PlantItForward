@@ -2,13 +2,25 @@ import 'dart:io';
 
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:device_info/device_info.dart';
+import 'package:flutter/material.dart';
 import 'package:package_info/package_info.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:plant_it_forward/Models/UserData.dart';
+import 'package:plant_it_forward/Models/AppUser.dart';
 
-class AuthService {
+class AuthService with ChangeNotifier {
   final FirebaseAuth _auth = FirebaseAuth.instance;
-  UserData? currentUser;
+  String? role;
+  // AuthResultStatus _authStatus;
+
+  Stream<AppUser?> get appUser {
+    return _auth.userChanges().map(_appUserFromFirebaseUser);
+  }
+
+  AppUser? _appUserFromFirebaseUser(User? user) {
+    return user != null
+        ? AppUser(uid: user.uid, emailVerified: user.emailVerified)
+        : null;
+  }
 
   Stream<String?> get onAuthStateChanged =>
       _auth.authStateChanges().map((User? user) => user?.uid);
@@ -23,15 +35,13 @@ class AuthService {
     return _auth.currentUser;
   }
 
-  Future setCurrentUser(String uid) async {
-    print("setting temporal user");
-    await FirebaseFirestore.instance
-        .collection("users")
-        .doc(uid)
-        .get()
-        .then((res) {
-      currentUser = UserData.fromSnapshot(res);
-    });
+  Future<Map<String, dynamic>> get claims async {
+    final user = _auth.currentUser;
+    final token = await user!.getIdTokenResult(true);
+    final claims = token.claims;
+    final String? roleClaim = claims?['role'];
+    role = roleClaim ?? 'volunteeer';
+    return Future.value(claims);
   }
 
   // sign in email
@@ -55,18 +65,19 @@ class AuthService {
           email: email, password: password);
       User? user = result.user;
 
+      // Create User, set role as volunteer, cloud function makes sure
+      // the user can't change this.
       Map<String, dynamic> userData = {
         "name": name,
         "email": user!.email,
         "created_at": user.metadata.creationTime!.millisecondsSinceEpoch,
-        "role": "user",
         "id": user.uid
       };
 
       await FirebaseFirestore.instance
           .collection("users")
           .doc(user.uid)
-          .set(userData);
+          .set(userData, SetOptions(merge: true));
 
       return user;
     } catch (e) {
@@ -75,10 +86,11 @@ class AuthService {
     }
   }
 
-  // sign out
-  Future signOut() async {
+  Future<void> signOut() async {
     try {
-      return await _auth.signOut();
+      await _auth.signOut();
+      notifyListeners();
+      return null;
     } catch (e) {
       print(e.toString());
       return null;

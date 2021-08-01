@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:bubble/bubble.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
@@ -8,7 +10,7 @@ import 'package:plant_it_forward/config.dart';
 import 'package:plant_it_forward/helperFunctions.dart';
 import 'package:plant_it_forward/screens/home/Profile/viewProfile.dart';
 import 'package:plant_it_forward/shared/ui_helpers.dart';
-import 'package:plant_it_forward/widgets/provider_widget.dart';
+import 'package:provider/provider.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 
 class ConvScreen extends StatefulWidget {
@@ -29,6 +31,14 @@ class _ConvScreenState extends State<ConvScreen> {
   List<Message> selectedDocs = [];
   Message? msgToEdit;
   String? tappedMessage;
+  int totalFetched = 0;
+
+  final StreamController<List<DocumentSnapshot>> _messagesController =
+      StreamController<List<DocumentSnapshot>>.broadcast();
+  List<List<DocumentSnapshot>> _allPagedResults = [<DocumentSnapshot>[]];
+  static const int messageLimit = 20;
+  DocumentSnapshot? _lastDocument;
+  bool _hasMoreData = true;
 
   @override
   void initState() {
@@ -36,6 +46,10 @@ class _ConvScreenState extends State<ConvScreen> {
     userID = widget.userID;
     convoID = widget.convoID;
     contact = widget.contact;
+    itemPositionsListener.itemPositions.addListener(() {
+      if (itemPositionsListener.itemPositions.value.last.index ==
+          totalFetched - 1) _getMessages();
+    });
   }
 
   final TextEditingController textEditingController = TextEditingController();
@@ -45,8 +59,68 @@ class _ConvScreenState extends State<ConvScreen> {
 
   @override
   void dispose() {
-    super.dispose();
     textEditingController.dispose();
+    _messagesController.close();
+    itemPositionsListener.itemPositions.removeListener(() {});
+    super.dispose();
+  }
+
+  Stream<List<DocumentSnapshot>> listenToMessagesRealTime() {
+    _getMessages();
+    return _messagesController.stream;
+  }
+
+  void _getMessages() {
+    if (!_hasMoreData) {
+      return;
+    }
+    print("fetching.....");
+    final CollectionReference _produceCollectionReference = FirebaseFirestore
+        .instance
+        .collection("messages")
+        .doc(convoID)
+        .collection(convoID);
+    var pagechatQuery = _produceCollectionReference
+        .orderBy('timestamp', descending: true)
+        .limit(20);
+    if (_lastDocument != null) {
+      pagechatQuery = pagechatQuery.startAfterDocument(_lastDocument!);
+    }
+
+    var currentRequestIndex = _allPagedResults.length;
+    pagechatQuery.snapshots().listen(
+      (snapshot) {
+        if (snapshot.docs.isNotEmpty) {
+          var moreProduce = snapshot.docs.toList();
+
+          var pageExists = currentRequestIndex < _allPagedResults.length;
+
+          if (pageExists) {
+            _allPagedResults[currentRequestIndex] = moreProduce;
+          } else {
+            _allPagedResults.add(moreProduce);
+          }
+
+          var allChats = _allPagedResults.fold<List<DocumentSnapshot>>(
+              <DocumentSnapshot>[],
+              (initialValue, pageItems) => initialValue..addAll(pageItems));
+
+          totalFetched = allChats.length;
+
+          if (!_messagesController.isClosed) _messagesController.add(allChats);
+
+          if (currentRequestIndex == _allPagedResults.length - 1) {
+            _lastDocument = snapshot.docs.last;
+          }
+          _hasMoreData = moreProduce.length == messageLimit;
+        } else {
+          if (mounted)
+            setState(() {
+              _hasMoreData = false;
+            });
+        }
+      },
+    );
   }
 
   @override
@@ -319,37 +393,95 @@ class _ConvScreenState extends State<ConvScreen> {
 
   Widget buildMessages() {
     return Flexible(
-      child: StreamBuilder(
-        stream: FirebaseFirestore.instance
-            .collection('messages')
-            .doc(convoID)
-            .collection(convoID)
-            .orderBy('timestamp', descending: true)
-            .limit(20)
-            .snapshots(),
-        builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
-          if (snapshot.hasData) {
-            return ScrollablePositionedList.builder(
-              padding: const EdgeInsets.symmetric(vertical: 10.0),
-              itemBuilder: (BuildContext context, int index) {
-                int idx = index >= 0 ? index : 0;
-                Message msg = Message.fromMap(
-                    snapshot.data!.docs[idx].data() as Map<String, dynamic>,
-                    snapshot.data!.docs[idx].id,
-                    snapshot.data!.docs[idx].reference,
-                    idx);
-                return buildItem(idx, msg);
-              },
-              itemCount: snapshot.data!.docs.length,
-              reverse: true,
-              itemScrollController: itemScrollController,
-              itemPositionsListener: itemPositionsListener,
-            );
+      child: StreamBuilder<List<DocumentSnapshot>>(
+        stream: listenToMessagesRealTime(),
+        builder: (BuildContext context, messageSnapshot) {
+          if (messageSnapshot.connectionState == ConnectionState.waiting ||
+              messageSnapshot.connectionState == ConnectionState.none) {
+            return messageSnapshot.hasData
+                ? Center(
+                    child: CircularProgressIndicator(),
+                  )
+                : Center(
+                    child: Text("No Messages found."),
+                  );
           } else {
-            return Container();
+            if (messageSnapshot.hasData) {
+              final messageDocs = messageSnapshot.data!;
+              return Column(children: [
+                if (messageDocs.length >= messageLimit && _hasMoreData)
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 12),
+                    child: Center(child: CircularProgressIndicator()),
+                  )
+                else if (!_hasMoreData)
+                  Center(
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                      child: Text(
+                        "End of list.",
+                        style: TextStyle(color: Colors.grey.shade700),
+                      ),
+                    ),
+                  ),
+                Expanded(
+                  child: ScrollablePositionedList.builder(
+                    padding: const EdgeInsets.symmetric(vertical: 10.0),
+                    physics: ScrollPhysics(),
+                    itemBuilder: (BuildContext context, int index) {
+                      int idx = index >= 0 ? index : 0;
+                      Message msg = Message.fromMap(
+                          messageDocs[idx].data() as Map<String, dynamic>,
+                          messageDocs[idx].id,
+                          messageDocs[idx].reference,
+                          idx);
+                      return buildItem(idx, msg);
+                    },
+                    itemCount: messageSnapshot.data!.length,
+                    reverse: true,
+                    itemScrollController: itemScrollController,
+                    itemPositionsListener: itemPositionsListener,
+                  ),
+                ),
+              ]);
+            }
+            return Center(
+              child: CircularProgressIndicator(),
+            );
           }
         },
       ),
+      // StreamBuilder(
+      // stream: FirebaseFirestore.instance
+      //     .collection('messages')
+      //     .doc(convoID)
+      //     .collection(convoID)
+      //     .orderBy('timestamp', descending: true)
+      //     .limit(20)
+      //     .snapshots(),
+      //   builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
+      //     if (snapshot.hasData) {
+      // return ScrollablePositionedList.builder(
+      //   padding: const EdgeInsets.symmetric(vertical: 10.0),
+      //   itemBuilder: (BuildContext context, int index) {
+      //     int idx = index >= 0 ? index : 0;
+      //     Message msg = Message.fromMap(
+      //         snapshot.data!.docs[idx].data() as Map<String, dynamic>,
+      //         snapshot.data!.docs[idx].id,
+      //         snapshot.data!.docs[idx].reference,
+      //         idx);
+      //     return buildItem(idx, msg);
+      //   },
+      //   itemCount: snapshot.data!.docs.length,
+      //   reverse: true,
+      //   itemScrollController: itemScrollController,
+      //   itemPositionsListener: itemPositionsListener,
+      // );
+      //     } else {
+      //       return Container();
+      //     }
+      //   },
+      // ),
     );
   }
 
@@ -551,7 +683,6 @@ class _ConvScreenState extends State<ConvScreen> {
 
   void updateMessageRead(Message msg, String convoID) {
     // check
-    print("updating");
     FirebaseFirestore.instance
         .collection('messages')
         .doc(convoID)
@@ -614,6 +745,6 @@ class _ConvScreenState extends State<ConvScreen> {
   }
 
   bool canEliminateAllMessages() {
-    return selectMode && Provider.of(context)!.auth.currentUser!.isAdmin();
+    return selectMode && Provider.of<UserData>(context).isAdmin();
   }
 }

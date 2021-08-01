@@ -5,11 +5,9 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:plant_it_forward/Models/CalEvent.dart';
 import 'package:plant_it_forward/Models/UserData.dart';
-import 'package:plant_it_forward/config.dart';
-import 'package:plant_it_forward/services/auth.dart';
 import 'package:plant_it_forward/shared/shared_styles.dart';
 import 'package:plant_it_forward/shared/ui_helpers.dart';
-import 'package:plant_it_forward/widgets/provider_widget.dart';
+import 'package:provider/provider.dart';
 
 class EditEvent extends StatefulWidget {
   final CalEvent calEvent;
@@ -352,7 +350,6 @@ class _EditEventState extends State<EditEvent> {
   Future editEvent(context) async {
     final eventDoc =
         FirebaseFirestore.instance.collection('events').doc(widget.calEvent.id);
-    final AuthService auth = Provider.of(context)!.auth;
 
     return await eventDoc.update({
       "startDateTime": DateTime(
@@ -368,7 +365,7 @@ class _EditEventState extends State<EditEvent> {
           selectedDateStart.day),
       "title": widget.calEvent.title,
       "description": widget.calEvent.description,
-      "userId": auth.currentUser!.id,
+      "userId": Provider.of<UserData>(context).id,
     });
   }
 }

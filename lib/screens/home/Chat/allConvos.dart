@@ -7,8 +7,6 @@ import 'package:plant_it_forward/helperFunctions.dart';
 import 'package:plant_it_forward/screens/home/Chat/addChat.dart';
 import 'package:plant_it_forward/screens/home/Chat/convScreen.dart';
 import 'package:plant_it_forward/shared/ui_helpers.dart';
-import 'package:plant_it_forward/widgets/provider_widget.dart'
-    as ProviderWidget;
 import 'package:provider/provider.dart';
 
 class AllConvos extends StatelessWidget {
@@ -16,17 +14,16 @@ class AllConvos extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final UserData user =
-        ProviderWidget.Provider.of(context)!.auth.currentUser!;
     final List<Convo> _convos = Provider.of<List<Convo>>(context);
     final List<UserData> _users = Provider.of<List<UserData>>(context);
-
+    // last stream not getting _users because of this?
     return _convos.length > 0 && _users.length > 0
         ? Scaffold(
             body: ListView(
               scrollDirection: Axis.vertical,
               shrinkWrap: true,
-              children: getWidgets(context, user, _convos, _users),
+              children: getWidgets(
+                  context, Provider.of<UserData>(context), _convos, _users),
             ),
           )
         : Center(
@@ -52,20 +49,18 @@ class AllConvos extends StatelessWidget {
   List<Widget> getWidgets(BuildContext context, UserData user,
       List<Convo> _convos, List<UserData> _users) {
     final List<Widget> list = <Widget>[];
-    if (_convos != null && _users != null && user != null) {
-      final Map<String, UserData> userMap = getUserMap(_users);
-      for (Convo c in _convos) {
-        if (c.userIds[0] == user.id) {
-          list.add(ConvoListItem(
-              user: user,
-              peer: userMap[c.userIds[1]]!,
-              lastMessage: c.lastMessage));
-        } else {
-          list.add(ConvoListItem(
-              user: user,
-              peer: userMap[c.userIds[0]]!,
-              lastMessage: c.lastMessage));
-        }
+    final Map<String, UserData> userMap = getUserMap(_users);
+    for (Convo c in _convos) {
+      if (c.userIds[0] == user.id) {
+        list.add(ConvoListItem(
+            user: user,
+            peer: userMap[c.userIds[1]]!,
+            lastMessage: c.lastMessage));
+      } else {
+        list.add(ConvoListItem(
+            user: user,
+            peer: userMap[c.userIds[0]]!,
+            lastMessage: c.lastMessage));
       }
     }
 

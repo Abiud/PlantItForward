@@ -4,6 +4,10 @@ import 'package:plant_it_forward/Models/UserData.dart';
 class DatabaseService {
   final String uid;
   DatabaseService({required this.uid});
+
+  final CollectionReference _userCollection =
+      FirebaseFirestore.instance.collection("users");
+
   // Collection reference
   final CollectionReference itemCollection =
       FirebaseFirestore.instance.collection("items");
@@ -18,6 +22,14 @@ class DatabaseService {
       FirebaseFirestore.instance.collection("events");
 
   final FirebaseFirestore _db = FirebaseFirestore.instance;
+
+  Stream<UserData> get profile {
+    return _userCollection.doc(uid).snapshots().map(_profileFromSnapshot);
+  }
+
+  UserData _profileFromSnapshot(DocumentSnapshot snapshot) {
+    return UserData.fromSnapshot(snapshot);
+  }
 
   Future updateUserData(String sugars, String name, int strength) async {
     return await itemCollection

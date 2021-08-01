@@ -1,7 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class Convo {
-  Map<dynamic, dynamic> lastMessage;
+  Map<String, dynamic> lastMessage;
   List<dynamic> users;
 
   Convo({required this.lastMessage, required this.users});

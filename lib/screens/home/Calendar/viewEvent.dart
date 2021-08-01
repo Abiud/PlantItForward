@@ -7,10 +7,11 @@ import 'package:plant_it_forward/Models/UserData.dart';
 import 'package:plant_it_forward/config.dart';
 import 'package:plant_it_forward/screens/home/Calendar/editEvent.dart';
 import 'package:plant_it_forward/screens/home/Profile/viewProfile.dart';
+import 'package:plant_it_forward/services/database.dart';
 import 'package:plant_it_forward/shared/ui_helpers.dart';
 import 'package:plant_it_forward/theme/colors.dart';
-import 'package:plant_it_forward/widgets/provider_widget.dart';
 import 'package:plant_it_forward/widgets/task_column.dart';
+import 'package:provider/provider.dart';
 
 class ViewEvent extends StatefulWidget {
   final CalEvent calEvent;
@@ -144,7 +145,7 @@ class _ViewEventState extends State<ViewEvent> {
                                 ),
                                 onPressed: () {},
                               ),
-                              if (Provider.of(context)!.auth.currentUser!.id ==
+                              if (Provider.of<UserData>(context).id ==
                                   event.userId) ...[
                                 horizontalSpaceSmall,
                                 TextButton.icon(
@@ -193,12 +194,23 @@ class _ViewEventState extends State<ViewEvent> {
                                 'This event was marked as in need of volunteers.',
                           ),
                           verticalSpaceSmall,
-                          Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 4),
-                            child: Align(
-                                alignment: Alignment.centerRight,
-                                child: getVolunteerRegistrationButton(context)),
-                          )
+                          StreamBuilder<UserData>(
+                              stream: DatabaseService(
+                                      uid: Provider.of<UserData>(context).id)
+                                  .profile,
+                              builder: (context, snapshot) {
+                                if (snapshot.hasData)
+                                  return Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 4),
+                                    child: Align(
+                                        alignment: Alignment.centerRight,
+                                        child: getVolunteerRegistrationButton(
+                                            context, snapshot.data!)),
+                                  );
+                                else
+                                  return Container();
+                              }),
                         ],
                         if (event.volunteers != null) ...[
                           verticalSpaceTiny,
@@ -248,8 +260,7 @@ class _ViewEventState extends State<ViewEvent> {
     );
   }
 
-  Future registerVolunteer(BuildContext context) async {
-    UserData user = Provider.of(context)!.auth.currentUser!;
+  Future registerVolunteer(BuildContext context, UserData user) async {
     return await FirebaseFirestore.instance
         .collection("events")
         .doc(event.id)
@@ -260,8 +271,7 @@ class _ViewEventState extends State<ViewEvent> {
     });
   }
 
-  Future removeVolunteer(BuildContext context) async {
-    UserData user = Provider.of(context)!.auth.currentUser!;
+  Future removeVolunteer(BuildContext context, UserData user) async {
     final idx =
         event.volunteers!.indexWhere((element) => element.id == user.id);
     if (idx < 0) return Future.error("User not found in calEvent list");
@@ -276,7 +286,7 @@ class _ViewEventState extends State<ViewEvent> {
     });
   }
 
-  Widget getVolunteerRegistrationButton(BuildContext context) {
+  Widget getVolunteerRegistrationButton(BuildContext context, UserData user) {
     Widget registerButton = TextButton.icon(
       style: TextButton.styleFrom(
           primary: secondaryBlue,
@@ -284,9 +294,10 @@ class _ViewEventState extends State<ViewEvent> {
           backgroundColor: Colors.white,
           onSurface: Colors.white,
           padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8)),
-      onPressed: () => registerVolunteer(context).then((value) => setState(() {
-            event.volunteers!.add(Provider.of(context)!.auth.currentUser!);
-          })),
+      onPressed: () =>
+          registerVolunteer(context, user).then((value) => setState(() {
+                event.volunteers!.add(user);
+              })),
       label: Text("I want to volunteer!"),
       icon: Icon(Icons.emoji_people),
     );
@@ -297,18 +308,18 @@ class _ViewEventState extends State<ViewEvent> {
           backgroundColor: Colors.white,
           onSurface: Colors.white,
           padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8)),
-      onPressed: () => removeVolunteer(context).then((value) => setState(() {
-            event.volunteers!.removeWhere((element) =>
-                element.id == Provider.of(context)!.auth.currentUser!.id);
-          })),
+      onPressed: () =>
+          removeVolunteer(context, user).then((value) => setState(() {
+                event.volunteers!
+                    .removeWhere((element) => element.id == user.id);
+              })),
       label: Text("Remove from list!"),
       icon: Icon(Icons.remove),
     );
     if (event.volunteers == null) return registerButton;
     if (event.volunteers!.isEmpty) return registerButton;
     for (UserData item in event.volunteers!) {
-      if (item.id == Provider.of(context)!.auth.currentUser!.id)
-        return removeButton;
+      if (item.id == user.id) return removeButton;
     }
     return registerButton;
   }

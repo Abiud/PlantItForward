@@ -11,7 +11,7 @@ import 'package:plant_it_forward/config.dart';
 import 'package:plant_it_forward/shared/shared_styles.dart';
 import 'package:plant_it_forward/shared/ui_helpers.dart';
 import 'package:plant_it_forward/theme/colors.dart';
-import 'package:plant_it_forward/widgets/provider_widget.dart';
+import 'package:provider/provider.dart';
 
 class EditProfile extends StatefulWidget {
   final UserData profile;
@@ -42,27 +42,26 @@ class _EditProfileState extends State<EditProfile> {
   Future<String?> uploadImageToFirebase(BuildContext context) async {
     if (_imageFile == null) return null;
     String fileName = basename(_imageFile!.path);
-    Reference firebaseStorageRef = FirebaseStorage.instance
-        .ref()
-        .child("users")
-        .child(Provider.of(context)!.auth.currentUser!.id)
-        .child("avatar")
-        .child(fileName);
+    FirebaseStorage storage = FirebaseStorage.instance;
+    String uid = widget.profile.id;
+    Reference firebaseStorageRef =
+        storage.ref().child("users").child(uid).child("avatar").child(fileName);
     await firebaseStorageRef.putFile(_imageFile!);
     String? downloadUrl;
-    // await taskSnapshot.ref
-    //     .getDownloadURL()
-    //     .then((value) => downloadUrl = value);
     String? resImg = fileName.substring(0, fileName.indexOf("."));
-    Reference resizeImg = FirebaseStorage.instance
+    Reference resizeImg = storage
         .ref()
         .child("users")
-        .child(Provider.of(context)!.auth.currentUser!.id)
+        .child(uid)
         .child("avatar")
         .child(resImg + "_200x200.webp");
     await Future.delayed(const Duration(seconds: 5), () {});
-    await resizeImg.getDownloadURL().then((value) => downloadUrl = value);
-    Provider.of(context)!.auth.currentUser!.photoUrl = downloadUrl;
+    await resizeImg.getDownloadURL().then((value) {
+      downloadUrl = value;
+      if (widget.profile.photoUrl != null)
+        storage.refFromURL(widget.profile.photoUrl!).delete();
+    });
+    widget.profile.photoUrl = downloadUrl;
     return downloadUrl;
   }
 

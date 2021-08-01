@@ -2,13 +2,14 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:plant_it_forward/Models/AppUser.dart';
+import 'package:plant_it_forward/Models/UserData.dart';
 import 'package:plant_it_forward/config.dart';
-import 'package:plant_it_forward/services/database.dart';
-import 'package:plant_it_forward/widgets/provider_widget.dart';
 import 'package:plant_it_forward/screens/authenticate/authenticate.dart';
-import 'package:plant_it_forward/screens/home/home.dart';
+import 'package:plant_it_forward/screens/home/nav_wrapper.dart';
 import 'package:plant_it_forward/services/auth.dart';
-import 'package:plant_it_forward/shared/loading.dart';
+import 'package:plant_it_forward/services/database.dart';
+import 'package:provider/provider.dart';
 
 void main() async {
   SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
@@ -24,9 +25,12 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     SystemChrome.setPreferredOrientations(
         [DeviceOrientation.portraitUp, DeviceOrientation.portraitDown]);
-    return Provider(
-      auth: AuthService(),
-      db: DatabaseService(uid: ""),
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => AuthService()),
+        StreamProvider<AppUser?>.value(
+            value: AuthService().appUser, initialData: null)
+      ],
       child: MaterialApp(
         title: "Plant It Forward",
         theme: ThemeData(
@@ -51,27 +55,15 @@ class Wrapper extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final AuthService auth = Provider.of(context)!.auth;
-    return StreamBuilder<String?>(
-      stream: auth.onAuthStateChanged,
-      builder: (context, AsyncSnapshot<String?> snapshot) {
-        if (snapshot.connectionState == ConnectionState.active) {
-          final bool signedIn = snapshot.hasData;
-          if (signedIn) {
-            return FutureBuilder(
-                future: auth.setCurrentUser(snapshot.data!),
-                builder: (context, snapshot) {
-                  if (auth.currentUser != null) {
-                    return Home();
-                  } else {
-                    return Loading();
-                  }
-                });
-          }
-          return Authenticate();
-        }
-        return Loading();
-      },
-    );
+    final AppUser? user = Provider.of<AppUser?>(context);
+    if (user == null) {
+      return Authenticate();
+    } else {
+      return StreamProvider<UserData>.value(
+        initialData: UserData(id: user.uid, name: ""),
+        value: DatabaseService(uid: user.uid).profile,
+        child: NavWrapper(),
+      );
+    }
   }
 }

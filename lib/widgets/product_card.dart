@@ -5,18 +5,11 @@ import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:plant_it_forward/Models/Product.dart';
 import 'package:plant_it_forward/config.dart';
 import 'package:plant_it_forward/screens/home/Produce/product_view.dart';
+import 'package:plant_it_forward/services/auth.dart';
 import 'package:plant_it_forward/shared/ui_helpers.dart';
-import 'package:plant_it_forward/widgets/provider_widget.dart';
+import 'package:provider/provider.dart';
 
-Widget buildProductCard(BuildContext context, DocumentSnapshot document) {
-  final product = Product.fromSnapshot(document);
-
-  if (Provider.of(context)!.auth.currentUser!.isAdmin())
-    return cardWithOptions(context, product);
-  return cardDefault(context, product);
-}
-
-Widget cardDefault(BuildContext context, Product product) {
+Widget productCardDefault(BuildContext context, Product product) {
   return Container(
     child: Card(
       elevation: 2,
@@ -32,7 +25,7 @@ Widget cardDefault(BuildContext context, Product product) {
         },
         child: Stack(children: [
           Container(
-            height: double.infinity,
+            height: 80,
             width: 5,
             color: secondaryBlue,
           ),
@@ -78,7 +71,7 @@ Widget cardDefault(BuildContext context, Product product) {
   );
 }
 
-Widget cardWithOptions(BuildContext context, Product product) {
+Widget productCardWithOptions(BuildContext context, Product product) {
   return Slidable(
     actionPane: SlidableDrawerActionPane(),
     actionExtentRatio: 0.25,

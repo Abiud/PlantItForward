@@ -4,12 +4,15 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+import 'package:plant_it_forward/Models/Product.dart';
 import 'package:plant_it_forward/config.dart';
 import 'package:plant_it_forward/screens/home/Produce/new_product_view.dart';
 import 'package:plant_it_forward/screens/home/Produce/product_view.dart';
+import 'package:plant_it_forward/services/auth.dart';
 import 'package:plant_it_forward/shared/ui_helpers.dart';
 import 'package:plant_it_forward/widgets/produce_search.dart';
 import 'package:plant_it_forward/widgets/product_card.dart';
+import 'package:provider/provider.dart';
 
 class Price extends StatefulWidget {
   Price({Key? key}) : super(key: key);
@@ -173,7 +176,8 @@ class _PriceState extends State<Price> {
                             shrinkWrap: true,
                             itemCount: produceDocs.length,
                             itemBuilder: (BuildContext context, int index) =>
-                                buildProductCard(context, produceDocs[index])),
+                                productCardDefault(context,
+                                    Product.fromSnapshot(produceDocs[index]))),
                         if (produceDocs.length >= produceLimit && _hasMoreData)
                           Padding(
                             padding: const EdgeInsets.symmetric(horizontal: 12),

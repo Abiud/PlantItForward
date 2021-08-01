@@ -208,6 +208,21 @@ class _EditUserState extends State<EditUser> {
                                             value: e,
                                           );
                                         }).toList()),
+                                  verticalSpaceMedium,
+                                  Row(
+                                    children: [
+                                      Text(
+                                        "Email: ",
+                                        style: TextStyle(
+                                            color: Colors.grey.shade600,
+                                            fontSize: 16),
+                                      ),
+                                      Text(
+                                        item.email!,
+                                        style: TextStyle(fontSize: 16),
+                                      ),
+                                    ],
+                                  )
                                 ],
                               ),
                             ),

@@ -10,9 +10,9 @@ class ChatService {
         .orderBy('lastMessage.timestamp', descending: true)
         .where('users', arrayContains: uid)
         .snapshots()
-        .map((QuerySnapshot list) => list.docs
-            .map((DocumentSnapshot doc) => Convo.fromSnapshot(doc))
-            .toList());
+        .map((QuerySnapshot list) => list.docs.map((DocumentSnapshot doc) {
+              return Convo.fromSnapshot(doc);
+            }).toList());
   }
 
   static Stream<List<UserData>> getUsersByList(List<String> userIds) {

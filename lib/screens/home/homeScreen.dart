@@ -1,15 +1,18 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
+import 'package:plant_it_forward/Models/UserData.dart';
 import 'package:plant_it_forward/config.dart';
 import 'package:plant_it_forward/helperFunctions.dart';
 import 'package:plant_it_forward/screens/home/Profile/editProfile.dart';
 import 'package:plant_it_forward/screens/home/Settings/settings.dart';
 import 'package:plant_it_forward/services/auth.dart';
+import 'package:plant_it_forward/services/database.dart';
 import 'package:plant_it_forward/shared/ClippedParts.dart';
+import 'package:plant_it_forward/shared/loading.dart';
 import 'package:plant_it_forward/shared/ui_helpers.dart';
 import 'package:plant_it_forward/theme/colors.dart';
-import 'package:plant_it_forward/widgets/provider_widget.dart';
+import 'package:provider/provider.dart';
 
 class HomeScreen extends StatefulWidget {
   HomeScreen({Key? key}) : super(key: key);
@@ -57,29 +60,23 @@ class _HomeScreenState extends State<HomeScreen> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
-                Provider.of(context)!.auth.currentUser!.photoUrl != null
+                Provider.of<UserData>(context).photoUrl != null
                     ? GestureDetector(
                         onTap: () =>
                             Navigator.of(context).push(MaterialPageRoute(
                                 builder: (BuildContext context) => EditProfile(
-                                      profile: Provider.of(context)!
-                                          .auth
-                                          .currentUser!,
+                                      profile: Provider.of<UserData>(context),
                                     ))),
                         child: CircleAvatar(
                             radius: 20,
-                            backgroundImage: NetworkImage(Provider.of(context)!
-                                .auth
-                                .currentUser!
-                                .photoUrl!)),
+                            backgroundImage: NetworkImage(
+                                Provider.of<UserData>(context).photoUrl!)),
                       )
                     : IconButton(
                         onPressed: () =>
                             Navigator.of(context).push(MaterialPageRoute(
                                 builder: (BuildContext context) => EditProfile(
-                                      profile: Provider.of(context)!
-                                          .auth
-                                          .currentUser!,
+                                      profile: Provider.of<UserData>(context),
                                     ))),
                         icon: Icon(
                           Icons.person,
@@ -189,6 +186,7 @@ class ModalFit extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final AuthService _auth = AuthService();
     return Material(
         child: Column(
       mainAxisSize: MainAxisSize.min,
@@ -204,8 +202,8 @@ class ModalFit extends StatelessWidget {
         ListTile(
           title: Text('Log out'),
           leading: Icon(Icons.logout),
-          onTap: () => AuthService().signOut(),
-        ),
+          onTap: () => _auth.signOut(),
+        )
       ],
     ));
   }

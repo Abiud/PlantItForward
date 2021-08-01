@@ -1,9 +1,9 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:plant_it_forward/config.dart';
+import 'package:plant_it_forward/services/auth.dart';
 import 'package:plant_it_forward/shared/ClippedParts.dart';
 import 'package:plant_it_forward/widgets/customInputBox.dart';
-import 'package:plant_it_forward/services/auth.dart';
 import 'package:plant_it_forward/shared/loading.dart';
 
 class SignIn extends StatefulWidget {
@@ -15,8 +15,8 @@ class SignIn extends StatefulWidget {
 }
 
 class _SignInState extends State<SignIn> {
-  final AuthService _auth = AuthService();
   final _formKey = GlobalKey<FormState>();
+  final AuthService _auth = AuthService();
   bool loading = false;
 
   // text field state

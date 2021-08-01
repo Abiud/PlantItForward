@@ -1,8 +1,9 @@
 import 'dart:convert';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/material.dart';
 
-class UserData {
+class UserData with ChangeNotifier {
   String name;
   String id;
   String? email;

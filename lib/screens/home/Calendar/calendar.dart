@@ -6,15 +6,15 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:plant_it_forward/Models/CalEvent.dart';
+import 'package:plant_it_forward/Models/UserData.dart';
 import 'package:plant_it_forward/config.dart';
-import 'package:plant_it_forward/helperFunctions.dart';
 import 'package:plant_it_forward/screens/home/Calendar/addEvent.dart';
 import 'package:plant_it_forward/screens/home/Calendar/viewEvent.dart';
 import 'package:plant_it_forward/services/database.dart';
 import 'package:plant_it_forward/shared/loading.dart';
 import 'package:plant_it_forward/shared/ui_helpers.dart';
 import 'package:plant_it_forward/utils.dart';
-import 'package:plant_it_forward/widgets/provider_widget.dart';
+import 'package:provider/provider.dart';
 import 'package:table_calendar/table_calendar.dart';
 
 class CalendarScreen extends StatefulWidget {
@@ -66,14 +66,11 @@ class _CalendarScreenState extends State<CalendarScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final DatabaseService db = Provider.of(context)!.db;
-
     return Scaffold(
       body: SafeArea(
         child: StreamBuilder(
-          stream: db.eventCollection
-              // .where("userId",
-              //     isEqualTo: Provider.of(context)!.auth.currentUser.id)
+          stream: DatabaseService(uid: Provider.of<UserData>(context).id)
+              .eventCollection
               .where("startDate", isGreaterThanOrEqualTo: firstDate)
               .where("startDate", isLessThanOrEqualTo: lastDate)
               .snapshots(),

@@ -3,10 +3,10 @@ import 'package:date_format/date_format.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:plant_it_forward/services/auth.dart';
+import 'package:plant_it_forward/Models/UserData.dart';
 import 'package:plant_it_forward/shared/shared_styles.dart';
 import 'package:plant_it_forward/shared/ui_helpers.dart';
-import 'package:plant_it_forward/widgets/provider_widget.dart';
+import 'package:provider/provider.dart';
 
 class AddEvent extends StatefulWidget {
   const AddEvent({Key? key}) : super(key: key);
@@ -328,7 +328,6 @@ class _AddEventState extends State<AddEvent> {
 
   Future createEvent(context) async {
     final collection = FirebaseFirestore.instance.collection('events');
-    final AuthService auth = Provider.of(context)!.auth;
 
     return await collection.add({
       "startDateTime": DateTime(
@@ -350,7 +349,7 @@ class _AddEventState extends State<AddEvent> {
       "needVolunteers": needVolunteers,
       "title": title,
       "description": description == "" ? null : description,
-      "userId": auth.currentUser!.id,
+      "userId": Provider.of<UserData>(context).id,
     });
   }
 }
