@@ -24,6 +24,7 @@ class _FarmsViewState extends State<FarmsView> {
   static const int farmLimit = 9;
   DocumentSnapshot? _lastDocument;
   bool _hasMoreData = true;
+  int totalFetched = 0;
 
   @override
   void initState() {
@@ -32,7 +33,7 @@ class _FarmsViewState extends State<FarmsView> {
       if (_scrollController.offset >=
               (_scrollController.position.maxScrollExtent) &&
           !_scrollController.position.outOfRange) {
-        _getFarms();
+        _getFarms(scroll: true);
       }
     });
   }
@@ -49,11 +50,14 @@ class _FarmsViewState extends State<FarmsView> {
     return _farmsController.stream;
   }
 
-  void _getFarms() {
+  void _getFarms({bool scroll = false}) {
     if (!_hasMoreData) {
       return;
     }
-
+    if (!scroll && totalFetched > 0) {
+      return;
+    }
+    print("fetching.....");
     final CollectionReference _farmCollectionReference =
         FirebaseFirestore.instance.collection("farms");
     var pagechatQuery = _farmCollectionReference.orderBy('name').limit(9);
@@ -79,6 +83,8 @@ class _FarmsViewState extends State<FarmsView> {
           var allChats = _allPagedResults.fold<List<DocumentSnapshot>>(
               <DocumentSnapshot>[],
               (initialValue, pageItems) => initialValue..addAll(pageItems));
+
+          totalFetched = allChats.length;
 
           if (!_farmsController.isClosed) _farmsController.add(allChats);
 

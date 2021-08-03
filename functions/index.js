@@ -94,6 +94,17 @@ exports.saveCopyOnDelete = functions.firestore
             .add(snapshot.before.data());
     });
 
+exports.weeklyReportHistory = functions.firestore
+    .document("weeklyReports/{docId}")
+    .onUpdate((change, context) => {
+        const previousValue = change.before.data();
+        return admin
+            .firestore()
+            .collection("weeklyReports")
+            .doc(context.params.docId)
+            .collection("history")
+            .add(previousValue);
+    });
 // exports.aggregateProduct = functions.firestore
 //     .document("products/{docId}")
 //     .onCreate(async (change, context) => {

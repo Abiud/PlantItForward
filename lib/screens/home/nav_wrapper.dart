@@ -24,20 +24,18 @@ class _NavWrapperState extends State<NavWrapper> {
       return role;
     }
 
-    return Consumer<AuthService>(builder: (context, auth, child) {
-      return FutureBuilder(
-        future: _getRole(),
-        builder: (context, roleSnapshot) {
-          switch (roleSnapshot.data) {
-            case 'admin':
-              return AdminWrapper();
-            case 'farmer':
-              return FarmerWrapper();
-            default:
-              return VolunteerWrapper();
-          }
-        },
-      );
-    });
+    return FutureBuilder(
+      future: _getRole(),
+      builder: (context, roleSnapshot) {
+        switch (roleSnapshot.data) {
+          case 'admin':
+            return AdminWrapper();
+          case 'farmer':
+            return FarmerWrapper();
+          default:
+            return VolunteerWrapper();
+        }
+      },
+    );
   }
 }

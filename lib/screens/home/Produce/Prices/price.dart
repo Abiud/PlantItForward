@@ -6,13 +6,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:plant_it_forward/Models/Product.dart';
 import 'package:plant_it_forward/config.dart';
-import 'package:plant_it_forward/screens/home/Produce/new_product_view.dart';
-import 'package:plant_it_forward/screens/home/Produce/product_view.dart';
-import 'package:plant_it_forward/services/auth.dart';
+import 'package:plant_it_forward/screens/home/Produce/Prices/new_product_view.dart';
+import 'package:plant_it_forward/screens/home/Produce/Prices/product_view.dart';
 import 'package:plant_it_forward/shared/ui_helpers.dart';
 import 'package:plant_it_forward/widgets/produce_search.dart';
 import 'package:plant_it_forward/widgets/product_card.dart';
-import 'package:provider/provider.dart';
 
 class Price extends StatefulWidget {
   Price({Key? key}) : super(key: key);
@@ -30,6 +28,7 @@ class _PriceState extends State<Price> {
   static const int produceLimit = 9;
   DocumentSnapshot? _lastDocument;
   bool _hasMoreData = true;
+  int totalFetched = 0;
 
   @override
   void initState() {
@@ -38,7 +37,7 @@ class _PriceState extends State<Price> {
       if (_scrollController.offset >=
               (_scrollController.position.maxScrollExtent) &&
           !_scrollController.position.outOfRange) {
-        _getProduce();
+        _getProduce(scroll: true);
       }
     });
   }
@@ -55,8 +54,11 @@ class _PriceState extends State<Price> {
     return _produceController.stream;
   }
 
-  void _getProduce() {
+  void _getProduce({bool scroll = false}) {
     if (!_hasMoreData) {
+      return;
+    }
+    if (!scroll && totalFetched > 0) {
       return;
     }
     print("fetching.....");
@@ -85,6 +87,8 @@ class _PriceState extends State<Price> {
           var allChats = _allPagedResults.fold<List<DocumentSnapshot>>(
               <DocumentSnapshot>[],
               (initialValue, pageItems) => initialValue..addAll(pageItems));
+
+          totalFetched = allChats.length;
 
           if (!_produceController.isClosed) _produceController.add(allChats);
 

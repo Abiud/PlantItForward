@@ -25,6 +25,7 @@ class _UsersViewState extends State<UsersView> {
   static const int userLimit = 9;
   DocumentSnapshot? _lastDocument;
   bool _hasMoreData = true;
+  int totalFetched = 0;
 
   @override
   void initState() {
@@ -33,7 +34,7 @@ class _UsersViewState extends State<UsersView> {
       if (_scrollController.offset >=
               (_scrollController.position.maxScrollExtent) &&
           !_scrollController.position.outOfRange) {
-        _getUsers();
+        _getUsers(scroll: true);
       }
     });
   }
@@ -50,11 +51,13 @@ class _UsersViewState extends State<UsersView> {
     return _userController.stream;
   }
 
-  void _getUsers() {
+  void _getUsers({bool scroll = false}) {
     if (!_hasMoreData) {
       return;
     }
-
+    if (!scroll && totalFetched > 0) {
+      return;
+    }
     print("fetching...");
 
     final CollectionReference _userCollectionReference =
@@ -82,6 +85,8 @@ class _UsersViewState extends State<UsersView> {
           var allChats = _allPagedResults.fold<List<DocumentSnapshot>>(
               <DocumentSnapshot>[],
               (initialValue, pageItems) => initialValue..addAll(pageItems));
+
+          totalFetched = allChats.length;
 
           if (!_userController.isClosed) _userController.add(allChats);
 

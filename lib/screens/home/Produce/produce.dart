@@ -1,8 +1,8 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:plant_it_forward/config.dart';
-import 'package:plant_it_forward/screens/home/Produce/orders.dart';
-import 'package:plant_it_forward/screens/home/Produce/price.dart';
+import 'package:plant_it_forward/screens/home/Produce/Prices/price.dart';
+import 'package:plant_it_forward/screens/home/Produce/WeeklyReport/weekly_report_view.dart';
 
 class Produce extends StatelessWidget {
   @override
@@ -28,7 +28,7 @@ class Produce extends StatelessWidget {
                     Tab(
                       child: Align(
                         alignment: Alignment.center,
-                        child: Text("Orders"),
+                        child: Text("Weekly Report"),
                       ),
                     ),
                     Tab(
@@ -44,7 +44,7 @@ class Produce extends StatelessWidget {
           ),
           body: TabBarView(
             physics: NeverScrollableScrollPhysics(),
-            children: [Orders(), Price()],
+            children: [WeeklyReportView(), Price()],
           ),
         ));
   }

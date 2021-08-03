@@ -28,7 +28,6 @@ class Product {
         'name': name.inCaps,
         'measure': measure,
         'price': price?.minorUnits.toInt(),
-        'searchKeywords': createKeywords(),
         'createdAt': createdAt,
         'updatedAt': updatedAt,
         'quantity': quantity
@@ -50,7 +49,9 @@ class Product {
         name: map['name'],
         measure: map['measure'],
         userId: map['userId'],
-        price: Money.fromInt(map['price'], Currency.create('USD', 2)),
+        price: map['price'] != null
+            ? Money.fromInt(map['price'], Currency.create('USD', 2))
+            : null,
         documentId: map['documentId'],
         createdAt: map['createdAt'],
         updatedAt: map['updatedAt'],
@@ -63,20 +64,11 @@ class Product {
       'name': name.inCaps,
       'measure': measure,
       'price': price?.minorUnits.toInt(),
-      'searchKeywords': createKeywords(),
       'createdAt': createdAt,
       'updatedAt': updatedAt,
-      'quantity': quantity
-    };
-  }
-
-  List createKeywords() {
-    String lowName = name.toLowerCase();
-    List subs = [];
-    for (var i = 1; i <= name.length; i++) {
-      subs.add(lowName.substring(0, i));
-    }
-    return subs;
+      'quantity': quantity,
+      'documentId': documentId
+    }..removeWhere((key, value) => value == null);
   }
 
   String getMeasureUnits() {

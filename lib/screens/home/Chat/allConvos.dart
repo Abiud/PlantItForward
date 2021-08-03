@@ -49,18 +49,20 @@ class AllConvos extends StatelessWidget {
   List<Widget> getWidgets(BuildContext context, UserData user,
       List<Convo> _convos, List<UserData> _users) {
     final List<Widget> list = <Widget>[];
-    final Map<String, UserData> userMap = getUserMap(_users);
-    for (Convo c in _convos) {
-      if (c.userIds[0] == user.id) {
-        list.add(ConvoListItem(
-            user: user,
-            peer: userMap[c.userIds[1]]!,
-            lastMessage: c.lastMessage));
-      } else {
-        list.add(ConvoListItem(
-            user: user,
-            peer: userMap[c.userIds[0]]!,
-            lastMessage: c.lastMessage));
+    if (_users.length > 0) {
+      final Map<String, UserData> userMap = getUserMap(_users);
+      for (Convo c in _convos) {
+        if (c.userIds[0] == user.id) {
+          list.add(ConvoListItem(
+              user: user,
+              peer: userMap[c.userIds[1]]!,
+              lastMessage: c.lastMessage));
+        } else {
+          list.add(ConvoListItem(
+              user: user,
+              peer: userMap[c.userIds[0]]!,
+              lastMessage: c.lastMessage));
+        }
       }
     }
 

@@ -194,23 +194,13 @@ class _ViewEventState extends State<ViewEvent> {
                                 'This event was marked as in need of volunteers.',
                           ),
                           verticalSpaceSmall,
-                          StreamBuilder<UserData>(
-                              stream: DatabaseService(
-                                      uid: Provider.of<UserData>(context).id)
-                                  .profile,
-                              builder: (context, snapshot) {
-                                if (snapshot.hasData)
-                                  return Padding(
-                                    padding: const EdgeInsets.symmetric(
-                                        horizontal: 4),
-                                    child: Align(
-                                        alignment: Alignment.centerRight,
-                                        child: getVolunteerRegistrationButton(
-                                            context, snapshot.data!)),
-                                  );
-                                else
-                                  return Container();
-                              }),
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 4),
+                            child: Align(
+                                alignment: Alignment.centerRight,
+                                child: getVolunteerRegistrationButton(
+                                    context, Provider.of<UserData>(context))),
+                          )
                         ],
                         if (event.volunteers != null) ...[
                           verticalSpaceTiny,
@@ -296,7 +286,10 @@ class _ViewEventState extends State<ViewEvent> {
           padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8)),
       onPressed: () =>
           registerVolunteer(context, user).then((value) => setState(() {
-                event.volunteers!.add(user);
+                if (event.volunteers != null)
+                  event.volunteers!.add(user);
+                else
+                  event.volunteers = [user];
               })),
       label: Text("I want to volunteer!"),
       icon: Icon(Icons.emoji_people),

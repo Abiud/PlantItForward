@@ -31,7 +31,6 @@ class _ConvScreenState extends State<ConvScreen> {
   List<Message> selectedDocs = [];
   Message? msgToEdit;
   String? tappedMessage;
-  int totalFetched = 0;
 
   final StreamController<List<DocumentSnapshot>> _messagesController =
       StreamController<List<DocumentSnapshot>>.broadcast();
@@ -39,6 +38,7 @@ class _ConvScreenState extends State<ConvScreen> {
   static const int messageLimit = 20;
   DocumentSnapshot? _lastDocument;
   bool _hasMoreData = true;
+  int totalFetched = 0;
 
   @override
   void initState() {
@@ -48,7 +48,7 @@ class _ConvScreenState extends State<ConvScreen> {
     contact = widget.contact;
     itemPositionsListener.itemPositions.addListener(() {
       if (itemPositionsListener.itemPositions.value.last.index ==
-          totalFetched - 1) _getMessages();
+          totalFetched - 1) _getMessages(scroll: true);
     });
   }
 
@@ -70,8 +70,11 @@ class _ConvScreenState extends State<ConvScreen> {
     return _messagesController.stream;
   }
 
-  void _getMessages() {
+  void _getMessages({bool scroll = false}) {
     if (!_hasMoreData) {
+      return;
+    }
+    if (!scroll && totalFetched > 0) {
       return;
     }
     print("fetching.....");
@@ -201,15 +204,9 @@ class _ConvScreenState extends State<ConvScreen> {
               ]
             : [IconButton(onPressed: () => {}, icon: Icon(Icons.more_vert))],
       ),
-      body: SafeArea(
-        child: Container(
-          child: Stack(
-            children: [
-              Column(
-                children: [buildMessages(), buildInput()],
-              )
-            ],
-          ),
+      body: Container(
+        child: Column(
+          children: [buildMessages(), buildInput()],
         ),
       ),
     );
@@ -392,7 +389,7 @@ class _ConvScreenState extends State<ConvScreen> {
   }
 
   Widget buildMessages() {
-    return Flexible(
+    return Expanded(
       child: StreamBuilder<List<DocumentSnapshot>>(
         stream: listenToMessagesRealTime(),
         builder: (BuildContext context, messageSnapshot) {
@@ -408,42 +405,23 @@ class _ConvScreenState extends State<ConvScreen> {
           } else {
             if (messageSnapshot.hasData) {
               final messageDocs = messageSnapshot.data!;
-              return Column(children: [
-                if (messageDocs.length >= messageLimit && _hasMoreData)
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 12),
-                    child: Center(child: CircularProgressIndicator()),
-                  )
-                else if (!_hasMoreData)
-                  Center(
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 12),
-                      child: Text(
-                        "End of list.",
-                        style: TextStyle(color: Colors.grey.shade700),
-                      ),
-                    ),
-                  ),
-                Expanded(
-                  child: ScrollablePositionedList.builder(
-                    padding: const EdgeInsets.symmetric(vertical: 10.0),
-                    physics: ScrollPhysics(),
-                    itemBuilder: (BuildContext context, int index) {
-                      int idx = index >= 0 ? index : 0;
-                      Message msg = Message.fromMap(
-                          messageDocs[idx].data() as Map<String, dynamic>,
-                          messageDocs[idx].id,
-                          messageDocs[idx].reference,
-                          idx);
-                      return buildItem(idx, msg);
-                    },
-                    itemCount: messageSnapshot.data!.length,
-                    reverse: true,
-                    itemScrollController: itemScrollController,
-                    itemPositionsListener: itemPositionsListener,
-                  ),
-                ),
-              ]);
+              return ScrollablePositionedList.builder(
+                padding: const EdgeInsets.symmetric(vertical: 10.0),
+                physics: ScrollPhysics(),
+                itemBuilder: (BuildContext context, int index) {
+                  int idx = index >= 0 ? index : 0;
+                  Message msg = Message.fromMap(
+                      messageDocs[idx].data() as Map<String, dynamic>,
+                      messageDocs[idx].id,
+                      messageDocs[idx].reference,
+                      idx);
+                  return buildItem(idx, msg);
+                },
+                itemCount: messageSnapshot.data!.length,
+                reverse: true,
+                itemScrollController: itemScrollController,
+                itemPositionsListener: itemPositionsListener,
+              );
             }
             return Center(
               child: CircularProgressIndicator(),

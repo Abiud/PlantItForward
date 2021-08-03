@@ -89,7 +89,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
                 children: [
                   TableCalendar(
                       firstDay: kFirstDay,
-                      startingDayOfWeek: StartingDayOfWeek.monday,
+                      startingDayOfWeek: StartingDayOfWeek.sunday,
                       lastDay: kLastDay,
                       focusedDay: _focusedDay,
                       calendarFormat: _calendarFormat,

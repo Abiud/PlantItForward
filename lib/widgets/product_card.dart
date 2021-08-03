@@ -4,10 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:plant_it_forward/Models/Product.dart';
 import 'package:plant_it_forward/config.dart';
-import 'package:plant_it_forward/screens/home/Produce/product_view.dart';
-import 'package:plant_it_forward/services/auth.dart';
+import 'package:plant_it_forward/screens/home/Produce/Prices/product_view.dart';
 import 'package:plant_it_forward/shared/ui_helpers.dart';
-import 'package:provider/provider.dart';
 
 Widget productCardDefault(BuildContext context, Product product) {
   return Container(

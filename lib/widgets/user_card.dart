@@ -39,7 +39,7 @@ Widget buildUserCard(BuildContext context, UserData user) {
           },
           child: Stack(children: [
             Container(
-              height: 70,
+              height: 88,
               width: 5,
               color: secondaryBlue,
             ),
@@ -49,6 +49,21 @@ Widget buildUserCard(BuildContext context, UserData user) {
               child: Row(
                 mainAxisSize: MainAxisSize.max,
                 children: [
+                  if (user.photoUrl != null)
+                    CircleAvatar(
+                        radius: 32,
+                        backgroundImage: NetworkImage(user.photoUrl!))
+                  else
+                    Container(
+                        height: 64,
+                        width: 64,
+                        decoration: BoxDecoration(
+                            color: Colors.grey.shade300,
+                            shape: BoxShape.circle,
+                            image: DecorationImage(
+                                image: AssetImage("assets/PIF-Logo_3_5.webp"),
+                                fit: BoxFit.cover))),
+                  horizontalSpaceSmall,
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
