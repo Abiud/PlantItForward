@@ -6,32 +6,34 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
-import 'package:plant_it_forward/Models/ProduceAvailability.dart';
 import 'package:plant_it_forward/Models/Product.dart';
 import 'package:plant_it_forward/Models/UserData.dart';
+import 'package:plant_it_forward/Models/WeeklyReport.dart';
 import 'package:plant_it_forward/config.dart';
 import 'package:plant_it_forward/services/algolia.dart';
 import 'package:plant_it_forward/shared/shared_styles.dart';
 import 'package:plant_it_forward/shared/ui_helpers.dart';
-import 'package:plant_it_forward/utils.dart';
 import 'package:provider/provider.dart';
 
-class EditAvailability extends StatefulWidget {
-  final ProduceAvailability availability;
+class AddProduceList extends StatefulWidget {
+  final WeeklyReport? report;
   final DateTime date;
-  EditAvailability({Key? key, required this.availability, required this.date})
+  final String type;
+  AddProduceList(
+      {Key? key, this.report, required this.date, required this.type})
       : super(key: key);
 
   @override
-  _EditAvailabilityState createState() => _EditAvailabilityState();
+  _AddProduceListState createState() => _AddProduceListState();
 }
 
-class _EditAvailabilityState extends State<EditAvailability> {
+class _AddProduceListState extends State<AddProduceList> {
   final ScrollController _scrollControllerOne = ScrollController();
   final ScrollController _scrollControllerTwo = ScrollController();
   List<TextEditingController> _controllers = [];
   final TextEditingController searchField = TextEditingController();
   final Algolia _algoliaApp = AlgoliaApplication.algolia;
+  List<Product> selectedProduce = [];
   List<Product> results = [];
   Timer? _debounce;
   bool loading = false;
@@ -39,11 +41,15 @@ class _EditAvailabilityState extends State<EditAvailability> {
 
   @override
   void initState() {
-    for (Product prod in widget.availability.produce) {
-      _controllers
-          .add(new TextEditingController(text: prod.quantity.toString()));
-    }
+    // TODO: implement initState
     super.initState();
+    if (widget.type == "harvest") {
+      selectedProduce = widget.report!.availability!.produce;
+      for (Product item in selectedProduce) {
+        _controllers
+            .add(new TextEditingController(text: item.quantity.toString()));
+      }
+    }
   }
 
   @override
@@ -92,9 +98,6 @@ class _EditAvailabilityState extends State<EditAvailability> {
         }
       },
       child: Scaffold(
-        appBar: AppBar(
-          title: Text("Availability Week ${weekNumber(widget.date)}"),
-        ),
         floatingActionButton: Padding(
           padding: EdgeInsets.only(bottom: 4),
           child: FloatingActionButton.extended(
@@ -102,15 +105,16 @@ class _EditAvailabilityState extends State<EditAvailability> {
               setState(() {
                 loading = true;
               });
-              editAvailability().then((value) {
+              createRecord().then((value) {
                 setState(() {
                   loading = false;
                 });
                 ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                    content: Text("Successfully updated!"),
+                    content: Text("Successfully created!"),
                     duration: Duration(
                       seconds: 2,
                     )));
+                Navigator.pop(context);
               });
             },
             backgroundColor: primaryGreen,
@@ -128,6 +132,11 @@ class _EditAvailabilityState extends State<EditAvailability> {
                     valueColor: AlwaysStoppedAnimation(Colors.white),
                   ),
           ),
+        ),
+        appBar: AppBar(
+          title: widget.type == "availability"
+              ? Text("Add Produce Availability")
+              : Text("Add Harvest Record"),
         ),
         body: Padding(
           padding: const EdgeInsets.only(top: 24),
@@ -150,19 +159,20 @@ class _EditAvailabilityState extends State<EditAvailability> {
                           labelText: 'Search Produce',
                           hintText: "Type name of produce"),
                     ),
-                    Positioned(
-                        right: 5,
-                        child: loadingResults
-                            ? SpinKitCircle(
-                                color: primaryGreen,
-                              )
-                            : IconButton(
-                                onPressed: () {
-                                  _onSearchChanged("");
-                                  searchField.text = "";
-                                },
-                                icon: Icon(Icons.clear,
-                                    color: Colors.grey.shade500)))
+                    if (searchField.text.isNotEmpty)
+                      Positioned(
+                          right: 5,
+                          child: loadingResults
+                              ? SpinKitCircle(
+                                  color: primaryGreen,
+                                )
+                              : IconButton(
+                                  onPressed: () {
+                                    _onSearchChanged("");
+                                    searchField.text = "";
+                                  },
+                                  icon: Icon(Icons.clear,
+                                      color: Colors.grey.shade500)))
                   ],
                 ),
               ),
@@ -196,9 +206,20 @@ class _EditAvailabilityState extends State<EditAvailability> {
                             child: InkWell(
                               onTap: () {
                                 if (isSelected(results[index].documentId)) {
-                                  toRemove(results[index]);
+                                  setState(() {
+                                    int idx = selectedProduce.indexWhere(
+                                        (Product e) =>
+                                            e.documentId ==
+                                            results[index].documentId);
+                                    selectedProduce.removeAt(idx);
+                                    _controllers.removeAt(idx);
+                                  });
                                 } else
-                                  toAdd(results[index]);
+                                  setState(() {
+                                    _controllers.add(
+                                        new TextEditingController(text: "0"));
+                                    selectedProduce.add(results[index]);
+                                  });
                               },
                               child: Padding(
                                 padding: const EdgeInsets.symmetric(
@@ -229,7 +250,7 @@ class _EditAvailabilityState extends State<EditAvailability> {
                           physics: ScrollPhysics(),
                           shrinkWrap: true,
                           controller: _scrollControllerTwo,
-                          itemCount: widget.availability.produce.length,
+                          itemCount: selectedProduce.length,
                           padding: const EdgeInsets.symmetric(horizontal: 12),
                           itemBuilder: (BuildContext context, index) {
                             return Slidable(
@@ -240,8 +261,10 @@ class _EditAvailabilityState extends State<EditAvailability> {
                                   caption: 'Delete',
                                   color: Colors.red,
                                   icon: Icons.delete,
-                                  onTap: () => toRemove(
-                                      widget.availability.produce[index]),
+                                  onTap: () => setState(() {
+                                    _controllers.removeAt(index);
+                                    selectedProduce.removeAt(index);
+                                  }),
                                 ),
                                 IconSlideAction(
                                   caption: 'Close',
@@ -259,7 +282,7 @@ class _EditAvailabilityState extends State<EditAvailability> {
                                   children: [
                                     Expanded(
                                       child: Text(
-                                        widget.availability.produce[index].name,
+                                        selectedProduce[index].name,
                                         style: TextStyle(
                                             fontSize: 16,
                                             fontWeight: FontWeight.w500),
@@ -289,8 +312,8 @@ class _EditAvailabilityState extends State<EditAvailability> {
                                         controller: _controllers[index],
                                         onChanged: (String val) {
                                           setState(() {
-                                            widget.availability.produce[index]
-                                                .quantity = int.parse(val);
+                                            selectedProduce[index].quantity =
+                                                int.parse(val);
                                           });
                                         },
                                       ),
@@ -299,7 +322,7 @@ class _EditAvailabilityState extends State<EditAvailability> {
                                     Container(
                                       width: 64,
                                       child: Text(
-                                          "${widget.availability.produce[index].getMeasureUnits()}"),
+                                          "${selectedProduce[index].getMeasureUnits()}"),
                                     ),
                                   ],
                                 ),
@@ -321,43 +344,62 @@ class _EditAvailabilityState extends State<EditAvailability> {
   }
 
   bool isSelected(String id) {
-    for (Product e in widget.availability.produce) {
+    for (Product e in selectedProduce) {
       if (e.documentId == id) return true;
     }
     return false;
   }
 
-  void toAdd(Product prod) {
-    _controllers.add(new TextEditingController(text: prod.quantity.toString()));
-    setState(() {
-      widget.availability.produce.add(prod);
-    });
+  Future createRecord() async {
+    if (widget.type == "availability") return await createAvailability();
+    return await createHarvest();
   }
 
-  void toRemove(Product prod) {
-    int idx = widget.availability.produce
-        .indexWhere((Product item) => item.documentId == prod.documentId);
-    _controllers.removeAt(idx);
-    setState(() {
-      widget.availability.produce.removeAt(idx);
-    });
-  }
-
-  Future editAvailability() async {
-    final db = FirebaseFirestore.instance;
+  Future createHarvest() async {
+    CollectionReference collection =
+        FirebaseFirestore.instance.collection("weeklyReports");
+    DocumentReference doc;
     String farmId = Provider.of<UserData>(context, listen: false).farmId!;
-    final reportDoc = db
-        .collection("weeklyReports")
-        .doc("${widget.date.millisecondsSinceEpoch.toString()}$farmId");
-    WriteBatch batch = db.batch();
-    List<Map<String, dynamic>> prods = [];
-    for (Product prod in widget.availability.produce) {
-      prods.add(prod.toMap());
+    DateTime date = widget.date;
+    doc = collection.doc("${date.millisecondsSinceEpoch.toString()}$farmId");
+    List list = [];
+    for (Product prod in selectedProduce) {
+      list.add(prod.toMap());
     }
+    return doc.set({
+      "updatedAt": DateTime.now(),
+      "harvest": {
+        "userId": Provider.of<UserData>(context, listen: false).id,
+        "createdAt": DateTime.now(),
+        "produce": list
+      }
+    }, SetOptions(merge: true));
+  }
 
-    batch.update(reportDoc,
-        {"availability.produce": prods, "updatedAt": DateTime.now()});
+  Future createAvailability() async {
+    CollectionReference collection =
+        FirebaseFirestore.instance.collection("weeklyReports");
 
-    return await batch.commit();
+    DocumentReference doc;
+    String farmId = Provider.of<UserData>(context, listen: false).farmId!;
+    DateTime date = widget.date;
+
+    doc = collection.doc("${date.millisecondsSinceEpoch.toString()}$farmId");
+    List list = [];
+    for (Product prod in selectedProduce) {
+      list.add(prod.toMap());
+    }
+    return doc.set({
+      "id": date.millisecondsSinceEpoch.toString(),
+      "farmId": farmId,
+      "farmName": Provider.of<UserData>(context, listen: false).farmName,
+      "date": date,
+      "createdAt": DateTime.now(),
+      "availability": {
+        "userId": Provider.of<UserData>(context, listen: false).id,
+        "createdAt": DateTime.now(),
+        "produce": list
+      }
+    }, SetOptions(merge: true));
   }
 }

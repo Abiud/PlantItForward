@@ -10,14 +10,15 @@ class ProduceAvailability {
   DateTime? updatedAt;
   String? comments;
   List<Product> produce;
+  bool? approved;
 
-  ProduceAvailability({
-    required this.userId,
-    this.createdAt,
-    this.updatedAt,
-    this.comments,
-    required this.produce,
-  });
+  ProduceAvailability(
+      {required this.userId,
+      this.createdAt,
+      this.updatedAt,
+      this.comments,
+      required this.produce,
+      this.approved = false});
 
   ProduceAvailability copyWith({
     String? id,
@@ -26,14 +27,15 @@ class ProduceAvailability {
     DateTime? postDate,
     String? comments,
     List<Product>? produce,
+    bool approved = false,
   }) {
     return ProduceAvailability(
-      userId: userId ?? this.userId,
-      createdAt: createdAt ?? this.createdAt,
-      updatedAt: updatedAt ?? this.updatedAt,
-      comments: comments ?? this.comments,
-      produce: produce ?? this.produce,
-    );
+        userId: userId ?? this.userId,
+        createdAt: createdAt ?? this.createdAt,
+        updatedAt: updatedAt ?? this.updatedAt,
+        comments: comments ?? this.comments,
+        produce: produce ?? this.produce,
+        approved: approved);
   }
 
   Map<String, dynamic> toMap() {
@@ -43,6 +45,7 @@ class ProduceAvailability {
       'updatedAt': updatedAt?.millisecondsSinceEpoch,
       'comments': comments,
       'produce': produce.map((x) => x.toMap()).toList(),
+      'approved': approved,
     };
   }
 
@@ -54,6 +57,7 @@ class ProduceAvailability {
       comments: map['comments'],
       produce:
           List<Product>.from(map['produce']?.map((x) => Product.fromMap(x))),
+      approved: map['approved'],
     );
   }
 
@@ -61,7 +65,7 @@ class ProduceAvailability {
 
   @override
   String toString() {
-    return 'ProduceAvailable(userId: $userId, createdAt: $createdAt, updatedAt: $updatedAt comments: $comments, produce: $produce)';
+    return 'ProduceAvailable(userId: $userId, createdAt: $createdAt, updatedAt: $updatedAt comments: $comments, produce: $produce, approved: $approved)';
   }
 
   @override
@@ -73,6 +77,7 @@ class ProduceAvailability {
         other.createdAt == createdAt &&
         other.updatedAt == updatedAt &&
         other.comments == comments &&
+        other.approved == approved &&
         listEquals(other.produce, produce);
   }
 
@@ -82,6 +87,7 @@ class ProduceAvailability {
         createdAt.hashCode ^
         updatedAt.hashCode ^
         comments.hashCode ^
+        approved.hashCode ^
         produce.hashCode;
   }
 }

@@ -25,14 +25,15 @@ class Order {
     DateTime? createdAt,
     DateTime? updatedAt,
     String? comments,
+    bool approved = false,
   }) {
     return Order(
-      userId: userId ?? this.userId,
-      produce: produce ?? this.produce,
-      createdAt: createdAt ?? this.createdAt,
-      updatedAt: updatedAt ?? this.updatedAt,
-      comments: comments ?? this.comments,
-    );
+        userId: userId ?? this.userId,
+        produce: produce ?? this.produce,
+        createdAt: createdAt ?? this.createdAt,
+        updatedAt: updatedAt ?? this.updatedAt,
+        comments: comments ?? this.comments,
+        approved: approved);
   }
 
   Map<String, dynamic> toMap() {

@@ -1,21 +1,19 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:plant_it_forward/Models/UserData.dart';
 import 'package:plant_it_forward/Models/WeeklyReport.dart';
 import 'package:plant_it_forward/config.dart';
 import 'package:plant_it_forward/shared/shared_styles.dart';
 import 'package:plant_it_forward/shared/ui_helpers.dart';
-import 'package:provider/provider.dart';
 
-class ViewAvailability extends StatefulWidget {
+class ViewProduceList extends StatefulWidget {
   final WeeklyReport report;
-  ViewAvailability({Key? key, required this.report}) : super(key: key);
+  ViewProduceList({Key? key, required this.report}) : super(key: key);
 
   @override
-  _ViewAvailabilityState createState() => _ViewAvailabilityState();
+  _ViewProduceListState createState() => _ViewProduceListState();
 }
 
-class _ViewAvailabilityState extends State<ViewAvailability> {
+class _ViewProduceListState extends State<ViewProduceList> {
   final TextEditingController commentBox = TextEditingController();
   bool loading = false;
   @override

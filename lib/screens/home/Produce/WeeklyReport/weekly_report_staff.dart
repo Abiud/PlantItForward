@@ -1,7 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:plant_it_forward/Models/WeeklyReport.dart';
-import 'package:plant_it_forward/screens/home/Produce/Availability/viewAvailability.dart';
+import 'package:plant_it_forward/screens/home/Produce/shared/viewProduceList.dart';
 import 'package:plant_it_forward/shared/ui_helpers.dart';
 import 'package:plant_it_forward/utils.dart';
 import 'package:provider/provider.dart';
@@ -106,13 +106,8 @@ class WeeklyReportStaff extends StatelessWidget {
       case 1:
         if (rep.order != null)
           return Indicator.dot(
-              size: 30,
-              child: rep.order!.approved
-                  ? Icon(
-                      Icons.done,
-                      color: Colors.white,
-                    )
-                  : null);
+            size: 30,
+          );
         return indicatorOutline;
       case 2:
         // if (rep.harvest != null)
@@ -121,7 +116,7 @@ class WeeklyReportStaff extends StatelessWidget {
         return indicatorOutline;
       case 3:
         if (rep.order != null) {
-          if (rep.order!.approved)
+          if (rep.order!.approved == true)
             return Indicator.dot(
                 size: 30,
                 child: Icon(
@@ -165,7 +160,7 @@ class WeeklyReportStaff extends StatelessWidget {
                   onPressed: () => Navigator.push(
                       context,
                       CupertinoPageRoute(
-                          builder: (context) => ViewAvailability(report: rep))),
+                          builder: (context) => ViewProduceList(report: rep))),
                   child: Text("View"),
                 )
               ]
@@ -250,7 +245,7 @@ class WeeklyReportStaff extends StatelessWidget {
                     Text("Order Approved",
                         style: TextStyle(fontWeight: FontWeight.w600)),
                     if (rep.order != null)
-                      rep.order!.approved
+                      rep.order!.approved == true
                           ? Text("Order has been approved",
                               style: TextStyle(color: Colors.grey.shade800))
                           : Text(

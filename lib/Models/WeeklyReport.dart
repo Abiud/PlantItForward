@@ -12,7 +12,7 @@ class WeeklyReport {
   DateTime? updatedAt;
   ProduceAvailability? availability;
   ProduceAvailability? harvest;
-  Order? order;
+  ProduceAvailability? order;
   WeeklyReport({
     required this.id,
     required this.date,
@@ -34,7 +34,7 @@ class WeeklyReport {
     DateTime? updatedAt,
     ProduceAvailability? availability,
     ProduceAvailability? harvest,
-    Order? order,
+    ProduceAvailability? order,
   }) {
     return WeeklyReport(
       id: id ?? this.id,
@@ -77,7 +77,9 @@ class WeeklyReport {
       harvest: map['harvest'] != null
           ? ProduceAvailability.fromMap(map['harvest'])
           : null,
-      order: map['order'] != null ? Order.fromMap(map['order']) : null,
+      order: map['order'] != null
+          ? ProduceAvailability.fromMap(map['order'])
+          : null,
     );
   }
 
