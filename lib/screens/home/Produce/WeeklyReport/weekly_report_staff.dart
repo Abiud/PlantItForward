@@ -1,6 +1,9 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:plant_it_forward/Models/WeeklyReport.dart';
+import 'package:plant_it_forward/screens/home/Produce/shared/addProduceList.dart';
+import 'package:plant_it_forward/screens/home/Produce/shared/editProduceList.dart';
+import 'package:plant_it_forward/screens/home/Produce/shared/viewInvoice.dart';
 import 'package:plant_it_forward/screens/home/Produce/shared/viewProduceList.dart';
 import 'package:plant_it_forward/shared/ui_helpers.dart';
 import 'package:plant_it_forward/utils.dart';
@@ -110,13 +113,11 @@ class WeeklyReportStaff extends StatelessWidget {
           );
         return indicatorOutline;
       case 2:
-        // if (rep.harvest != null)
-        // return Indicator.dot(
-        //     size: 20);
+        if (rep.harvest != null) return Indicator.dot(size: 30);
         return indicatorOutline;
       case 3:
-        if (rep.order != null) {
-          if (rep.order!.approved == true)
+        if (rep.harvest != null) {
+          if (rep.harvest!.approved == true)
             return Indicator.dot(
                 size: 30,
                 child: Icon(
@@ -160,7 +161,11 @@ class WeeklyReportStaff extends StatelessWidget {
                   onPressed: () => Navigator.push(
                       context,
                       CupertinoPageRoute(
-                          builder: (context) => ViewProduceList(report: rep))),
+                          builder: (context) => ViewProduceList(
+                                report: rep,
+                                list: rep.availability!,
+                                type: "availability",
+                              ))),
                   child: Text("View"),
                 )
               ]
@@ -189,13 +194,31 @@ class WeeklyReportStaff extends StatelessWidget {
                   ],
                 ),
               ),
-              if (rep.order != null) ...[
-                horizontalSpaceTiny,
-                OutlinedButton(
-                  onPressed: () {},
-                  child: Text("View"),
-                )
-              ]
+              horizontalSpaceTiny,
+              OutlinedButton(
+                onPressed: () {
+                  if (rep.order != null) {
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => EditProduceList(
+                                  list: rep.order!,
+                                  report: rep,
+                                  type: "order",
+                                )));
+                  } else {
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => AddProduceList(
+                                  report: rep,
+                                  date: rep.date,
+                                  type: "order",
+                                )));
+                  }
+                },
+                child: Text("Set"),
+              )
             ],
           ),
         );
@@ -211,24 +234,55 @@ class WeeklyReportStaff extends StatelessWidget {
                   children: [
                     Text("Harvest",
                         style: TextStyle(fontWeight: FontWeight.w600)),
-                    // rep.availability != null
-                    //     ? Text("${rep.availability!.produce.length} items",
-                    //         style: TextStyle(color: Colors.grey.shade800))
-                    //     :
-                    Text(
-                      "Not submitted",
-                      style: TextStyle(color: Colors.grey.shade600),
-                    ),
+                    rep.harvest != null
+                        ? Text("${rep.harvest!.produce.length} items",
+                            style: TextStyle(color: Colors.grey.shade800))
+                        : Text(
+                            "Not submitted",
+                            style: TextStyle(color: Colors.grey.shade600),
+                          ),
                   ],
                 ),
               ),
-              // if (rep.harvest != null) ...[
-              // horizontalSpaceTiny,
-              // OutlinedButton(
-              //   onPressed: () {},
-              //   child: Text("View"),
-              // )
-              // ]
+              if (rep.harvest != null) ...[
+                horizontalSpaceTiny,
+                OutlinedButton(
+                  onPressed: () => Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => EditProduceList(
+                                list: rep.harvest!,
+                                report: rep,
+                                type: "harvest",
+                              ))),
+                  child: Text("Edit"),
+                ),
+                horizontalSpaceTiny,
+                OutlinedButton(
+                  onPressed: () => Navigator.push(
+                      context,
+                      CupertinoPageRoute(
+                          builder: (context) => ViewProduceList(
+                                report: rep,
+                                list: rep.harvest!,
+                                type: "harvest",
+                              ))),
+                  child: Text("View"),
+                )
+              ] else ...[
+                horizontalSpaceTiny,
+                OutlinedButton(
+                  onPressed: () => Navigator.push(
+                      context,
+                      CupertinoPageRoute(
+                          builder: (context) => AddProduceList(
+                                report: rep,
+                                date: rep.date,
+                                type: "harvest",
+                              ))),
+                  child: Text("Record"),
+                )
+              ]
             ],
           ),
         );
@@ -242,27 +296,33 @@ class WeeklyReportStaff extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.center,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text("Order Approved",
+                    Text("Harvest Approved",
                         style: TextStyle(fontWeight: FontWeight.w600)),
-                    if (rep.order != null)
-                      rep.order!.approved == true
-                          ? Text("Order has been approved",
+                    if (rep.harvest != null)
+                      rep.harvest!.approved == true
+                          ? Text("Harvest has been approved",
                               style: TextStyle(color: Colors.grey.shade800))
                           : Text(
-                              "Pending approval",
+                              "Purchased produce",
                               style: TextStyle(color: Colors.grey.shade600),
-                            ),
-                    Text(
-                      "Not submitted",
-                      style: TextStyle(color: Colors.grey.shade600),
-                    )
+                            )
+                    else
+                      Text(
+                        "Not submitted",
+                        style: TextStyle(color: Colors.grey.shade600),
+                      )
                   ],
                 ),
               ),
-              if (rep.order != null) ...[
+              if (rep.harvest != null) ...[
                 horizontalSpaceTiny,
                 OutlinedButton(
-                  onPressed: () {},
+                  onPressed: () => Navigator.push(
+                      context,
+                      CupertinoPageRoute(
+                          builder: (context) => ViewInvoice(
+                                report: rep,
+                              ))),
                   child: Text("View"),
                 )
               ]

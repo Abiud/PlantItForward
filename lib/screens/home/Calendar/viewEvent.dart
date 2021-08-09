@@ -7,7 +7,6 @@ import 'package:plant_it_forward/Models/UserData.dart';
 import 'package:plant_it_forward/config.dart';
 import 'package:plant_it_forward/screens/home/Calendar/editEvent.dart';
 import 'package:plant_it_forward/screens/home/Profile/viewProfile.dart';
-import 'package:plant_it_forward/services/database.dart';
 import 'package:plant_it_forward/shared/ui_helpers.dart';
 import 'package:plant_it_forward/theme/colors.dart';
 import 'package:plant_it_forward/widgets/task_column.dart';
@@ -97,16 +96,29 @@ class _ViewEventState extends State<ViewEvent> {
                             ),
                           ),
                           verticalSpaceSmall,
-                          Container(
-                            child: Text(
-                              event.userId,
-                              textAlign: TextAlign.start,
-                              style: TextStyle(
-                                fontSize: 16.0,
-                                color: Colors.black38,
-                                fontWeight: FontWeight.w500,
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Text(
+                                event.userName,
+                                textAlign: TextAlign.start,
+                                style: TextStyle(
+                                  fontSize: 16.0,
+                                  color: Colors.black38,
+                                  fontWeight: FontWeight.w500,
+                                ),
                               ),
-                            ),
+                              if (event.userFarm != null)
+                                Text(
+                                  "- ${event.userFarm!}",
+                                  textAlign: TextAlign.start,
+                                  style: TextStyle(
+                                    fontSize: 16.0,
+                                    color: Colors.black38,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                            ],
                           ),
                         ],
                       ),

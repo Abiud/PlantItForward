@@ -13,6 +13,7 @@ class WeeklyReport {
   ProduceAvailability? availability;
   ProduceAvailability? harvest;
   ProduceAvailability? order;
+  ProduceAvailability? purchased;
   WeeklyReport({
     required this.id,
     required this.date,
@@ -23,6 +24,7 @@ class WeeklyReport {
     this.availability,
     this.harvest,
     this.order,
+    this.purchased,
   });
 
   WeeklyReport copyWith({
@@ -35,6 +37,7 @@ class WeeklyReport {
     ProduceAvailability? availability,
     ProduceAvailability? harvest,
     ProduceAvailability? order,
+    ProduceAvailability? purchased,
   }) {
     return WeeklyReport(
       id: id ?? this.id,
@@ -46,6 +49,7 @@ class WeeklyReport {
       availability: availability ?? this.availability,
       harvest: harvest ?? this.harvest,
       order: order ?? this.order,
+      purchased: purchased ?? this.purchased,
     );
   }
 
@@ -60,6 +64,7 @@ class WeeklyReport {
       'availability': availability?.toMap(),
       'harvest': harvest?.toMap(),
       'order': order?.toMap(),
+      'purchased': purchased?.toMap(),
     };
   }
 
@@ -80,6 +85,9 @@ class WeeklyReport {
       order: map['order'] != null
           ? ProduceAvailability.fromMap(map['order'])
           : null,
+      purchased: map['purchased'] != null
+          ? ProduceAvailability.fromMap(map['purchased'])
+          : null,
     );
   }
 
@@ -87,7 +95,7 @@ class WeeklyReport {
 
   @override
   String toString() {
-    return 'WeeklyReport(id: $id, date: $date, createdAt: $createdAt, updatedAt: $updatedAt, availability: $availability, harvest: $harvest, order: $order)';
+    return 'WeeklyReport(id: $id, date: $date, createdAt: $createdAt, updatedAt: $updatedAt, availability: $availability, harvest: $harvest, order: $order, purchased $purchased)';
   }
 
   @override
@@ -101,6 +109,7 @@ class WeeklyReport {
         other.updatedAt == updatedAt &&
         other.availability == availability &&
         other.harvest == harvest &&
+        other.purchased == purchased &&
         other.order == order;
   }
 
@@ -112,6 +121,7 @@ class WeeklyReport {
         updatedAt.hashCode ^
         availability.hashCode ^
         harvest.hashCode ^
+        purchased.hashCode ^
         order.hashCode;
   }
 }

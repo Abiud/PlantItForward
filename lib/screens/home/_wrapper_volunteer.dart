@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:persistent_bottom_nav_bar/persistent-tab-view.dart';
 import 'package:plant_it_forward/config.dart';
 import 'package:plant_it_forward/screens/home/Calendar/calendar.dart';
+import 'package:plant_it_forward/screens/home/Chat/chat.dart';
 import 'package:plant_it_forward/screens/home/homeScreen.dart';
 
 class VolunteerWrapper extends StatefulWidget {
@@ -22,7 +23,7 @@ class _VolunteerWrapperState extends State<VolunteerWrapper> {
   }
 
   List<Widget> _buildScreens() {
-    return [HomeScreen(), CalendarScreen()];
+    return [HomeScreen(), Chat(), CalendarScreen()];
   }
 
   List<PersistentBottomNavBarItem> _navBarsItems() {
@@ -30,6 +31,11 @@ class _VolunteerWrapperState extends State<VolunteerWrapper> {
       PersistentBottomNavBarItem(
           icon: Icon(Icons.home),
           title: ("Home"),
+          activeColorPrimary: primaryGreen,
+          inactiveColorPrimary: CupertinoColors.systemGrey),
+      PersistentBottomNavBarItem(
+          icon: Icon(Icons.forum),
+          title: ("Chat"),
           activeColorPrimary: primaryGreen,
           inactiveColorPrimary: CupertinoColors.systemGrey),
       PersistentBottomNavBarItem(

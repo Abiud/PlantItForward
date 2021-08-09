@@ -14,6 +14,8 @@ class CalEvent {
   bool needVolunteers = false;
   List<UserData>? volunteers;
   String userId;
+  String userName;
+  String? userFarm;
   String id;
 
   CalEvent({
@@ -26,6 +28,8 @@ class CalEvent {
     required this.needVolunteers,
     this.volunteers,
     required this.userId,
+    required this.userName,
+    this.userFarm,
     required this.id,
   });
 
@@ -39,6 +43,8 @@ class CalEvent {
     bool? needVolunteers,
     List<UserData>? volunteers,
     String? userId,
+    String? userName,
+    String? userFarm,
     String? id,
   }) {
     return CalEvent(
@@ -51,6 +57,8 @@ class CalEvent {
       needVolunteers: needVolunteers ?? this.needVolunteers,
       volunteers: volunteers ?? this.volunteers,
       userId: userId ?? this.userId,
+      userName: userName ?? this.userName,
+      userFarm: userFarm ?? this.userFarm,
       id: id ?? this.id,
     );
   }
@@ -66,6 +74,8 @@ class CalEvent {
       'needVolunteers': needVolunteers,
       'volunteers': volunteers?.map((x) => x.toMap()).toList(),
       'userId': userId,
+      "userName": userName,
+      "userFarm": userFarm,
       'id': id,
     };
   }
@@ -82,6 +92,8 @@ class CalEvent {
       volunteers: List<UserData>.from(
           map['volunteers']?.map((x) => UserData.fromMap(x))),
       userId: map['userId'],
+      userName: map['userName'],
+      userFarm: map['userFarm'],
       id: map['id'],
     );
   }
@@ -95,6 +107,8 @@ class CalEvent {
       endDateTime: (map['endDateTime'])?.toDate(),
       endDate: (map['endDate'])?.toDate(),
       userId: map['userId'],
+      userName: map['userName'],
+      userFarm: map['userFarm'],
       needVolunteers: map['needVolunteers'],
       volunteers: map['volunteers'] != null
           ? List<UserData>.from(
@@ -111,7 +125,7 @@ class CalEvent {
 
   @override
   String toString() {
-    return 'CalEvent(title: $title, description: $description, startDateTime: $startDateTime, startDate: $startDate, endDateTime: $endDateTime, endDate: $endDate, needVolunteers: $needVolunteers, volunteers: $volunteers, userId: $userId, id: $id)';
+    return 'CalEvent(title: $title, description: $description, startDateTime: $startDateTime, startDate: $startDate, endDateTime: $endDateTime, endDate: $endDate, needVolunteers: $needVolunteers, volunteers: $volunteers, userId: $userId, userName: $userName, userFarm: $userFarm, id: $id)';
   }
 
   @override
@@ -128,6 +142,8 @@ class CalEvent {
         other.needVolunteers == needVolunteers &&
         listEquals(other.volunteers, volunteers) &&
         other.userId == userId &&
+        other.userName == userName &&
+        other.userFarm == userFarm &&
         other.id == id;
   }
 
@@ -142,6 +158,8 @@ class CalEvent {
         needVolunteers.hashCode ^
         volunteers.hashCode ^
         userId.hashCode ^
+        userName.hashCode ^
+        userFarm.hashCode ^
         id.hashCode;
   }
 }

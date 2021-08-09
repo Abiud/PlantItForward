@@ -47,7 +47,7 @@ class _RegisterState extends State<Register> {
                             'Register',
                             style: TextStyle(
                                 fontSize: 35,
-                                color: primaryGreen,
+                                color: secondaryBlue,
                                 fontWeight: FontWeight.w900),
                           ),
                         ),
@@ -113,13 +113,13 @@ class _RegisterState extends State<Register> {
                       SizedBox(
                         height: 30,
                       ),
-                      Text(
-                        "Some dummy text for terms of service \nI don't know how this works.",
-                        style: TextStyle(
-                            fontSize: 15.5,
-                            fontWeight: FontWeight.normal,
-                            color: Color(0xff8f9db5).withOpacity(0.45)),
-                      ),
+                      // Text(
+                      //   "Some dummy text for terms of service \nI don't know how this works.",
+                      //   style: TextStyle(
+                      //       fontSize: 15.5,
+                      //       fontWeight: FontWeight.normal,
+                      //       color: Color(0xff8f9db5).withOpacity(0.45)),
+                      // ),
                       Container(
                         margin: EdgeInsets.symmetric(vertical: 20),
                         width: scrWidth * 0.85,
@@ -132,7 +132,7 @@ class _RegisterState extends State<Register> {
                           elevation: 6.0,
                           child: Container(
                             decoration: BoxDecoration(
-                                color: primaryGreen,
+                                color: secondaryBlue,
                                 borderRadius: BorderRadius.circular(20)),
                             child: Material(
                               // <------------------------- Inner Material

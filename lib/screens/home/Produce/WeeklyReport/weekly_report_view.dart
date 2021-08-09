@@ -35,8 +35,8 @@ class _WeeklyReportViewState extends State<WeeklyReportView> {
 
   @override
   Widget build(BuildContext context) {
-    return SingleChildScrollView(
-      child: Column(
+    if (Provider.of<UserData>(context).isAdmin())
+      return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Container(
@@ -73,34 +73,85 @@ class _WeeklyReportViewState extends State<WeeklyReportView> {
               ),
             ),
           ),
-          if (Provider.of<UserData>(context).isAdmin())
-            StreamProvider<List<WeeklyReport>>.value(
-                initialData: [],
-                value: FirebaseFirestore.instance
-                    .collection("weeklyReports")
-                    .where("id",
-                        isEqualTo:
-                            selectedDate.millisecondsSinceEpoch.toString())
-                    .snapshots()
-                    .map((event) => event.docs
-                        .map((e) => WeeklyReport.fromMap(e.data()))
-                        .toList()),
-                child: WeeklyReportStaff())
-          else
-            StreamProvider<WeeklyReport?>.value(
-                initialData: null,
-                value: FirebaseFirestore.instance
-                    .collection("weeklyReports")
-                    .doc(
-                        "${selectedDate.millisecondsSinceEpoch.toString()}${Provider.of<UserData>(context).farmId!}")
-                    .snapshots()
-                    .map((event) {
-                  if (event.data() != null)
-                    return WeeklyReport.fromMap(event.data()!);
-                }),
-                child: WeeklyReportFarmer(dateSelected: selectedDate)),
+          StreamProvider<List<WeeklyReport>>.value(
+              initialData: [],
+              value: FirebaseFirestore.instance
+                  .collection("weeklyReports")
+                  .where("id",
+                      isEqualTo: selectedDate.millisecondsSinceEpoch.toString())
+                  .snapshots()
+                  .map((event) => event.docs
+                      .map((e) => WeeklyReport.fromMap(e.data()))
+                      .toList()),
+              child: WeeklyReportStaff())
         ],
-      ),
-    );
+      );
+    else
+      return SingleChildScrollView(
+        physics: NeverScrollableScrollPhysics(),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Container(
+              width: double.infinity,
+              child: Card(
+                margin: EdgeInsets.zero,
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 12),
+                  child: Row(
+                    children: [
+                      IconButton(
+                          onPressed: () => lastWeek(),
+                          icon: Icon(Icons.chevron_left)),
+                      Expanded(
+                        child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              Text(
+                                "${printFirstDateOfTheWeek(selectedDate)} - ${printLastDateOfTheWeek(selectedDate)}",
+                                style: TextStyle(
+                                    color: LightColors.kDarkBlue,
+                                    fontSize: 20.0,
+                                    fontWeight: FontWeight.w700),
+                              ),
+                              Text(
+                                  "Week ${weekNumber(selectedDate).toString()} of ${selectedDate.year}"),
+                            ]),
+                      ),
+                      IconButton(
+                          onPressed: () => nextWeek(),
+                          icon: Icon(Icons.chevron_right)),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+            if (Provider.of<UserData>(context).farmId != null)
+              StreamProvider<WeeklyReport?>.value(
+                  initialData: null,
+                  value: FirebaseFirestore.instance
+                      .collection("weeklyReports")
+                      .doc(
+                          "${selectedDate.millisecondsSinceEpoch.toString()}${Provider.of<UserData>(context).farmId!}")
+                      .snapshots()
+                      .map((event) {
+                    if (event.data() != null)
+                      return WeeklyReport.fromMap(event.data()!);
+                  }),
+                  child: WeeklyReportFarmer(dateSelected: selectedDate))
+            else
+              Padding(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 12, vertical: 24),
+                child: Center(
+                  child: Text(
+                    "No Farm has been assigned.",
+                    style: TextStyle(color: Colors.grey.shade700),
+                  ),
+                ),
+              )
+          ],
+        ),
+      );
   }
 }

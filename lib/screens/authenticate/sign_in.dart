@@ -60,7 +60,7 @@ class _SignInState extends State<SignIn> {
                             'Sign in',
                             style: TextStyle(
                                 fontSize: 35,
-                                color: primaryGreen,
+                                color: secondaryBlue,
                                 fontWeight: FontWeight.w900),
                           ),
                         ),
@@ -112,13 +112,13 @@ class _SignInState extends State<SignIn> {
                       SizedBox(
                         height: 20,
                       ),
-                      Text(
-                        "Some dummy text for terms of service \nI don't know how this works.",
-                        style: TextStyle(
-                            fontSize: 15.5,
-                            fontWeight: FontWeight.normal,
-                            color: Color(0xff8f9db5).withOpacity(0.45)),
-                      ),
+                      // Text(
+                      //   "Some dummy text for terms of service \nI don't know how this works.",
+                      //   style: TextStyle(
+                      //       fontSize: 15.5,
+                      //       fontWeight: FontWeight.normal,
+                      //       color: Color(0xff8f9db5).withOpacity(0.45)),
+                      // ),
                       SizedBox(
                         height: 20,
                       ),
@@ -134,7 +134,7 @@ class _SignInState extends State<SignIn> {
                           elevation: 6.0,
                           child: Container(
                             decoration: BoxDecoration(
-                                color: primaryGreen,
+                                color: secondaryBlue,
                                 borderRadius: BorderRadius.circular(20)),
                             child: Material(
                               // <------------------------- Inner Material

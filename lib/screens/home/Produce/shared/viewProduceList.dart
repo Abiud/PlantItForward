@@ -1,34 +1,23 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:plant_it_forward/Models/ProduceAvailability.dart';
 import 'package:plant_it_forward/Models/WeeklyReport.dart';
-import 'package:plant_it_forward/config.dart';
 import 'package:plant_it_forward/shared/shared_styles.dart';
 import 'package:plant_it_forward/shared/ui_helpers.dart';
 
 class ViewProduceList extends StatefulWidget {
   final WeeklyReport report;
-  ViewProduceList({Key? key, required this.report}) : super(key: key);
+  final ProduceAvailability list;
+  final String type;
+  ViewProduceList(
+      {Key? key, required this.report, required this.list, required this.type})
+      : super(key: key);
 
   @override
   _ViewProduceListState createState() => _ViewProduceListState();
 }
 
 class _ViewProduceListState extends State<ViewProduceList> {
-  final TextEditingController commentBox = TextEditingController();
   bool loading = false;
-  @override
-  void initState() {
-    super.initState();
-    if (widget.report.availability!.comments != null)
-      commentBox.text = widget.report.availability!.comments!;
-  }
-
-  @override
-  void dispose() {
-    commentBox.clear();
-    super.dispose();
-  }
-
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
@@ -41,109 +30,56 @@ class _ViewProduceListState extends State<ViewProduceList> {
       },
       child: Scaffold(
         appBar: AppBar(
-          title: Text("Produce Availability"),
-        ),
-        floatingActionButton: Padding(
-          padding: EdgeInsets.only(bottom: 4),
-          child: FloatingActionButton.extended(
-            onPressed: () {
-              setState(() {
-                loading = true;
-              });
-              editAvailability().then((value) {
-                FocusScope.of(context).unfocus();
-                setState(() {
-                  loading = false;
-                });
-                ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                    content: Text("Successfully updated!"),
-                    duration: Duration(
-                      seconds: 2,
-                    )));
-              });
-            },
-            backgroundColor: primaryGreen,
-            elevation: 2,
-            label: Text(
-              "Edit",
-              style: TextStyle(color: Colors.white),
-            ),
-            icon: !loading
-                ? Icon(
-                    Icons.edit,
-                    color: Colors.white,
-                  )
-                : CircularProgressIndicator(
-                    valueColor: AlwaysStoppedAnimation(Colors.white),
-                  ),
-          ),
+          title: Text(widget.report.farmName),
         ),
         body: ListView(
+          padding: EdgeInsets.symmetric(horizontal: 12),
           physics: AlwaysScrollableScrollPhysics(),
           children: [
+            verticalSpaceMedium,
+            if (widget.type == "harvest")
+              Text("Harvest",
+                  style: TextStyle(fontSize: 18.0, fontWeight: FontWeight.w600))
+            else if (widget.type == "order")
+              Text("Order",
+                  style: TextStyle(fontSize: 18.0, fontWeight: FontWeight.w600))
+            else if (widget.type == "availability")
+              Text("Produce Availability",
+                  style:
+                      TextStyle(fontSize: 18.0, fontWeight: FontWeight.w600)),
+            verticalSpaceSmall,
             ListView.builder(
-              padding: EdgeInsets.symmetric(horizontal: 12, vertical: 12),
               physics: ScrollPhysics(),
               shrinkWrap: true,
-              itemCount: widget.report.availability!.produce.length,
+              itemCount: widget.list.produce.length,
               itemBuilder: (context, index) {
                 return Card(
+                    margin: EdgeInsets.symmetric(horizontal: 0, vertical: 4),
                     child: Padding(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    children: [
-                      Expanded(
-                        child: Text(
-                          widget.report.availability!.produce[index].name,
-                          style: TextStyle(
-                              fontSize: 16, fontWeight: FontWeight.w500),
-                          overflow: TextOverflow.ellipsis,
-                        ),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 12, vertical: 18),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        children: [
+                          Expanded(
+                            child: Text(
+                              widget.list.produce[index].name,
+                              style: TextStyle(
+                                  fontSize: 16, fontWeight: FontWeight.w500),
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                          horizontalSpaceTiny,
+                          Text(
+                              "${widget.list.produce[index].quantity} ${widget.list.produce[index].getMeasureUnits()}"),
+                        ],
                       ),
-                      horizontalSpaceTiny,
-                      Text(
-                          "${widget.report.availability!.produce[index].quantity} ${widget.report.availability!.produce[index].getMeasureUnits()}"),
-                    ],
-                  ),
-                ));
+                    ));
               },
             ),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 16),
-              child: TextField(
-                controller: commentBox,
-                decoration: InputDecoration(
-                    contentPadding: fieldContentPadding,
-                    enabledBorder: fieldEnabledBorder,
-                    focusedBorder: fieldFocusedBorder,
-                    errorBorder: fieldErrorBorder,
-                    labelText: 'Comments',
-                    hintText: "Comments..."),
-                maxLines: null,
-                keyboardType: TextInputType.multiline,
-              ),
-            )
           ],
         ),
       ),
     );
-  }
-
-  Future editAvailability() async {
-    final db = FirebaseFirestore.instance;
-    String farmId = widget.report.farmId;
-    final reportDoc = db
-        .collection("weeklyReports")
-        .doc("${widget.report.date.millisecondsSinceEpoch.toString()}$farmId");
-    WriteBatch batch = db.batch();
-
-    batch.update(reportDoc, {
-      "availability.comments": commentBox.text,
-      "updatedAt": DateTime.now()
-    });
-
-    return await batch.commit();
   }
 }

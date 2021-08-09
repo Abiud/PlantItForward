@@ -11,6 +11,8 @@ class Product {
   dynamic createdAt;
   dynamic updatedAt;
   int? quantity;
+  // bool? rushOrder;
+  String? comments;
 
   Product(
       {required this.name,
@@ -20,7 +22,8 @@ class Product {
       required this.documentId,
       this.createdAt,
       this.updatedAt,
-      this.quantity = 0});
+      this.quantity = 0,
+      this.comments});
 
   // formatting for upload to Firbase when creating the Product
   Map<String, dynamic> toJson() => {
@@ -30,7 +33,8 @@ class Product {
         'price': price?.minorUnits.toInt(),
         'createdAt': createdAt,
         'updatedAt': updatedAt,
-        'quantity': quantity
+        'quantity': quantity,
+        'comments': comments
       };
 
   // creating a Product object from a firebase snapshot
@@ -42,6 +46,7 @@ class Product {
         documentId = snapshot.id,
         createdAt = (snapshot.data() as Map)['createdAt'],
         updatedAt = (snapshot.data() as Map)['updatedAt'],
+        comments = (snapshot.data() as Map)['comments'],
         quantity = (snapshot.data() as Map)['quantity'];
 
   static Product fromMap(Map<String, dynamic> map) {
@@ -55,7 +60,19 @@ class Product {
         documentId: map['documentId'],
         createdAt: map['createdAt'],
         updatedAt: map['updatedAt'],
+        comments: map['comments'],
         quantity: map['quantity']);
+  }
+
+  static Product fromAlgolia(Map<String, dynamic> map) {
+    return Product(
+      name: map['name'],
+      measure: map['measure'],
+      price: map['price'] != null
+          ? Money.fromInt(map['price'], Currency.create('USD', 2))
+          : null,
+      documentId: map['objectID'],
+    );
   }
 
   Map<String, dynamic> toMap() {
@@ -67,7 +84,8 @@ class Product {
       'createdAt': createdAt,
       'updatedAt': updatedAt,
       'quantity': quantity,
-      'documentId': documentId
+      'documentId': documentId,
+      'comments': comments
     }..removeWhere((key, value) => value == null);
   }
 

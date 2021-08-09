@@ -376,28 +376,37 @@ class _AddEventState extends State<AddEvent> {
 
   Future createEvent(context) async {
     final collection = FirebaseFirestore.instance.collection('events');
+    DateTime startDateTime = DateTime(
+        selectedDateStart.year,
+        selectedDateStart.month,
+        selectedDateStart.day,
+        selectedTimeStart.hour,
+        selectedTimeStart.minute);
+
+    DateTime endDateTime;
+    DateTime endDate;
+    if (selectedDateEnd != null) {
+      endDateTime = DateTime(selectedDateEnd!.year, selectedDateEnd!.month,
+          selectedDateEnd!.day, selectedTimeEnd!.hour, selectedTimeEnd!.minute);
+      endDate = DateTime(
+          selectedDateEnd!.year, selectedDateEnd!.month, selectedDateEnd!.day);
+    } else {
+      endDateTime = startDateTime.add(Duration(hours: 1));
+      endDate = DateTime(selectedDateStart.year, selectedDateStart.month,
+          selectedDateStart.day);
+    }
 
     return await collection.add({
-      "startDateTime": DateTime(
-          selectedDateStart.year,
-          selectedDateStart.month,
-          selectedDateStart.day,
-          selectedTimeStart.hour,
-          selectedTimeStart.minute),
-      "endDateTime": selectedDateEnd != null
-          ? DateTime(
-              selectedDateEnd!.year,
-              selectedDateEnd!.month,
-              selectedDateEnd!.day,
-              selectedTimeEnd!.hour,
-              selectedTimeEnd!.minute)
-          : null,
-      "endDate": selectedDateEnd,
+      "startDateTime": startDateTime,
+      "endDateTime": endDateTime,
+      "endDate": endDate,
       "startDate": selectedDateStart,
       "needVolunteers": needVolunteers,
       "title": title,
       "description": description == "" ? null : description,
       "userId": Provider.of<UserData>(context, listen: false).id,
+      "userName": Provider.of<UserData>(context, listen: false).name,
+      "userFarm": Provider.of<UserData>(context, listen: false).farmName
     });
   }
 }

@@ -38,19 +38,7 @@ class _AddProduceListState extends State<AddProduceList> {
   Timer? _debounce;
   bool loading = false;
   bool loadingResults = false;
-
-  @override
-  void initState() {
-    // TODO: implement initState
-    super.initState();
-    if (widget.type == "harvest") {
-      selectedProduce = widget.report!.availability!.produce;
-      for (Product item in selectedProduce) {
-        _controllers
-            .add(new TextEditingController(text: item.quantity.toString()));
-      }
-    }
-  }
+  bool hiddeButton = false;
 
   @override
   void dispose() {
@@ -72,10 +60,7 @@ class _AddProduceListState extends State<AddProduceList> {
             .getObjects();
         setState(() {
           results = algoliaResults.hits
-              .map((e) => Product(
-                  name: e.data['name'],
-                  documentId: e.data['objectID'],
-                  measure: e.data['measure']))
+              .map((e) => Product.fromAlgolia(e.data))
               .toList();
           loadingResults = false;
         });
@@ -134,213 +119,273 @@ class _AddProduceListState extends State<AddProduceList> {
           ),
         ),
         appBar: AppBar(
-          title: widget.type == "availability"
-              ? Text("Add Produce Availability")
-              : Text("Add Harvest Record"),
+          title: getTitle(),
         ),
-        body: Padding(
-          padding: const EdgeInsets.only(top: 24),
-          child: Column(
-            children: [
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 12),
-                child: Stack(
-                  children: [
-                    TextField(
-                      controller: searchField,
-                      onChanged: (val) {
-                        _onSearchChanged(val);
-                      },
-                      decoration: InputDecoration(
-                          contentPadding: fieldContentPadding,
-                          enabledBorder: fieldEnabledBorder,
-                          focusedBorder: fieldFocusedBorder,
-                          errorBorder: fieldErrorBorder,
-                          labelText: 'Search Produce',
-                          hintText: "Type name of produce"),
-                    ),
-                    if (searchField.text.isNotEmpty)
-                      Positioned(
-                          right: 5,
-                          child: loadingResults
-                              ? SpinKitCircle(
-                                  color: primaryGreen,
-                                )
-                              : IconButton(
-                                  onPressed: () {
-                                    _onSearchChanged("");
-                                    searchField.text = "";
-                                  },
-                                  icon: Icon(Icons.clear,
-                                      color: Colors.grey.shade500)))
-                  ],
-                ),
+        body: Column(
+          children: [
+            verticalSpaceMedium,
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 12),
+              child: Stack(
+                children: [
+                  TextField(
+                    controller: searchField,
+                    onChanged: (val) {
+                      _onSearchChanged(val);
+                    },
+                    decoration: InputDecoration(
+                        contentPadding: fieldContentPadding,
+                        enabledBorder: fieldEnabledBorder,
+                        focusedBorder: fieldFocusedBorder,
+                        errorBorder: fieldErrorBorder,
+                        labelText: 'Search Produce',
+                        hintText: "Type name of produce"),
+                  ),
+                  if (searchField.text.isNotEmpty)
+                    Positioned(
+                        right: 5,
+                        child: loadingResults
+                            ? SpinKitCircle(
+                                color: primaryGreen,
+                              )
+                            : IconButton(
+                                onPressed: () {
+                                  _onSearchChanged("");
+                                  searchField.text = "";
+                                },
+                                icon: Icon(Icons.clear,
+                                    color: Colors.grey.shade500)))
+                ],
               ),
-              verticalSpaceSmall,
-              AnimatedContainer(
-                duration: const Duration(seconds: 1),
-                curve: Curves.fastOutSlowIn,
-                height: results.isEmpty ? 0 : 60,
-                width: double.infinity,
-                child: Scrollbar(
+            ),
+            verticalSpaceSmall,
+            AnimatedContainer(
+              duration: const Duration(seconds: 1),
+              curve: Curves.fastOutSlowIn,
+              height: results.isEmpty ? 0 : 60,
+              width: double.infinity,
+              child: Scrollbar(
+                controller: _scrollControllerOne,
+                child: ListView.builder(
+                  padding: EdgeInsets.symmetric(horizontal: 12),
                   controller: _scrollControllerOne,
-                  child: ListView.builder(
-                    padding: EdgeInsets.symmetric(horizontal: 12),
-                    controller: _scrollControllerOne,
-                    scrollDirection: Axis.horizontal,
-                    itemCount: results.length,
-                    itemBuilder: (BuildContext context, index) {
-                      return Stack(
-                        clipBehavior: Clip.none,
-                        children: [
-                          Card(
-                            shape: isSelected(results[index].documentId)
-                                ? new RoundedRectangleBorder(
-                                    side: new BorderSide(
-                                        color: primaryGreen, width: 2.0),
-                                    borderRadius: BorderRadius.circular(4.0))
-                                : new RoundedRectangleBorder(
-                                    side: new BorderSide(
-                                        color: Colors.white, width: 2.0),
-                                    borderRadius: BorderRadius.circular(4.0)),
-                            child: InkWell(
-                              onTap: () {
-                                if (isSelected(results[index].documentId)) {
-                                  setState(() {
-                                    int idx = selectedProduce.indexWhere(
-                                        (Product e) =>
-                                            e.documentId ==
-                                            results[index].documentId);
-                                    selectedProduce.removeAt(idx);
-                                    _controllers.removeAt(idx);
-                                  });
-                                } else
-                                  setState(() {
-                                    _controllers.add(
-                                        new TextEditingController(text: "0"));
-                                    selectedProduce.add(results[index]);
-                                  });
-                              },
-                              child: Padding(
-                                padding: const EdgeInsets.symmetric(
-                                    horizontal: 16, vertical: 12),
-                                child: Text(
-                                  results[index].name,
-                                  style: TextStyle(
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.w500),
-                                ),
+                  scrollDirection: Axis.horizontal,
+                  itemCount: results.length,
+                  itemBuilder: (BuildContext context, index) {
+                    return Stack(
+                      clipBehavior: Clip.none,
+                      children: [
+                        Card(
+                          shape: isSelected(results[index].documentId)
+                              ? new RoundedRectangleBorder(
+                                  side: new BorderSide(
+                                      color: primaryGreen, width: 2.0),
+                                  borderRadius: BorderRadius.circular(4.0))
+                              : new RoundedRectangleBorder(
+                                  side: new BorderSide(
+                                      color: Colors.white, width: 2.0),
+                                  borderRadius: BorderRadius.circular(4.0)),
+                          child: InkWell(
+                            onTap: () {
+                              if (isSelected(results[index].documentId)) {
+                                setState(() {
+                                  int idx = selectedProduce.indexWhere(
+                                      (Product e) =>
+                                          e.documentId ==
+                                          results[index].documentId);
+                                  selectedProduce.removeAt(idx);
+                                  _controllers.removeAt(idx);
+                                });
+                              } else
+                                setState(() {
+                                  _controllers.add(
+                                      new TextEditingController(text: "0"));
+                                  selectedProduce.add(results[index]);
+                                });
+                            },
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 16, vertical: 12),
+                              child: Text(
+                                results[index].name,
+                                style: TextStyle(
+                                    fontSize: 16, fontWeight: FontWeight.w500),
                               ),
                             ),
                           ),
-                        ],
-                      );
-                    },
-                  ),
+                        ),
+                      ],
+                    );
+                  },
                 ),
               ),
-              verticalSpaceSmall,
-              Expanded(
-                child: Scrollbar(
-                  controller: _scrollControllerTwo,
-                  child: ListView(
-                    physics: AlwaysScrollableScrollPhysics(),
-                    children: [
-                      ListView.builder(
-                          physics: ScrollPhysics(),
-                          shrinkWrap: true,
-                          controller: _scrollControllerTwo,
-                          itemCount: selectedProduce.length,
-                          padding: const EdgeInsets.symmetric(horizontal: 12),
-                          itemBuilder: (BuildContext context, index) {
-                            return Slidable(
-                              actionPane: SlidableDrawerActionPane(),
-                              actionExtentRatio: 0.25,
-                              secondaryActions: <Widget>[
-                                IconSlideAction(
-                                  caption: 'Delete',
-                                  color: Colors.red,
-                                  icon: Icons.delete,
-                                  onTap: () => setState(() {
-                                    _controllers.removeAt(index);
-                                    selectedProduce.removeAt(index);
-                                  }),
-                                ),
-                                IconSlideAction(
-                                  caption: 'Close',
-                                  color: Colors.grey.shade600,
-                                  icon: Icons.close,
-                                  onTap: () {},
-                                ),
-                              ],
-                              child: Card(
-                                  child: Padding(
-                                padding: const EdgeInsets.symmetric(
-                                    horizontal: 12, vertical: 8),
-                                child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.start,
-                                  children: [
-                                    Expanded(
-                                      child: Text(
-                                        selectedProduce[index].name,
-                                        style: TextStyle(
-                                            fontSize: 16,
-                                            fontWeight: FontWeight.w500),
-                                        overflow: TextOverflow.ellipsis,
-                                      ),
-                                    ),
-                                    horizontalSpaceTiny,
-                                    Container(
-                                      width: 28,
-                                      child: TextField(
-                                        onTap: () =>
-                                            _controllers[index].selection =
-                                                TextSelection(
-                                                    baseOffset: 0,
-                                                    extentOffset:
-                                                        _controllers[index]
-                                                            .value
-                                                            .text
-                                                            .length),
-                                        textAlign: TextAlign.center,
-                                        keyboardType: TextInputType.number,
-                                        decoration: InputDecoration(),
-                                        inputFormatters: <TextInputFormatter>[
-                                          FilteringTextInputFormatter.allow(
-                                              RegExp(r'[0-9]')),
-                                        ],
-                                        controller: _controllers[index],
-                                        onChanged: (String val) {
-                                          setState(() {
-                                            selectedProduce[index].quantity =
-                                                int.parse(val);
-                                          });
-                                        },
-                                      ),
-                                    ),
-                                    horizontalSpaceTiny,
-                                    Container(
-                                      width: 64,
-                                      child: Text(
-                                          "${selectedProduce[index].getMeasureUnits()}"),
-                                    ),
-                                  ],
-                                ),
-                              )),
-                            );
-                          }),
-                      Container(
-                        height: 70,
-                      )
-                    ],
-                  ),
-                ),
-              )
+            ),
+            verticalSpaceSmall,
+            if (widget.type == "order") ...[
+              AnimatedSwitcher(
+                duration: const Duration(seconds: 1),
+                child: hiddeButton
+                    ? Container()
+                    : TextButton.icon(
+                        style: TextButton.styleFrom(
+                            primary: secondaryBlue,
+                            elevation: 1,
+                            backgroundColor: Colors.white,
+                            onSurface: Colors.white,
+                            padding: EdgeInsets.symmetric(
+                                horizontal: 16, vertical: 12)),
+                        onPressed: () {
+                          setState(() {
+                            selectedProduce =
+                                widget.report!.availability!.produce;
+                            for (Product item in selectedProduce) {
+                              _controllers.add(new TextEditingController(
+                                  text: item.quantity.toString()));
+                            }
+                            hiddeButton = true;
+                          });
+                        },
+                        icon: Icon(Icons.paste),
+                        label: Text(
+                            "Paste produce list from availability report")),
+              ),
+              verticalSpaceSmall
+            ] else if (widget.type == "harvest" &&
+                widget.report!.order != null) ...[
+              AnimatedSwitcher(
+                  duration: const Duration(seconds: 1),
+                  child: hiddeButton
+                      ? Container()
+                      : TextButton.icon(
+                          style: TextButton.styleFrom(
+                              primary: secondaryBlue,
+                              elevation: 1,
+                              backgroundColor: Colors.white,
+                              onSurface: Colors.white,
+                              padding: EdgeInsets.symmetric(
+                                  horizontal: 16, vertical: 12)),
+                          onPressed: () {
+                            setState(() {
+                              selectedProduce = widget.report!.order!.produce;
+                              for (Product item in selectedProduce) {
+                                _controllers.add(new TextEditingController(
+                                    text: item.quantity.toString()));
+                              }
+                              hiddeButton = true;
+                            });
+                          },
+                          icon: Icon(Icons.paste),
+                          label: Text("Paste produce list from order"),
+                        )),
+              verticalSpaceSmall
             ],
-          ),
+            Expanded(
+              child: Scrollbar(
+                controller: _scrollControllerTwo,
+                child: ListView(
+                  physics: AlwaysScrollableScrollPhysics(),
+                  children: [
+                    ListView.builder(
+                        physics: ScrollPhysics(),
+                        shrinkWrap: true,
+                        controller: _scrollControllerTwo,
+                        itemCount: selectedProduce.length,
+                        padding: const EdgeInsets.symmetric(horizontal: 12),
+                        itemBuilder: (BuildContext context, index) {
+                          return Slidable(
+                            actionPane: SlidableDrawerActionPane(),
+                            actionExtentRatio: 0.25,
+                            secondaryActions: <Widget>[
+                              IconSlideAction(
+                                caption: 'Delete',
+                                color: Colors.red,
+                                icon: Icons.delete,
+                                onTap: () => setState(() {
+                                  _controllers.removeAt(index);
+                                  selectedProduce.removeAt(index);
+                                }),
+                              ),
+                              IconSlideAction(
+                                caption: 'Close',
+                                color: Colors.grey.shade600,
+                                icon: Icons.close,
+                                onTap: () {},
+                              ),
+                            ],
+                            child: Card(
+                                child: Padding(
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 12, vertical: 8),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.start,
+                                children: [
+                                  Expanded(
+                                    child: Text(
+                                      selectedProduce[index].name,
+                                      style: TextStyle(
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.w500),
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                  ),
+                                  horizontalSpaceTiny,
+                                  Container(
+                                    width: 28,
+                                    child: TextField(
+                                      onTap: () => _controllers[index]
+                                              .selection =
+                                          TextSelection(
+                                              baseOffset: 0,
+                                              extentOffset: _controllers[index]
+                                                  .value
+                                                  .text
+                                                  .length),
+                                      textAlign: TextAlign.center,
+                                      keyboardType: TextInputType.number,
+                                      decoration: InputDecoration(),
+                                      inputFormatters: <TextInputFormatter>[
+                                        FilteringTextInputFormatter.allow(
+                                            RegExp(r'[0-9]')),
+                                      ],
+                                      controller: _controllers[index],
+                                      onChanged: (String val) {
+                                        setState(() {
+                                          selectedProduce[index].quantity =
+                                              int.parse(val);
+                                        });
+                                      },
+                                    ),
+                                  ),
+                                  horizontalSpaceTiny,
+                                  Container(
+                                    width: 64,
+                                    child: Text(
+                                        "${selectedProduce[index].getMeasureUnits()}"),
+                                  ),
+                                ],
+                              ),
+                            )),
+                          );
+                        }),
+                    Container(
+                      height: 70,
+                    )
+                  ],
+                ),
+              ),
+            )
+          ],
         ),
       ),
     );
+  }
+
+  Widget? getTitle() {
+    if (widget.type == "availability")
+      return Text("Add Produce Availability");
+    else if (widget.type == "harvest")
+      return Text("Add Harvest Record");
+    else if (widget.type == "order") return Text("Add Order");
   }
 
   bool isSelected(String id) {
@@ -351,15 +396,21 @@ class _AddProduceListState extends State<AddProduceList> {
   }
 
   Future createRecord() async {
-    if (widget.type == "availability") return await createAvailability();
-    return await createHarvest();
+    if (widget.type == "availability")
+      return await createAvailability();
+    else if (widget.type == "harvest") return await createHarvest();
+    return await createOrder();
   }
 
   Future createHarvest() async {
     CollectionReference collection =
         FirebaseFirestore.instance.collection("weeklyReports");
     DocumentReference doc;
-    String farmId = Provider.of<UserData>(context, listen: false).farmId!;
+    late String farmId;
+    if (widget.report != null)
+      farmId = widget.report!.farmId;
+    else
+      farmId = Provider.of<UserData>(context, listen: false).farmId!;
     DateTime date = widget.date;
     doc = collection.doc("${date.millisecondsSinceEpoch.toString()}$farmId");
     List list = [];
@@ -369,6 +420,27 @@ class _AddProduceListState extends State<AddProduceList> {
     return doc.set({
       "updatedAt": DateTime.now(),
       "harvest": {
+        "userId": Provider.of<UserData>(context, listen: false).id,
+        "createdAt": DateTime.now(),
+        "produce": list
+      }
+    }, SetOptions(merge: true));
+  }
+
+  Future createOrder() async {
+    CollectionReference collection =
+        FirebaseFirestore.instance.collection("weeklyReports");
+    DocumentReference doc;
+    String farmId = widget.report!.farmId;
+    DateTime date = widget.date;
+    doc = collection.doc("${date.millisecondsSinceEpoch.toString()}$farmId");
+    List list = [];
+    for (Product prod in selectedProduce) {
+      list.add(prod.toMap());
+    }
+    return doc.set({
+      "updatedAt": DateTime.now(),
+      "order": {
         "userId": Provider.of<UserData>(context, listen: false).id,
         "createdAt": DateTime.now(),
         "produce": list

@@ -9,6 +9,7 @@ import 'package:plant_it_forward/shared/ui_helpers.dart';
 
 Widget productCardDefault(BuildContext context, Product product) {
   return Container(
+    height: 90,
     child: Card(
       elevation: 2,
       clipBehavior: Clip.antiAliasWithSaveLayer,
@@ -23,7 +24,7 @@ Widget productCardDefault(BuildContext context, Product product) {
         },
         child: Stack(children: [
           Container(
-            height: 80,
+            height: double.infinity,
             width: 5,
             color: secondaryBlue,
           ),
