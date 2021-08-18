@@ -23,7 +23,13 @@ class _VolunteerWrapperState extends State<VolunteerWrapper> {
   }
 
   List<Widget> _buildScreens() {
-    return [HomeScreen(), Chat(), CalendarScreen()];
+    return [
+      HomeScreen(
+        persistentTabController: _controller,
+      ),
+      Chat(),
+      CalendarScreen()
+    ];
   }
 
   List<PersistentBottomNavBarItem> _navBarsItems() {

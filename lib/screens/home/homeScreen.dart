@@ -1,10 +1,14 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
+import 'package:persistent_bottom_nav_bar/persistent-tab-view.dart';
 import 'package:plant_it_forward/Models/CalEvent.dart';
 import 'package:plant_it_forward/Models/UserData.dart';
+import 'package:plant_it_forward/services/local_notification_service.dart';
+import 'package:plant_it_forward/services/router.dart';
 import 'package:plant_it_forward/utils/config.dart';
 import 'package:plant_it_forward/utils/helperFunctions.dart';
 import 'package:plant_it_forward/screens/home/Profile/editProfile.dart';
@@ -17,7 +21,9 @@ import 'package:plant_it_forward/theme/colors.dart';
 import 'package:provider/provider.dart';
 
 class HomeScreen extends StatefulWidget {
-  HomeScreen({Key? key}) : super(key: key);
+  final PersistentTabController persistentTabController;
+  HomeScreen({Key? key, required this.persistentTabController})
+      : super(key: key);
   final List<Color> availableColors = [
     Colors.purpleAccent,
     Colors.yellow,
@@ -32,6 +38,42 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
+  @override
+  void initState() {
+    super.initState();
+
+    LocalNotificationService.initialize(
+        context, widget.persistentTabController);
+
+    ///gives you the message on which user taps
+    ///and it opened the app from terminated state
+    FirebaseMessaging.instance.getInitialMessage().then((message) {
+      if (message != null) {
+        final routeFromMessage = message.data["route"];
+        pushNewScreen(context, screen: generateScreen(routeFromMessage));
+        // Navigator.of(context).pushNamed(routeFromMessage);
+      }
+    });
+
+    ///forground work
+    FirebaseMessaging.onMessage.listen((message) {
+      if (message.notification != null) {
+        print(message.notification!.body);
+        print(message.notification!.title);
+      }
+      LocalNotificationService.display(message);
+    });
+
+    ///When the app is in background but opened and user taps
+    ///on the notification
+    FirebaseMessaging.onMessageOpenedApp.listen((message) {
+      final routeFromMessage = message.data["route"];
+      widget.persistentTabController.jumpToTab(0);
+      pushNewScreen(context, screen: generateScreen(routeFromMessage));
+      // Navigator.of(context).pushNamed(routeFromMessage);
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(

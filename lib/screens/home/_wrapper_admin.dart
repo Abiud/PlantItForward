@@ -18,6 +18,10 @@ class AdminWrapper extends StatefulWidget {
 class _AdminWrapperState extends State<AdminWrapper> {
   late PersistentTabController _controller;
 
+  void changeIndex(int idx) {
+    _controller.jumpToTab(idx);
+  }
+
   @override
   void initState() {
     super.initState();
@@ -25,7 +29,13 @@ class _AdminWrapperState extends State<AdminWrapper> {
   }
 
   List<Widget> _buildScreens() {
-    return [HomeScreen(), Produce(), Chat(), CalendarScreen(), AdminView()];
+    return [
+      HomeScreen(persistentTabController: _controller),
+      Produce(),
+      Chat(),
+      CalendarScreen(),
+      AdminView()
+    ];
   }
 
   List<PersistentBottomNavBarItem> _navBarsItems() {

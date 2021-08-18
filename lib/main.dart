@@ -1,3 +1,6 @@
+import 'dart:io';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -10,7 +13,6 @@ import 'package:plant_it_forward/screens/authenticate/authenticate.dart';
 import 'package:plant_it_forward/screens/home/nav_wrapper.dart';
 import 'package:plant_it_forward/services/auth.dart';
 import 'package:plant_it_forward/services/database.dart';
-import 'package:plant_it_forward/services/local_notification_service.dart';
 import 'package:plant_it_forward/services/router.dart' as router;
 import 'package:plant_it_forward/utils/routing_constants.dart';
 import 'package:provider/provider.dart';
@@ -49,7 +51,6 @@ class MyApp extends StatelessWidget {
             primaryColor: secondaryBlue,
             accentColor: primaryGreen,
             colorScheme: ColorScheme.light(primary: secondaryBlue)),
-        onGenerateRoute: router.generateRoute,
         debugShowCheckedModeBanner: false,
         initialRoute: HomeViewRoute,
         home: Wrapper(),
@@ -74,36 +75,7 @@ class _WrapperState extends State<Wrapper> {
   @override
   void initState() {
     super.initState();
-
-    LocalNotificationService.initialize(context);
-
-    ///gives you the message on which user taps
-    ///and it opened the app from terminated state
-    FirebaseMessaging.instance.getInitialMessage().then((message) {
-      if (message != null) {
-        final routeFromMessage = message.data["route"];
-
-        Navigator.of(context).pushNamed(routeFromMessage);
-      }
-    });
-
-    ///forground work
-    FirebaseMessaging.onMessage.listen((message) {
-      if (message.notification != null) {
-        print(message.notification!.body);
-        print(message.notification!.title);
-      }
-
-      LocalNotificationService.display(message);
-    });
-
-    ///When the app is in background but opened and user taps
-    ///on the notification
-    FirebaseMessaging.onMessageOpenedApp.listen((message) {
-      final routeFromMessage = message.data["route"];
-
-      Navigator.of(context).pushNamed(routeFromMessage);
-    });
+    _saveDeviceToken();
   }
 
   @override
@@ -118,5 +90,35 @@ class _WrapperState extends State<Wrapper> {
         child: NavWrapper(),
       );
     }
+  }
+}
+
+_saveDeviceToken() async {
+  // Get the token each time the application loads
+  String? token = await FirebaseMessaging.instance.getToken();
+
+  if (token != null)
+    // Save the initial token to the database
+    await saveTokenToDatabase(token);
+
+  // Any time the token refreshes, store this in the database too.
+  FirebaseMessaging.instance.onTokenRefresh.listen(saveTokenToDatabase);
+}
+
+Future<void> saveTokenToDatabase(String token) async {
+  if (FirebaseAuth.instance.currentUser != null) {
+    // Assume user is logged in for this example
+    String userId = FirebaseAuth.instance.currentUser!.uid;
+
+    await FirebaseFirestore.instance
+        .collection('users')
+        .doc(userId)
+        .collection('tokens')
+        .doc(token)
+        .set({
+      'token': token,
+      'createdAt': FieldValue.serverTimestamp(),
+      'platform': Platform.operatingSystem
+    });
   }
 }

@@ -1,3 +1,4 @@
 const String HomeViewRoute = '/';
 const String LoginViewRoute = 'login';
-const String WeeklyReports = 'weekly-reports';
+const String WeeklyReportsRoute = 'weekly-reports';
+const String ChatRoute = 'chat';

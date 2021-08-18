@@ -24,7 +24,14 @@ class _FarmerWrapperState extends State<FarmerWrapper> {
   }
 
   List<Widget> _buildScreens() {
-    return [HomeScreen(), Produce(), Chat(), CalendarScreen()];
+    return [
+      HomeScreen(
+        persistentTabController: _controller,
+      ),
+      Produce(),
+      Chat(),
+      CalendarScreen()
+    ];
   }
 
   List<PersistentBottomNavBarItem> _navBarsItems() {

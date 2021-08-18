@@ -1,20 +1,27 @@
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:persistent_bottom_nav_bar/persistent-tab-view.dart';
+import 'package:plant_it_forward/services/router.dart';
 
 class LocalNotificationService {
   static final FlutterLocalNotificationsPlugin _notificationsPlugin =
       FlutterLocalNotificationsPlugin();
 
-  static void initialize(BuildContext context) {
+  static void initialize(
+      BuildContext context, PersistentTabController persistentTabController) {
     final InitializationSettings initializationSettings =
         InitializationSettings(
             android: AndroidInitializationSettings("@mipmap/ic_launcher"));
 
     _notificationsPlugin.initialize(initializationSettings,
-        onSelectNotification: (String? route) async {
+        onSelectNotification: (
+      String? route,
+    ) async {
       if (route != null) {
-        Navigator.of(context).pushNamed(route);
+        persistentTabController.jumpToTab(0);
+        pushNewScreen(context, screen: generateScreen(route));
+        // Navigator.of(context).pushNamed(route);
       }
     });
   }

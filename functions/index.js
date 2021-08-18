@@ -3,6 +3,7 @@ const functions = require("firebase-functions");
 
 admin.initializeApp();
 
+exports.notifications = require("./notifications");
 // On sign up.
 exports.setAdmin = functions.auth.user().onCreate(async (user) => {
     // Check if user meets role criteria.
