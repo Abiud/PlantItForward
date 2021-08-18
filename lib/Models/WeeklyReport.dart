@@ -1,11 +1,9 @@
 import 'dart:convert';
 
-import 'package:plant_it_forward/Models/Order.dart';
 import 'package:plant_it_forward/Models/ProduceAvailability.dart';
 
 class WeeklyReport {
   String id;
-  DateTime date;
   String farmId;
   String farmName;
   DateTime? createdAt;
@@ -16,7 +14,6 @@ class WeeklyReport {
   ProduceAvailability? purchased;
   WeeklyReport({
     required this.id,
-    required this.date,
     required this.farmId,
     required this.farmName,
     this.createdAt,
@@ -31,7 +28,6 @@ class WeeklyReport {
     String? id,
     String? farmId,
     String? farmName,
-    DateTime? date,
     DateTime? createdAt,
     DateTime? updatedAt,
     ProduceAvailability? availability,
@@ -43,7 +39,6 @@ class WeeklyReport {
       id: id ?? this.id,
       farmId: farmId ?? this.farmId,
       farmName: farmName ?? this.farmName,
-      date: date ?? this.date,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
       availability: availability ?? this.availability,
@@ -58,7 +53,6 @@ class WeeklyReport {
       'id': id,
       'farmId': farmId,
       'farmName': farmName,
-      'date': date.millisecondsSinceEpoch,
       'createdAt': createdAt?.millisecondsSinceEpoch,
       'updatedAt': updatedAt?.millisecondsSinceEpoch,
       'availability': availability?.toMap(),
@@ -73,7 +67,6 @@ class WeeklyReport {
       id: map['id'],
       farmId: map['farmId'],
       farmName: map['farmName'],
-      date: (map['date']).toDate(),
       createdAt: (map['createdAt'])?.toDate(),
       updatedAt: (map['updatedAt'])?.toDate(),
       availability: map['availability'] != null
@@ -95,7 +88,7 @@ class WeeklyReport {
 
   @override
   String toString() {
-    return 'WeeklyReport(id: $id, date: $date, createdAt: $createdAt, updatedAt: $updatedAt, availability: $availability, harvest: $harvest, order: $order, purchased $purchased)';
+    return 'WeeklyReport(id: $id, createdAt: $createdAt, updatedAt: $updatedAt, availability: $availability, harvest: $harvest, order: $order, purchased $purchased)';
   }
 
   @override
@@ -104,7 +97,6 @@ class WeeklyReport {
 
     return other is WeeklyReport &&
         other.id == id &&
-        other.date == date &&
         other.createdAt == createdAt &&
         other.updatedAt == updatedAt &&
         other.availability == availability &&
@@ -116,7 +108,6 @@ class WeeklyReport {
   @override
   int get hashCode {
     return id.hashCode ^
-        date.hashCode ^
         createdAt.hashCode ^
         updatedAt.hashCode ^
         availability.hashCode ^

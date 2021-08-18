@@ -1,7 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:persistent_bottom_nav_bar/persistent-tab-view.dart';
-import 'package:plant_it_forward/config.dart';
+import 'package:plant_it_forward/utils/config.dart';
 import 'package:plant_it_forward/screens/home/Calendar/calendar.dart';
 import 'package:plant_it_forward/screens/home/Chat/chat.dart';
 import 'package:plant_it_forward/screens/home/homeScreen.dart';

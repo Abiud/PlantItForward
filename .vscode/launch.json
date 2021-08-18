@@ -6,6 +6,29 @@
         "request": "launch",
         "type": "dart",
         "args": ["--web-port", "7357"]
+      },
+      {
+        "name": "Current Device",
+        "request": "launch",
+        "type": "dart"
+      },
+      {
+          "name": "Android",
+          "request": "launch",
+          "type": "dart",
+          "deviceId": "f6b0b634"
+      },
+      {
+          "name": "iPhone",
+          "request": "launch",
+          "type": "dart",
+          "deviceId": "DDA08921-46CE-42AA-87E4-10FB3D91CE87"
+      },
+    ],
+    "compounds": [
+      {
+          "name": "All Devices",
+          "configurations": ["Android", "iPhone"],
       }
-    ]
+  ]
   }

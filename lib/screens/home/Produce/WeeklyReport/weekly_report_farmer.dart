@@ -2,12 +2,11 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:plant_it_forward/Models/ProduceAvailability.dart';
 import 'package:plant_it_forward/Models/WeeklyReport.dart';
-import 'package:plant_it_forward/config.dart';
+import 'package:plant_it_forward/utils/config.dart';
 import 'package:plant_it_forward/screens/home/Produce/shared/addProduceList.dart';
 import 'package:plant_it_forward/screens/home/Produce/shared/editProduceList.dart';
 import 'package:plant_it_forward/screens/home/Produce/shared/viewProduceList.dart';
 import 'package:plant_it_forward/shared/ui_helpers.dart';
-import 'package:plant_it_forward/theme/colors.dart';
 import 'package:provider/provider.dart';
 import 'package:timelines/timelines.dart';
 
@@ -94,7 +93,8 @@ class _WeeklyReportFarmerState extends State<WeeklyReportFarmer> {
                 context,
                 MaterialPageRoute(
                     builder: (context) => AddProduceList(
-                          date: widget.dateSelected,
+                          date: widget.dateSelected.millisecondsSinceEpoch
+                              .toString(),
                           type: "availability",
                         ))),
             null);
@@ -266,7 +266,8 @@ class _WeeklyReportFarmerState extends State<WeeklyReportFarmer> {
                 context,
                 MaterialPageRoute(
                     builder: (context) => AddProduceList(
-                          date: widget.dateSelected,
+                          date: widget.dateSelected.millisecondsSinceEpoch
+                              .toString(),
                           type: "availability",
                         ))),
             report.availability);
@@ -287,7 +288,8 @@ class _WeeklyReportFarmerState extends State<WeeklyReportFarmer> {
                 context,
                 MaterialPageRoute(
                     builder: (context) => AddProduceList(
-                          date: widget.dateSelected,
+                          date: widget.dateSelected.millisecondsSinceEpoch
+                              .toString(),
                           type: "order",
                         ))),
             report.order);
@@ -309,7 +311,8 @@ class _WeeklyReportFarmerState extends State<WeeklyReportFarmer> {
                 MaterialPageRoute(
                     builder: (context) => AddProduceList(
                           report: report,
-                          date: widget.dateSelected,
+                          date: widget.dateSelected.millisecondsSinceEpoch
+                              .toString(),
                           type: "harvest",
                         ))),
             report.harvest);

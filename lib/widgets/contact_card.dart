@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:plant_it_forward/Models/UserData.dart';
-import 'package:plant_it_forward/helperFunctions.dart';
+import 'package:plant_it_forward/utils/helperFunctions.dart';
 import 'package:plant_it_forward/screens/home/Chat/convScreen.dart';
 import 'package:plant_it_forward/shared/ui_helpers.dart';
 

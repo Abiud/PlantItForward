@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:plant_it_forward/Models/Product.dart';
 import 'package:plant_it_forward/screens/home/Produce/Prices/product_view.dart';
 import 'package:plant_it_forward/shared/ui_helpers.dart';
-import 'package:plant_it_forward/utils.dart';
+import 'package:plant_it_forward/utils/utils.dart';
 
 Widget buildProductCardHistory(
     BuildContext context, DocumentSnapshot document, String parentId) {

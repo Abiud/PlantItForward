@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:plant_it_forward/config.dart';
+import 'package:plant_it_forward/utils/config.dart';
 
 // Input Decorations
 EdgeInsetsGeometry fieldContentPadding = EdgeInsets.all(8);

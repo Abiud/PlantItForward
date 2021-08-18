@@ -3,7 +3,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:plant_it_forward/Models/UserData.dart';
-import 'package:plant_it_forward/config.dart';
+import 'package:plant_it_forward/utils/config.dart';
 import 'package:plant_it_forward/screens/home/Admin/Users/editUser.dart';
 import 'package:plant_it_forward/shared/ui_helpers.dart';
 

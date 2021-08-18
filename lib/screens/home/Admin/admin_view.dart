@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:plant_it_forward/config.dart';
+import 'package:plant_it_forward/utils/config.dart';
 import 'package:plant_it_forward/screens/home/Admin/Farms/farms_view.dart';
 import 'package:plant_it_forward/screens/home/Admin/Users/users_view.dart';
 

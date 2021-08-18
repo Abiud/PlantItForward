@@ -9,7 +9,7 @@ import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:plant_it_forward/Models/Product.dart';
 import 'package:plant_it_forward/Models/UserData.dart';
 import 'package:plant_it_forward/Models/WeeklyReport.dart';
-import 'package:plant_it_forward/config.dart';
+import 'package:plant_it_forward/utils/config.dart';
 import 'package:plant_it_forward/services/algolia.dart';
 import 'package:plant_it_forward/shared/shared_styles.dart';
 import 'package:plant_it_forward/shared/ui_helpers.dart';
@@ -17,7 +17,7 @@ import 'package:provider/provider.dart';
 
 class AddProduceList extends StatefulWidget {
   final WeeklyReport? report;
-  final DateTime date;
+  final String date;
   final String type;
   AddProduceList(
       {Key? key, this.report, required this.date, required this.type})
@@ -411,8 +411,7 @@ class _AddProduceListState extends State<AddProduceList> {
       farmId = widget.report!.farmId;
     else
       farmId = Provider.of<UserData>(context, listen: false).farmId!;
-    DateTime date = widget.date;
-    doc = collection.doc("${date.millisecondsSinceEpoch.toString()}$farmId");
+    doc = collection.doc("${widget.date}$farmId");
     List list = [];
     for (Product prod in selectedProduce) {
       list.add(prod.toMap());
@@ -422,6 +421,7 @@ class _AddProduceListState extends State<AddProduceList> {
       "harvest": {
         "userId": Provider.of<UserData>(context, listen: false).id,
         "createdAt": DateTime.now(),
+        "updatedAt": DateTime.now(),
         "produce": list
       }
     }, SetOptions(merge: true));
@@ -432,8 +432,7 @@ class _AddProduceListState extends State<AddProduceList> {
         FirebaseFirestore.instance.collection("weeklyReports");
     DocumentReference doc;
     String farmId = widget.report!.farmId;
-    DateTime date = widget.date;
-    doc = collection.doc("${date.millisecondsSinceEpoch.toString()}$farmId");
+    doc = collection.doc("${widget.date}$farmId");
     List list = [];
     for (Product prod in selectedProduce) {
       list.add(prod.toMap());
@@ -443,6 +442,7 @@ class _AddProduceListState extends State<AddProduceList> {
       "order": {
         "userId": Provider.of<UserData>(context, listen: false).id,
         "createdAt": DateTime.now(),
+        "updatedAt": DateTime.now(),
         "produce": list
       }
     }, SetOptions(merge: true));
@@ -454,22 +454,21 @@ class _AddProduceListState extends State<AddProduceList> {
 
     DocumentReference doc;
     String farmId = Provider.of<UserData>(context, listen: false).farmId!;
-    DateTime date = widget.date;
 
-    doc = collection.doc("${date.millisecondsSinceEpoch.toString()}$farmId");
+    doc = collection.doc("${widget.date}$farmId");
     List list = [];
     for (Product prod in selectedProduce) {
       list.add(prod.toMap());
     }
     return doc.set({
-      "id": date.millisecondsSinceEpoch.toString(),
+      "id": widget.date,
       "farmId": farmId,
       "farmName": Provider.of<UserData>(context, listen: false).farmName,
-      "date": date,
       "createdAt": DateTime.now(),
       "availability": {
         "userId": Provider.of<UserData>(context, listen: false).id,
         "createdAt": DateTime.now(),
+        "updatedAt": DateTime.now(),
         "produce": list
       }
     }, SetOptions(merge: true));

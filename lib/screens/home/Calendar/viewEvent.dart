@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:plant_it_forward/Models/CalEvent.dart';
 import 'package:plant_it_forward/Models/UserData.dart';
-import 'package:plant_it_forward/config.dart';
+import 'package:plant_it_forward/utils/config.dart';
 import 'package:plant_it_forward/screens/home/Calendar/editEvent.dart';
 import 'package:plant_it_forward/screens/home/Profile/viewProfile.dart';
 import 'package:plant_it_forward/shared/ui_helpers.dart';

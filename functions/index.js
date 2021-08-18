@@ -96,30 +96,68 @@ exports.saveCopyOnDelete = functions.firestore
 
 exports.weeklyReportHistory = functions.firestore
     .document("weeklyReports/{docId}")
-    .onUpdate((change, context) => {
+    .onUpdate(async (change, context) => {
         const previousValue = change.before.data();
-        return admin
-            .firestore()
-            .collection("weeklyReports")
-            .doc(context.params.docId)
-            .collection("history")
-            .add(previousValue);
+        const newValue = change.after.data();
+
+        if (previousValue.availability && newValue.availability)
+            if (
+                previousValue.availability.updatedAt &&
+                newValue.availability.updatedAt
+            )
+                if (
+                    previousValue.availability.updatedAt._seconds !==
+                    newValue.availability.updatedAt._seconds
+                )
+                    await admin
+                        .firestore()
+                        .collection("weeklyReports")
+                        .doc(context.params.docId)
+                        .collection("availabilityHistory")
+                        .add(previousValue.availability);
+
+        if (previousValue.order && newValue.order)
+            if (previousValue.order.updatedAt && newValue.order.updatedAt)
+                if (
+                    previousValue.order.updatedAt._seconds !==
+                    newValue.order.updatedAt._seconds
+                )
+                    await admin
+                        .firestore()
+                        .collection("weeklyReports")
+                        .doc(context.params.docId)
+                        .collection("orderHistory")
+                        .add(previousValue.order);
+
+        if (previousValue.harvest && newValue.harvest)
+            if (previousValue.harvest.updatedAt && newValue.harvest.updatedAt)
+                if (
+                    previousValue.harvest.updatedAt._seconds !==
+                    newValue.harvest.updatedAt._seconds
+                )
+                    await admin
+                        .firestore()
+                        .collection("weeklyReports")
+                        .doc(context.params.docId)
+                        .collection("harvestHistory")
+                        .add(previousValue.harvest);
+
+        if (previousValue.invoice && newValue.invoice)
+            if (previousValue.invoice.updatedAt && newValue.invoice.updatedAt)
+                if (
+                    previousValue.invoice.updatedAt._seconds !==
+                    newValue.invoice.updatedAt._seconds
+                )
+                    await admin
+                        .firestore()
+                        .collection("weeklyReports")
+                        .doc(context.params.docId)
+                        .collection("invoiceHistory")
+                        .add(previousValue.invoice);
+        return {
+            success: true,
+        };
     });
-// exports.aggregateProduct = functions.firestore
-//     .document("products/{docId}")
-//     .onCreate(async (change, context) => {
-//         const statsRef = admin.firestore().collection("stats").doc("products");
-
-//         await admin.firestore().runTransaction(async (transaction) => {
-//             const statsDoc = await transaction.get(statsRef);
-
-//             const newTotal = statsDoc.data().total + 1;
-
-//             transaction.update(statsRef, {
-//                 total: newTotal,
-//             });
-//         });
-//     });
 
 exports.deleteProductHistory = functions.firestore
     .document("products/{docId}")

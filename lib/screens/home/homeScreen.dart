@@ -1,13 +1,12 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 import 'package:plant_it_forward/Models/CalEvent.dart';
 import 'package:plant_it_forward/Models/UserData.dart';
-import 'package:plant_it_forward/config.dart';
-import 'package:plant_it_forward/helperFunctions.dart';
+import 'package:plant_it_forward/utils/config.dart';
+import 'package:plant_it_forward/utils/helperFunctions.dart';
 import 'package:plant_it_forward/screens/home/Profile/editProfile.dart';
 import 'package:plant_it_forward/screens/home/Settings/settings.dart';
 import 'package:plant_it_forward/services/auth.dart';

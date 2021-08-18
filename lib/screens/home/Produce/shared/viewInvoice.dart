@@ -3,14 +3,17 @@ import 'package:currency_text_input_formatter/currency_text_input_formatter.dart
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:money2/money2.dart';
+import 'package:plant_it_forward/Models/ProduceAvailability.dart';
 import 'package:plant_it_forward/Models/Product.dart';
 import 'package:plant_it_forward/Models/WeeklyReport.dart';
-import 'package:plant_it_forward/config.dart';
+import 'package:plant_it_forward/utils/config.dart';
 import 'package:plant_it_forward/shared/ui_helpers.dart';
 
 class ViewInvoice extends StatefulWidget {
   final WeeklyReport report;
-  ViewInvoice({Key? key, required this.report}) : super(key: key);
+  final ProduceAvailability harvest;
+  ViewInvoice({Key? key, required this.report, required this.harvest})
+      : super(key: key);
 
   @override
   _ViewInvoiceState createState() => _ViewInvoiceState();
@@ -27,7 +30,7 @@ class _ViewInvoiceState extends State<ViewInvoice> {
   @override
   void initState() {
     super.initState();
-    produce = widget.report.harvest!.produce;
+    produce = widget.harvest.produce;
     for (Product prod in produce) {
       _quantityControllers
           .add(new TextEditingController(text: prod.quantity.toString()));
@@ -97,7 +100,9 @@ class _ViewInvoiceState extends State<ViewInvoice> {
                           fontSize: 18.0, fontWeight: FontWeight.w600)),
                 ),
                 Text(
-                  DateFormat.yMMMMd().format(widget.report.date),
+                  DateFormat.yMMMMd().format(
+                      DateTime.fromMillisecondsSinceEpoch(
+                          int.parse(widget.report.id))),
                   style: TextStyle(color: Colors.grey.shade600),
                 )
               ],
@@ -260,9 +265,8 @@ class _ViewInvoiceState extends State<ViewInvoice> {
   Future saveInvoice() async {
     final db = FirebaseFirestore.instance;
     String farmId = widget.report.farmId;
-    final reportDoc = db
-        .collection("weeklyReports")
-        .doc("${widget.report.date.millisecondsSinceEpoch.toString()}$farmId");
+    final reportDoc =
+        db.collection("weeklyReports").doc("${widget.report.id}$farmId");
     WriteBatch batch = db.batch();
     List<Map<String, dynamic>> prods = [];
     for (Product prod in produce) {
@@ -272,7 +276,11 @@ class _ViewInvoiceState extends State<ViewInvoice> {
     batch.set(
         reportDoc,
         {
-          "invoice": {"produce": prods, "createdAt": DateTime.now()},
+          "invoice": {
+            "produce": prods,
+            "createdAt": DateTime.now(),
+            "updatedAt": DateTime.now()
+          },
           "harvest": {"approved": true},
           "updatedAt": DateTime.now()
         },

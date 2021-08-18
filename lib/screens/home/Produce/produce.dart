@@ -1,6 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:plant_it_forward/config.dart';
+import 'package:plant_it_forward/utils/config.dart';
 import 'package:plant_it_forward/screens/home/Produce/Prices/price.dart';
 import 'package:plant_it_forward/screens/home/Produce/WeeklyReport/weekly_report_view.dart';
 

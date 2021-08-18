@@ -6,7 +6,7 @@ import 'package:plant_it_forward/screens/home/Produce/shared/editProduceList.dar
 import 'package:plant_it_forward/screens/home/Produce/shared/viewInvoice.dart';
 import 'package:plant_it_forward/screens/home/Produce/shared/viewProduceList.dart';
 import 'package:plant_it_forward/shared/ui_helpers.dart';
-import 'package:plant_it_forward/utils.dart';
+import 'package:plant_it_forward/utils/utils.dart';
 import 'package:provider/provider.dart';
 import 'package:timelines/timelines.dart';
 
@@ -212,7 +212,7 @@ class WeeklyReportStaff extends StatelessWidget {
                         MaterialPageRoute(
                             builder: (context) => AddProduceList(
                                   report: rep,
-                                  date: rep.date,
+                                  date: rep.id,
                                   type: "order",
                                 )));
                   }
@@ -277,7 +277,7 @@ class WeeklyReportStaff extends StatelessWidget {
                       CupertinoPageRoute(
                           builder: (context) => AddProduceList(
                                 report: rep,
-                                date: rep.date,
+                                date: rep.id,
                                 type: "harvest",
                               ))),
                   child: Text("Record"),
@@ -320,9 +320,8 @@ class WeeklyReportStaff extends StatelessWidget {
                   onPressed: () => Navigator.push(
                       context,
                       CupertinoPageRoute(
-                          builder: (context) => ViewInvoice(
-                                report: rep,
-                              ))),
+                          builder: (context) =>
+                              ViewInvoice(report: rep, harvest: rep.harvest!))),
                   child: Text("View"),
                 )
               ]

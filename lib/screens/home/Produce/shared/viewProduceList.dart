@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:plant_it_forward/Models/ProduceAvailability.dart';
 import 'package:plant_it_forward/Models/WeeklyReport.dart';
-import 'package:plant_it_forward/shared/shared_styles.dart';
 import 'package:plant_it_forward/shared/ui_helpers.dart';
 
 class ViewProduceList extends StatefulWidget {

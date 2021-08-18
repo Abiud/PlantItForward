@@ -8,7 +8,7 @@ import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:plant_it_forward/Models/Farm.dart';
 import 'package:plant_it_forward/Models/UserData.dart';
-import 'package:plant_it_forward/config.dart';
+import 'package:plant_it_forward/utils/config.dart';
 import 'package:plant_it_forward/screens/home/Admin/Farms/editFarm.dart';
 import 'package:plant_it_forward/services/algolia.dart';
 import 'package:plant_it_forward/shared/shared_styles.dart';

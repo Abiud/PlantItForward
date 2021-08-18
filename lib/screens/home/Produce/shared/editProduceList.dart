@@ -10,11 +10,10 @@ import 'package:plant_it_forward/Models/ProduceAvailability.dart';
 import 'package:plant_it_forward/Models/Product.dart';
 import 'package:plant_it_forward/Models/UserData.dart';
 import 'package:plant_it_forward/Models/WeeklyReport.dart';
-import 'package:plant_it_forward/config.dart';
+import 'package:plant_it_forward/utils/config.dart';
 import 'package:plant_it_forward/services/algolia.dart';
 import 'package:plant_it_forward/shared/shared_styles.dart';
 import 'package:plant_it_forward/shared/ui_helpers.dart';
-import 'package:plant_it_forward/utils.dart';
 import 'package:provider/provider.dart';
 
 class EditProduceList extends StatefulWidget {
@@ -406,9 +405,8 @@ class _EditProduceListState extends State<EditProduceList> {
   Future editHarvest() async {
     final db = FirebaseFirestore.instance;
     String farmId = widget.report.farmId;
-    final reportDoc = db
-        .collection("weeklyReports")
-        .doc("${widget.report.date.millisecondsSinceEpoch.toString()}$farmId");
+    final reportDoc =
+        db.collection("weeklyReports").doc("${widget.report.id}$farmId");
     WriteBatch batch = db.batch();
     List<Map<String, dynamic>> prods = [];
     for (Product prod in widget.list.produce) {
@@ -433,9 +431,8 @@ class _EditProduceListState extends State<EditProduceList> {
   Future editOrder() async {
     final db = FirebaseFirestore.instance;
     String farmId = widget.report.farmId;
-    final reportDoc = db
-        .collection("weeklyReports")
-        .doc("${widget.report.date.millisecondsSinceEpoch.toString()}$farmId");
+    final reportDoc =
+        db.collection("weeklyReports").doc("${widget.report.id}$farmId");
     WriteBatch batch = db.batch();
     List<Map<String, dynamic>> prods = [];
     for (Product prod in widget.list.produce) {
@@ -454,9 +451,8 @@ class _EditProduceListState extends State<EditProduceList> {
   Future editAvailability() async {
     final db = FirebaseFirestore.instance;
     String farmId = widget.report.farmId;
-    final reportDoc = db
-        .collection("weeklyReports")
-        .doc("${widget.report.date.millisecondsSinceEpoch.toString()}$farmId");
+    final reportDoc =
+        db.collection("weeklyReports").doc("${widget.report.id}$farmId");
     WriteBatch batch = db.batch();
     List<Map<String, dynamic>> prods = [];
     for (Product prod in widget.list.produce) {

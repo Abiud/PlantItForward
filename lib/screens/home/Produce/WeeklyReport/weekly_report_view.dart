@@ -5,9 +5,8 @@ import 'package:plant_it_forward/Models/UserData.dart';
 import 'package:plant_it_forward/Models/WeeklyReport.dart';
 import 'package:plant_it_forward/screens/home/Produce/WeeklyReport/weekly_report_farmer.dart';
 import 'package:plant_it_forward/screens/home/Produce/WeeklyReport/weekly_report_staff.dart';
-import 'package:plant_it_forward/shared/ui_helpers.dart';
 import 'package:plant_it_forward/theme/colors.dart';
-import 'package:plant_it_forward/utils.dart';
+import 'package:plant_it_forward/utils/utils.dart';
 import 'package:provider/provider.dart';
 
 class WeeklyReportView extends StatefulWidget {
@@ -135,6 +134,7 @@ class _WeeklyReportViewState extends State<WeeklyReportView> {
                           "${selectedDate.millisecondsSinceEpoch.toString()}${Provider.of<UserData>(context).farmId!}")
                       .snapshots()
                       .map((event) {
+                    print("stream provider");
                     if (event.data() != null)
                       return WeeklyReport.fromMap(event.data()!);
                   }),

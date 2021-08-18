@@ -7,13 +7,13 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:plant_it_forward/Models/CalEvent.dart';
 import 'package:plant_it_forward/Models/UserData.dart';
-import 'package:plant_it_forward/config.dart';
+import 'package:plant_it_forward/utils/config.dart';
 import 'package:plant_it_forward/screens/home/Calendar/addEvent.dart';
 import 'package:plant_it_forward/screens/home/Calendar/viewEvent.dart';
 import 'package:plant_it_forward/services/database.dart';
 import 'package:plant_it_forward/shared/loading.dart';
 import 'package:plant_it_forward/shared/ui_helpers.dart';
-import 'package:plant_it_forward/utils.dart';
+import 'package:plant_it_forward/utils/utils.dart';
 import 'package:provider/provider.dart';
 import 'package:table_calendar/table_calendar.dart';
 
