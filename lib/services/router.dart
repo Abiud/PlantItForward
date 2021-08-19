@@ -22,7 +22,7 @@ Widget generateScreen(Map<String, dynamic> data) {
     case ConversationRoute:
       return ConvScreen(
           userID: data['idTo'],
-          contact: data['idFrom'],
+          contactId: data['idFrom'],
           convoID: data['convId']);
     default:
       return Wrapper();

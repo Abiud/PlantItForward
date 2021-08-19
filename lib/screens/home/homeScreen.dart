@@ -49,8 +49,7 @@ class _HomeScreenState extends State<HomeScreen> {
     ///and it opened the app from terminated state
     FirebaseMessaging.instance.getInitialMessage().then((message) {
       if (message != null) {
-        final routeFromMessage = message.data["route"];
-        pushNewScreen(context, screen: generateScreen(routeFromMessage));
+        pushNewScreen(context, screen: generateScreen(message.data));
         // Navigator.of(context).pushNamed(routeFromMessage);
       }
     });
@@ -67,9 +66,9 @@ class _HomeScreenState extends State<HomeScreen> {
     ///When the app is in background but opened and user taps
     ///on the notification
     FirebaseMessaging.onMessageOpenedApp.listen((message) {
-      final routeFromMessage = message.data["route"];
       widget.persistentTabController.jumpToTab(0);
-      pushNewScreen(context, screen: generateScreen(routeFromMessage));
+      print("onMessageOpenedApp");
+      pushNewScreen(context, screen: generateScreen(message.data));
       // Navigator.of(context).pushNamed(routeFromMessage);
     });
   }

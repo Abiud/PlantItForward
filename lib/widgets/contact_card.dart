@@ -6,7 +6,7 @@ import 'package:plant_it_forward/shared/ui_helpers.dart';
 
 Widget buildContactCard(BuildContext context, UserData contact, String userID) {
   void createConversation(BuildContext context) {
-    String convoID = getConversationID(userID, contact.id);
+    String convoID = getGroupChatId(userID, contact.id);
     Navigator.of(context).pushReplacement(MaterialPageRoute(
         builder: (BuildContext context) => ConvScreen(
               userID: userID,

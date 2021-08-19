@@ -14,10 +14,14 @@ import 'package:provider/provider.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 
 class ConvScreen extends StatefulWidget {
-  const ConvScreen(
-      {required this.userID, required this.contact, required this.convoID});
   final String userID, convoID;
-  final UserData contact;
+  final String? contactId;
+  final UserData? contact;
+  const ConvScreen(
+      {required this.userID,
+      this.contact,
+      this.contactId,
+      required this.convoID});
 
   @override
   _ConvScreenState createState() => _ConvScreenState();
@@ -25,7 +29,7 @@ class ConvScreen extends StatefulWidget {
 
 class _ConvScreenState extends State<ConvScreen> {
   late String userID, convoID;
-  late UserData contact;
+  late Future<UserData> contact;
   bool selectMode = false;
   bool editMode = false;
   List<Message> selectedDocs = [];
@@ -45,7 +49,7 @@ class _ConvScreenState extends State<ConvScreen> {
     super.initState();
     userID = widget.userID;
     convoID = widget.convoID;
-    contact = widget.contact;
+    contact = getContact();
     itemPositionsListener.itemPositions.addListener(() {
       if (itemPositionsListener.itemPositions.value.last.index ==
           totalFetched - 1) _getMessages(scroll: true);
@@ -63,6 +67,21 @@ class _ConvScreenState extends State<ConvScreen> {
     _messagesController.close();
     itemPositionsListener.itemPositions.removeListener(() {});
     super.dispose();
+  }
+
+  Future<UserData> getContact() async {
+    if (widget.contact != null) return Future.value(widget.contact);
+    if (widget.contactId != null) {
+      late UserData data;
+      await FirebaseFirestore.instance
+          .collection("users")
+          .doc(widget.contactId)
+          .get()
+          .then((value) => data = UserData.fromSnapshot(value))
+          .onError((e, stackTrace) => Future.error(e.toString()));
+      return data;
+    }
+    return Future.error("No user or Id provided");
   }
 
   Stream<List<DocumentSnapshot>> listenToMessagesRealTime() {
@@ -128,93 +147,122 @@ class _ConvScreenState extends State<ConvScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        backgroundColor: secondaryBlue,
-        leadingWidth: 90,
-        centerTitle: false,
-        titleSpacing: 0,
-        leading: InkWell(
-          onTap: () => Navigator.pop(context),
-          borderRadius: BorderRadius.circular(30),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              Icon(Icons.arrow_back),
-              horizontalSpaceSmall,
-              widget.contact.photoUrl != null
-                  ? CircleAvatar(
-                      radius: 20,
-                      backgroundImage: NetworkImage(widget.contact.photoUrl!))
-                  : Container(
-                      height: 40,
-                      width: 40,
-                      decoration: BoxDecoration(
-                          color: Colors.grey.shade300,
-                          shape: BoxShape.circle,
-                          image: DecorationImage(
-                              image: AssetImage("assets/PIF-Logo_3_5.webp"),
-                              fit: BoxFit.cover)),
+    return FutureBuilder(
+      future: contact,
+      builder: (BuildContext context, AsyncSnapshot<UserData> snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return Material(child: Center(child: CircularProgressIndicator()));
+        } else {
+          if (snapshot.hasError) {
+            return Material(
+              child: Center(
+                child: Text("Error: ${snapshot.error}"),
+              ),
+            );
+          } else {
+            UserData contactData = snapshot.data!;
+            return Scaffold(
+              appBar: AppBar(
+                backgroundColor: secondaryBlue,
+                leadingWidth: 90,
+                centerTitle: false,
+                titleSpacing: 0,
+                leading: InkWell(
+                  onTap: () => Navigator.pop(context),
+                  borderRadius: BorderRadius.circular(30),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Icon(Icons.arrow_back),
+                      horizontalSpaceSmall,
+                      contactData.photoUrl != null
+                          ? CircleAvatar(
+                              radius: 20,
+                              backgroundImage:
+                                  NetworkImage(contactData.photoUrl!))
+                          : Container(
+                              height: 40,
+                              width: 40,
+                              decoration: BoxDecoration(
+                                  color: Colors.grey.shade300,
+                                  shape: BoxShape.circle,
+                                  image: DecorationImage(
+                                      image: AssetImage(
+                                          "assets/PIF-Logo_3_5.webp"),
+                                      fit: BoxFit.cover)),
+                            ),
+                    ],
+                  ),
+                ),
+                title: InkWell(
+                  borderRadius: BorderRadius.circular(5),
+                  onTap: () => Navigator.of(context).push(MaterialPageRoute(
+                      builder: (BuildContext context) => ViewProfile(
+                            profile: contactData,
+                          ))),
+                  child: Padding(
+                    padding:
+                        const EdgeInsets.symmetric(vertical: 12, horizontal: 4),
+                    child: Text(
+                      contactData.name,
+                      textAlign: TextAlign.left,
                     ),
-            ],
-          ),
-        ),
-        title: InkWell(
-          borderRadius: BorderRadius.circular(5),
-          onTap: () => Navigator.of(context).push(MaterialPageRoute(
-              builder: (BuildContext context) => ViewProfile(
-                    profile: contact,
-                  ))),
-          child: Padding(
-            padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 4),
-            child: Text(
-              widget.contact.name,
-              textAlign: TextAlign.left,
-            ),
-          ),
-        ),
-        actions: selectMode
-            ? [
-                selectedDocs.length == 1
-                    ? IconButton(
-                        onPressed: () => switchToEdit(), icon: Icon(Icons.edit))
-                    : Container(),
-                IconButton(
-                    onPressed: () {
-                      showDialog(
-                          context: context,
-                          builder: (BuildContext context) {
-                            if (selectedDocs.length > 0)
-                              return confirmationDialog(context);
-                            return AlertDialog(
-                              title: Text("No messages are selected"),
-                              actions: [
-                                TextButton(
-                                    onPressed: () =>
-                                        Navigator.of(context).pop(),
-                                    child: Text("Ok")),
-                              ],
-                            );
-                          });
-                    },
-                    icon: Icon(Icons.delete)),
-                IconButton(
-                    onPressed: () => cancelSelection(), icon: Icon(Icons.close))
-              ]
-            : [IconButton(onPressed: () => {}, icon: Icon(Icons.more_vert))],
-      ),
-      body: Container(
-        child: Column(
-          children: [buildMessages(), buildInput()],
-        ),
-      ),
+                  ),
+                ),
+                actions: selectMode
+                    ? [
+                        selectedDocs.length == 1
+                            ? IconButton(
+                                onPressed: () => switchToEdit(),
+                                icon: Icon(Icons.edit))
+                            : Container(),
+                        IconButton(
+                            onPressed: () {
+                              showDialog(
+                                  context: context,
+                                  builder: (BuildContext context) {
+                                    if (selectedDocs.length > 0)
+                                      return confirmationDialog(context);
+                                    return AlertDialog(
+                                      title: Text("No messages are selected"),
+                                      actions: [
+                                        TextButton(
+                                            onPressed: () =>
+                                                Navigator.of(context).pop(),
+                                            child: Text("Ok")),
+                                      ],
+                                    );
+                                  });
+                            },
+                            icon: Icon(Icons.delete)),
+                        IconButton(
+                            onPressed: () => cancelSelection(),
+                            icon: Icon(Icons.close))
+                      ]
+                    : [
+                        IconButton(
+                            onPressed: () => {}, icon: Icon(Icons.more_vert))
+                      ],
+              ),
+              body: Container(
+                child: Column(
+                  children: [
+                    buildMessages(contactData.id),
+                    buildInput(contactData.id)
+                  ],
+                ),
+              ),
+            );
+          }
+        }
+      },
     );
   }
 
-  Widget buildItem(int index, Message msg) {
+  Widget buildItem(int index, Message msg, String contactId) {
     if (!msg.read && msg.idTo == userID) {
-      updateMessageRead(msg, convoID);
+      updateMessageRead(msg, convoID, contactId);
     }
 
     if (msg.idFrom == userID) {
@@ -262,7 +310,6 @@ class _ConvScreenState extends State<ConvScreen> {
                         elevation: 1,
                         padding: const BubbleEdges.all(10.0),
                         alignment: Alignment.topRight,
-                        nip: BubbleNip.rightTop,
                         child: selectMode
                             ? SelectableText(msg.content,
                                 style: TextStyle(color: Colors.white))
@@ -336,7 +383,6 @@ class _ConvScreenState extends State<ConvScreen> {
                         elevation: 1,
                         padding: const BubbleEdges.all(10.0),
                         alignment: Alignment.topLeft,
-                        nip: BubbleNip.leftTop,
                         child: selectMode
                             ? SelectableText(msg.content,
                                 style: TextStyle(color: Colors.white))
@@ -388,7 +434,7 @@ class _ConvScreenState extends State<ConvScreen> {
     }
   }
 
-  Widget buildMessages() {
+  Widget buildMessages(String contactId) {
     return Expanded(
       child: StreamBuilder<List<DocumentSnapshot>>(
         stream: listenToMessagesRealTime(),
@@ -415,7 +461,7 @@ class _ConvScreenState extends State<ConvScreen> {
                       messageDocs[idx].id,
                       messageDocs[idx].reference,
                       idx);
-                  return buildItem(idx, msg);
+                  return buildItem(idx, msg, contactId);
                 },
                 itemCount: messageSnapshot.data!.length,
                 reverse: true,
@@ -429,41 +475,10 @@ class _ConvScreenState extends State<ConvScreen> {
           }
         },
       ),
-      // StreamBuilder(
-      // stream: FirebaseFirestore.instance
-      //     .collection('messages')
-      //     .doc(convoID)
-      //     .collection(convoID)
-      //     .orderBy('timestamp', descending: true)
-      //     .limit(20)
-      //     .snapshots(),
-      //   builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
-      //     if (snapshot.hasData) {
-      // return ScrollablePositionedList.builder(
-      //   padding: const EdgeInsets.symmetric(vertical: 10.0),
-      //   itemBuilder: (BuildContext context, int index) {
-      //     int idx = index >= 0 ? index : 0;
-      //     Message msg = Message.fromMap(
-      //         snapshot.data!.docs[idx].data() as Map<String, dynamic>,
-      //         snapshot.data!.docs[idx].id,
-      //         snapshot.data!.docs[idx].reference,
-      //         idx);
-      //     return buildItem(idx, msg);
-      //   },
-      //   itemCount: snapshot.data!.docs.length,
-      //   reverse: true,
-      //   itemScrollController: itemScrollController,
-      //   itemPositionsListener: itemPositionsListener,
-      // );
-      //     } else {
-      //       return Container();
-      //     }
-      //   },
-      // ),
     );
   }
 
-  Widget buildInput() {
+  Widget buildInput(String contactId) {
     return Container(
       margin: EdgeInsets.fromLTRB(8, 4, 8, 16),
       padding: EdgeInsets.symmetric(vertical: 0),
@@ -542,8 +557,9 @@ class _ConvScreenState extends State<ConvScreen> {
                     splashColor: primaryGreen, // Splash color
                     onTap: () {
                       if (editMode)
-                        onEditMessage().then((value) => leaveEditMode());
-                      onSendMessage(textEditingController.text);
+                        onEditMessage(contactId)
+                            .then((value) => leaveEditMode());
+                      onSendMessage(textEditingController.text, contactId);
                     },
                     child: SizedBox(
                         width: 50,
@@ -589,11 +605,11 @@ class _ConvScreenState extends State<ConvScreen> {
     );
   }
 
-  void onSendMessage(String content) {
+  void onSendMessage(String content, String contactId) {
     if (content.trim() != '') {
       textEditingController.clear();
       content = content.trim();
-      sendMessage(convoID, userID, contact.id, content,
+      sendMessage(convoID, userID, contactId, content,
           DateTime.now().millisecondsSinceEpoch.toString());
       itemScrollController.scrollTo(
           index: 0,
@@ -602,7 +618,7 @@ class _ConvScreenState extends State<ConvScreen> {
     }
   }
 
-  Future onEditMessage() {
+  Future onEditMessage(String contactId) {
     String txt = textEditingController.text;
     if (txt != '') {
       textEditingController.clear();
@@ -610,7 +626,7 @@ class _ConvScreenState extends State<ConvScreen> {
       return FirebaseFirestore.instance
           .collection('messages')
           .doc(convoID)
-          .collection(getConversationID(userID, contact.id))
+          .collection(getGroupChatId(userID, contactId))
           .doc(msgToEdit!.id)
           .update({"content": msgToEdit!.content, "edited": true});
     }
@@ -659,7 +675,7 @@ class _ConvScreenState extends State<ConvScreen> {
     });
   }
 
-  void updateMessageRead(Message msg, String convoID) {
+  void updateMessageRead(Message msg, String convoID, String contactId) {
     // check
     FirebaseFirestore.instance
         .collection('messages')
@@ -668,7 +684,7 @@ class _ConvScreenState extends State<ConvScreen> {
     FirebaseFirestore.instance
         .collection('messages')
         .doc(convoID)
-        .collection(getConversationID(userID, contact.id))
+        .collection(getGroupChatId(userID, contactId))
         .doc(msg.id)
         .update({"read": true});
   }
@@ -723,6 +739,7 @@ class _ConvScreenState extends State<ConvScreen> {
   }
 
   bool canEliminateAllMessages() {
-    return selectMode && Provider.of<UserData>(context).isAdmin();
+    return selectMode &&
+        Provider.of<UserData>(context, listen: false).isAdmin();
   }
 }

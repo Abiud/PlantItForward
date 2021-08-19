@@ -83,7 +83,6 @@ class ConvoListItem extends StatelessWidget {
   Map<dynamic, dynamic> lastMessage;
 
   late BuildContext context;
-  late String groupId;
   bool read = false;
 
   @override
@@ -94,7 +93,6 @@ class ConvoListItem extends StatelessWidget {
       read = lastMessage['read'] == null ? true : lastMessage['read'];
     }
     this.context = context;
-    groupId = getGroupChatId(user.id, peer.id);
 
     return Container(
         child: Column(mainAxisSize: MainAxisSize.min, children: <Widget>[

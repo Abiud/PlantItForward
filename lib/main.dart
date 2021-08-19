@@ -3,6 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -13,12 +14,12 @@ import 'package:plant_it_forward/screens/authenticate/authenticate.dart';
 import 'package:plant_it_forward/screens/home/nav_wrapper.dart';
 import 'package:plant_it_forward/services/auth.dart';
 import 'package:plant_it_forward/services/database.dart';
-import 'package:plant_it_forward/services/router.dart' as router;
 import 'package:plant_it_forward/utils/routing_constants.dart';
 import 'package:provider/provider.dart';
 
 ///Receive message when app is in background solution for on message
 Future<void> backgroundHandler(RemoteMessage message) async {
+  print("backgorund handler");
   print(message.data.toString());
   print(message.notification!.title);
 }
@@ -118,7 +119,7 @@ Future<void> saveTokenToDatabase(String token) async {
         .set({
       'token': token,
       'createdAt': FieldValue.serverTimestamp(),
-      'platform': Platform.operatingSystem
+      'platform': kIsWeb ? "Web" : Platform.operatingSystem
     });
   }
 }
