@@ -186,7 +186,7 @@ class _ConvScreenState extends State<ConvScreen> {
                           context: context,
                           builder: (BuildContext context) {
                             if (selectedDocs.length > 0)
-                              return confirmationDialog();
+                              return confirmationDialog(context);
                             return AlertDialog(
                               title: Text("No messages are selected"),
                               actions: [
@@ -568,7 +568,7 @@ class _ConvScreenState extends State<ConvScreen> {
     );
   }
 
-  Widget confirmationDialog() {
+  Widget confirmationDialog(BuildContext context) {
     return AlertDialog(
       title: Text("Do you want to delete the selected messages?"),
       content: Text(

@@ -38,15 +38,22 @@ exports.newMessage = functions.firestore
             notification: {
                 title: fromId,
                 body: change.after.data().lastMessage.content,
+                tag: context.params.docId,
             },
             data: {
                 route: "conversation",
                 idFrom: fromId,
                 idTo: toId,
+                convId: context.params.docId,
+                groupKey: context.params.docId,
             },
         };
 
-        const response = await fcm.sendToDevice(tokens, payload);
+        const options = {
+            collapseKey: context.params.docId,
+        };
+
+        const response = await fcm.sendToDevice(tokens, payload, options);
 
         const tokensToRemove = [];
 
